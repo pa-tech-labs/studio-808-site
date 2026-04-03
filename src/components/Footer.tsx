@@ -48,7 +48,6 @@ export default function Footer() {
           <div>
             <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Studios</p>
             {[
-              { to: '/studios',                label: 'All Studios' },
               { to: '/dj-studio',              label: 'DJ Studios' },
               { to: '/main-production-studio', label: 'Production Studio' },
               { to: '/podcast-studio',         label: 'Podcast Studio' },

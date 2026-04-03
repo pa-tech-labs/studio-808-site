@@ -5,9 +5,8 @@ import { ACCENT, F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
 const BOOK_URL = 'https://book.studio-808.com'
 
 const links = [
-  { to: '/studios',                  label: 'Studios' },
   { to: '/dj-studio',                label: 'DJ Studios' },
-  { to: '/main-production-studio',   label: 'Production' },
+  { to: '/main-production-studio',   label: 'Production Studio' },
   { to: '/about-us',                 label: 'About' },
   { to: '/contact',                  label: 'Contact' },
 ]

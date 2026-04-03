@@ -26,7 +26,7 @@ export default function NotFound() {
             >
               Back to Home
             </Link>
-            <Link to="/studios" style={btnSecondary}>
+            <Link to="/dj-studio" style={btnSecondary}>
               View Studios
             </Link>
           </div>

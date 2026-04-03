@@ -121,7 +121,7 @@ export default function Home() {
             >
               Book a Studio
             </a>
-            <Link to="/studios"
+            <Link to="/dj-studio"
               style={{ ...btnSecondary, fontSize: '15px', padding: '15px 36px' }}
             >
               View Studios

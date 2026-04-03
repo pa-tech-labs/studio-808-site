@@ -3,7 +3,6 @@ import { HelmetProvider } from 'react-helmet-async'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import Studios from './pages/Studios'
 import DjStudios from './pages/DjStudios'
 import ProductionStudio from './pages/ProductionStudio'
 import PodcastStudio from './pages/PodcastStudio'
@@ -19,7 +18,7 @@ export default function App() {
         <Nav />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/studios" element={<Studios />} />
+          <Route path="/studios" element={<Navigate to="/dj-studio" replace />} />
           <Route path="/dj-studio" element={<DjStudios />} />
           <Route path="/main-production-studio" element={<ProductionStudio />} />
           <Route path="/production-studio" element={<Navigate to="/main-production-studio" replace />} />
