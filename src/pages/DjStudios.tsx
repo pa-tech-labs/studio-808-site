@@ -107,7 +107,7 @@ export default function DjStudios() {
                 Studio {s.num}
               </span>
               <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 40px)', color: TEXT, margin: '0 0 12px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                {s.name}
+                {s.name.split(' — ')[0]} — <em>{s.name.split(' — ')[1]}</em>
               </h2>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '24px' }}>
                 <span style={{ fontFamily: F_BODY, fontSize: '15px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>

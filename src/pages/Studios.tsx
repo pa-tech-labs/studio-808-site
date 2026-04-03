@@ -110,7 +110,7 @@ export default function Studios() {
                   {s.subtitle}
                 </span>
                 <h2 className="mh" style={{ fontSize: 'clamp(24px, 3vw, 32px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
-                  {s.name}
+                  {s.name.split(' — ')[0]} — <em>{s.name.split(' — ')[1]}</em>
                 </h2>
                 <div style={{ display: 'flex', gap: '14px', marginBottom: '20px', alignItems: 'center' }}>
                   <span style={{ fontFamily: F_BODY, fontSize: '14px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>
