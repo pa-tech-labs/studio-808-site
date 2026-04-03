@@ -1,4 +1,5 @@
 import SEO from '../components/SEO'
+import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
@@ -15,10 +16,10 @@ const equipment = [
 ]
 
 const services = [
-  { name: 'Dry Hire', price: 'From £60/hr', desc: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
-  { name: 'With Engineer', price: 'From £100/hr', desc: 'Includes the room and one of our experienced house engineers. Perfect for recording sessions, vocal takes and artist production.' },
-  { name: 'Mixing & Mastering', price: '£150/track', desc: 'Professional mix and master from our in-house team. Delivery within agreed timeframe.' },
-  { name: 'Custom Track Production', price: '£600–£1,000', desc: 'Full custom track production from idea to finished master. Price varies by complexity and number of revisions.' },
+  { name: 'Dry Hire',               price: 'From £60/hr',    desc: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
+  { name: 'With Engineer',          price: 'From £100/hr',   desc: 'Includes the room and one of our experienced house engineers. Perfect for recording sessions and artist production.' },
+  { name: 'Mixing & Mastering',     price: '£150 / track',   desc: 'Professional mix and master from our in-house team. Delivery within agreed timeframe.' },
+  { name: 'Custom Track Production', price: '£600 – £1,000', desc: 'Full custom track production from idea to finished master. Price varies by complexity and revisions.' },
 ]
 
 export default function ProductionStudio() {
@@ -30,52 +31,66 @@ export default function ProductionStudio() {
         canonical="/main-production-studio"
       />
 
-      {/* Header */}
-      <section style={{ padding: '72px 24px 60px', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
-        <div style={{ maxWidth: '760px' }}>
-          <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Studio 4 — Production</span>
-          <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(32px, 5vw, 52px)', color: '#f0ede8', margin: '12px 0 20px', fontWeight: 400, lineHeight: 1.1 }}>Pro Production<br />Studio Chelmsford</h1>
-          <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '17px', color: 'rgba(240,237,232,0.55)', margin: 0, lineHeight: 1.65, maxWidth: '560px' }}>
-            Our flagship recording and production studio. First floor, acoustically treated, with an industry-standard signal chain from mic to monitor.
+      {/* Page header */}
+      <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <span style={sectionLabel}>Studio 4 — Production</span>
+          <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px' }}>
+            Pro Production <em>Studio Chelmsford.</em>
+          </h1>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
+            Our flagship recording and production room. Acoustically treated, first floor, with an industry-standard signal chain from mic to monitor.
           </p>
         </div>
       </section>
 
       {/* Main content */}
-      <section style={{ padding: '80px 24px', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '56px', alignItems: 'start' }}>
-          <div style={{ background: 'rgba(240,237,232,0.04)', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '12px', height: '400px', overflow: 'hidden' }}>
-            <img src="" alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <section className="section" style={{ borderBottom: `1px solid ${BORDER}`, background: BG }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'start' }}>
+          {/* Image */}
+          <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
+            <img
+              src=""
+              alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
           </div>
+          {/* Details */}
           <div>
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <div style={{ background: '#111111', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '8px', padding: '12px 16px' }}>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>Dry Hire</p>
-                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '20px', color: '#f0ede8', margin: 0 }}>From £60<span style={{ fontSize: '13px', color: 'rgba(240,237,232,0.4)' }}>/hr</span></p>
-              </div>
-              <div style={{ background: '#111111', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '8px', padding: '12px 16px' }}>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>With Engineer</p>
-                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '20px', color: '#f0ede8', margin: 0 }}>From £100<span style={{ fontSize: '13px', color: 'rgba(240,237,232,0.4)' }}>/hr</span></p>
-              </div>
-              <div style={{ background: '#111111', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '8px', padding: '12px 16px' }}>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>Capacity</p>
-                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '20px', color: '#f0ede8', margin: 0 }}>5 people</p>
-              </div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
+              {[
+                { label: 'Dry Hire',      value: 'From £60/hr' },
+                { label: 'With Engineer', value: 'From £100/hr' },
+                { label: 'Capacity',      value: '5 people' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '12px 18px' }}>
+                  <p style={{ fontFamily: F_BODY, fontSize: '10px', fontWeight: 600, color: 'rgba(240,237,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
+                  <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '20px', color: TEXT, margin: 0, fontWeight: 400 }}>{value}</p>
+                </div>
+              ))}
             </div>
-            <h2 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>Equipment</h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>Equipment</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {equipment.map(item => (
-                <li key={item} style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ color: '#e8355a', fontSize: '9px', flexShrink: 0 }}>●</span> {item}
+                <li key={item} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <span style={{ color: ACCENT, fontSize: '8px', flexShrink: 0, marginTop: '5px' }}>●</span> {item}
                 </li>
               ))}
             </ul>
-            <div style={{ background: 'rgba(240,237,232,0.04)', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '8px', padding: '16px 18px', marginBottom: '28px' }}>
-              <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '13px', color: 'rgba(240,237,232,0.6)', margin: 0, lineHeight: 1.6 }}>
-                <strong style={{ color: '#f0ede8' }}>Booking with an engineer?</strong> Please email <a href="mailto:info@studio-808.com" style={{ color: '#e8355a' }}>info@studio-808.com</a> at least 24 hours before your session to discuss your project and confirm requirements.
+
+            <div style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '18px 20px', marginBottom: '32px' }}>
+              <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
+                <strong style={{ color: TEXT }}>Booking with an engineer?</strong>{' '}
+                Email <a href="mailto:info@studio-808.com" style={{ color: ACCENT, textDecoration: 'none' }}>info@studio-808.com</a> at least 24 hours before your session.
               </p>
             </div>
-            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#e8355a', color: '#fff', textDecoration: 'none', fontFamily: '"DM Sans", sans-serif', fontSize: '15px', fontWeight: 600, padding: '13px 28px', borderRadius: '8px' }}>
+
+            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+              style={btnPrimary}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
               Book Studio 4
             </a>
           </div>
@@ -83,15 +98,20 @@ export default function ProductionStudio() {
       </section>
 
       {/* Services */}
-      <section style={{ padding: '80px 24px', background: '#111111', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(26px, 3.5vw, 38px)', color: '#f0ede8', margin: '0 0 40px', fontWeight: 400 }}>Services &amp; Pricing</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+      <section className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '48px' }}>
+            <span style={sectionLabel}>Services</span>
+            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Services &amp; <em>Pricing.</em>
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
             {services.map(svc => (
-              <div key={svc.name} style={{ background: '#080808', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '12px', padding: '28px' }}>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>{svc.name}</p>
-                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '24px', color: '#f0ede8', margin: '0 0 12px', fontWeight: 400 }}>{svc.price}</p>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.55)', margin: 0, lineHeight: 1.6 }}>{svc.desc}</p>
+              <div key={svc.name} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
+                <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{svc.name}</span>
+                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '26px', color: TEXT, margin: '0 0 12px', fontWeight: 400, lineHeight: 1.1 }}>{svc.price}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{svc.desc}</p>
               </div>
             ))}
           </div>

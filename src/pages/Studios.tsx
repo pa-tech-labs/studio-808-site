@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
+import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary, btnSecondary } from '../styles'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
@@ -22,7 +23,7 @@ const studios = [
     capacity: 'Up to 4 people',
     href: '/dj-studio',
     highlights: ['Pioneer DDJ-RX3', 'Yamaha HS8 monitors (production desk)', 'KRK RP5 G5 (DJ booth)', 'Rode NT1 microphone', 'Focusrite Scarlett 4i4', 'NI Komplete Kontrol M32'],
-    desc: 'Chelmsford\'s most versatile studio. Switch between DJing and production without moving rooms — ideal for producers who also play live sets.',
+    desc: "Chelmsford's most versatile studio. Switch between DJing and production without moving rooms — ideal for producers who also play live sets.",
   },
   {
     id: 'studio-3',
@@ -55,52 +56,84 @@ export default function Studios() {
         canonical="/studios"
       />
 
-      {/* Header */}
-      <section style={{ padding: '72px 24px 60px', textAlign: 'center', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
+      {/* Page header */}
+      <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}`, textAlign: 'center' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-          <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(32px, 5vw, 52px)', color: '#f0ede8', margin: '0 0 16px', fontWeight: 400 }}>Our Studios</h1>
-          <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '17px', color: 'rgba(240,237,232,0.55)', margin: '0 0 32px', lineHeight: 1.6 }}>
-            Four fully-equipped studios, one location. From solo DJ practice to full band recording — we have a room for every creative need.
+          <span style={sectionLabel}>Studios</span>
+          <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 60px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em' }}>
+            Our Studios. <em>Your craft.</em>
+          </h1>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 36px', lineHeight: 1.65 }}>
+            Four fully-equipped studios, one location. From solo DJ practice to full-band recording — we have a room for every creative need.
           </p>
-          <a href={BOOK_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#e8355a', color: '#fff', textDecoration: 'none', fontFamily: '"DM Sans", sans-serif', fontSize: '15px', fontWeight: 600, padding: '13px 28px', borderRadius: '8px' }}>
+          <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+            style={btnPrimary}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
             Book Online
           </a>
         </div>
       </section>
 
       {/* Studio cards */}
-      <section style={{ padding: '64px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <section style={{ padding: '80px 24px', background: BG }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {studios.map((s, idx) => (
-            <div key={s.id} style={{ background: '#111111', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '12px', overflow: 'hidden', display: 'grid', gridTemplateColumns: idx % 2 === 0 ? '1fr 1.4fr' : '1.4fr 1fr' }}>
-              <div style={{ background: 'rgba(240,237,232,0.04)', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', order: idx % 2 === 0 ? 0 : 1 }}>
-                <img src="" alt={`${s.name} — ${s.subtitle} at Studio 808 Chelmsford`} style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '320px' }} />
+            <div
+              key={s.id}
+              style={{
+                background: SURF,
+                border: `1px solid ${BORDER}`,
+                borderRadius: '16px',
+                overflow: 'hidden',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              }}
+            >
+              {/* Photo */}
+              <div style={{
+                background: 'rgba(240,237,232,0.03)',
+                minHeight: '340px',
+                overflow: 'hidden',
+                order: idx % 2 === 0 ? 0 : 1,
+              }}>
+                <img
+                  src=""
+                  alt={`${s.name} — ${s.subtitle} at Studio 808 Chelmsford`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '340px', display: 'block' }}
+                />
               </div>
-              <div style={{ padding: '40px', order: idx % 2 === 0 ? 1 : 0 }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.subtitle}</span>
+              {/* Content */}
+              <div style={{ padding: '44px 40px', order: idx % 2 === 0 ? 1 : 0 }}>
+                <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '10px' }}>
+                  {s.subtitle}
+                </span>
+                <h2 className="mh" style={{ fontSize: 'clamp(24px, 3vw, 32px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+                  {s.name}
+                </h2>
+                <div style={{ display: 'flex', gap: '14px', marginBottom: '20px', alignItems: 'center' }}>
+                  <span style={{ fontFamily: F_BODY, fontSize: '14px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>
+                  <span style={{ color: BORDER, fontSize: '16px' }}>·</span>
+                  <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>{s.capacity}</span>
                 </div>
-                <h2 style={{ fontFamily: '"DM Serif Display", serif', fontSize: '28px', color: '#f0ede8', margin: '0 0 6px', fontWeight: 400 }}>{s.name}</h2>
-                <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: '#e8355a', fontWeight: 600 }}>{s.price}</span>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.4)' }}>·</span>
-                  <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.5)' }}>{s.capacity}</span>
-                </div>
-                <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '15px', color: 'rgba(240,237,232,0.6)', lineHeight: 1.65, margin: '0 0 24px' }}>{s.desc}</p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.7, margin: '0 0 24px' }}>{s.desc}</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
                   {s.highlights.map(h => (
-                    <li key={h} style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '13px', color: 'rgba(240,237,232,0.65)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#e8355a', fontSize: '10px' }}>●</span> {h}
+                    <li key={h} style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.65)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                      <span style={{ color: ACCENT, fontSize: '8px', flexShrink: 0, marginTop: '5px' }}>●</span> {h}
                     </li>
                   ))}
                 </ul>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  <a href={BOOK_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#e8355a', color: '#fff', textDecoration: 'none', fontFamily: '"DM Sans", sans-serif', fontSize: '14px', fontWeight: 600, padding: '11px 24px', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+                    style={btnPrimary}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                  >
                     Book Now
                   </a>
-                  <Link to={s.href} style={{ background: 'rgba(240,237,232,0.07)', color: '#f0ede8', textDecoration: 'none', fontFamily: '"DM Sans", sans-serif', fontSize: '14px', fontWeight: 500, padding: '11px 24px', borderRadius: '8px', border: '1px solid rgba(240,237,232,0.1)' }}>
-                    Full Details
-                  </Link>
+                  <Link to={s.href} style={btnSecondary}>Full Details</Link>
                 </div>
               </div>
             </div>

@@ -1,10 +1,12 @@
 import SEO from '../components/SEO'
+import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
 const studios = [
   {
     id: 'studio-1',
+    num: '01',
     name: 'Studio 1 — Performer',
     price: 'From £10/hr',
     capacity: 'Up to 8 people',
@@ -21,10 +23,11 @@ const studios = [
   },
   {
     id: 'studio-2',
+    num: '02',
     name: 'Studio 2 — Creator',
     price: 'From £8/hr',
     capacity: 'Up to 4 people',
-    desc: 'Chelmsford\'s most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio\'s interface and monitors.',
+    desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
     equipment: [
       'Pioneer DDJ-RX3 DJ controller',
       'Yamaha HS8 studio monitors (production desk)',
@@ -39,6 +42,7 @@ const studios = [
   },
   {
     id: 'studio-3',
+    num: '03',
     name: 'Studio 3 — Pro DJ',
     price: 'From £14/hr',
     capacity: 'Up to 8 people',
@@ -68,49 +72,67 @@ export default function DjStudios() {
         canonical="/dj-studio"
       />
 
-      {/* Header */}
-      <section style={{ padding: '72px 24px 60px', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
-        <div style={{ maxWidth: '760px' }}>
-          <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>DJ Studios</span>
-          <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(32px, 5vw, 52px)', color: '#f0ede8', margin: '12px 0 20px', fontWeight: 400, lineHeight: 1.1 }}>Three Rooms,<br />One Standard</h1>
-          <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '17px', color: 'rgba(240,237,232,0.55)', margin: 0, lineHeight: 1.65, maxWidth: '560px' }}>
-            From beginner to touring DJ — Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, with no deposit required.
+      {/* Page header */}
+      <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <span style={sectionLabel}>DJ Studios</span>
+          <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px' }}>
+            Three Rooms. <em>One Standard.</em>
+          </h1>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
+            From beginner to touring DJ — Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, no deposit required.
           </p>
         </div>
       </section>
 
       {/* Studio sections */}
       {studios.map((s, idx) => (
-        <section key={s.id} style={{ padding: '80px 24px', borderBottom: '1px solid rgba(240,237,232,0.06)', background: idx % 2 === 1 ? '#111111' : '#080808' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '56px', alignItems: 'start' }}>
+        <section
+          key={s.id}
+          className="section"
+          style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 1 ? SURF : BG }}
+        >
+          <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'start' }}>
             {/* Image */}
-            <div style={{ background: 'rgba(240,237,232,0.04)', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '12px', height: '360px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src="" alt={`${s.name} DJ studio at Studio 808, Chelmsford`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
+              <img
+                src=""
+                alt={`${s.name} DJ studio at Studio 808, Chelmsford`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
             </div>
             {/* Content */}
             <div>
-              <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Studio 0{idx + 1}</span>
-              <h2 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(26px, 3.5vw, 36px)', color: '#f0ede8', margin: '10px 0 8px', fontWeight: 400 }}>{s.name}</h2>
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '15px', color: '#e8355a', fontWeight: 600 }}>{s.price}</span>
-                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '15px', color: 'rgba(240,237,232,0.4)' }}>·</span>
-                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.5)' }}>{s.capacity}</span>
+              <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '12px' }}>
+                Studio {s.num}
+              </span>
+              <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 40px)', color: TEXT, margin: '0 0 12px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                {s.name}
+              </h2>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '24px' }}>
+                <span style={{ fontFamily: F_BODY, fontSize: '15px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>
+                <span style={{ color: BORDER, fontSize: '16px' }}>·</span>
+                <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>{s.capacity}</span>
               </div>
-              <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '15px', color: 'rgba(240,237,232,0.6)', lineHeight: 1.7, margin: '0 0 28px' }}>{s.desc}</p>
-              <h3 style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 14px' }}>Equipment</h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.7, margin: '0 0 28px' }}>{s.desc}</p>
+              <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>Equipment</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {s.equipment.map(item => (
-                  <li key={item} style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ color: '#e8355a', fontSize: '9px', flexShrink: 0 }}>●</span> {item}
+                  <li key={item} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <span style={{ color: ACCENT, fontSize: '8px', flexShrink: 0, marginTop: '5px' }}>●</span> {item}
                   </li>
                 ))}
               </ul>
               {s.note && (
-                <div style={{ background: 'rgba(232,53,90,0.08)', border: '1px solid rgba(232,53,90,0.2)', borderRadius: '8px', padding: '12px 14px', marginBottom: '24px' }}>
-                  <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '13px', color: 'rgba(240,237,232,0.6)', margin: 0 }}>⚠ {s.note}</p>
+                <div style={{ background: 'rgba(232,53,90,0.07)', border: '1px solid rgba(232,53,90,0.18)', borderRadius: '10px', padding: '12px 16px', marginBottom: '28px' }}>
+                  <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.6)', margin: 0 }}>⚠ {s.note}</p>
                 </div>
               )}
-              <a href={BOOK_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#e8355a', color: '#fff', textDecoration: 'none', fontFamily: '"DM Sans", sans-serif', fontSize: '15px', fontWeight: 600, padding: '13px 28px', borderRadius: '8px' }}>
+              <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+                style={btnPrimary}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
                 Book {s.name.split(' — ')[0]}
               </a>
             </div>

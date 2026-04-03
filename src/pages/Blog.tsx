@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
+import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel } from '../styles'
 
 const posts = [
   {
@@ -48,31 +49,44 @@ export default function Blog() {
         canonical="/blog"
       />
 
-      <section style={{ padding: '72px 24px 60px', borderBottom: '1px solid rgba(240,237,232,0.06)' }}>
-        <div style={{ maxWidth: '760px' }}>
-          <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Blog</span>
-          <h1 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(32px, 5vw, 52px)', color: '#f0ede8', margin: '12px 0 20px', fontWeight: 400 }}>Articles &amp; Guides</h1>
-          <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '17px', color: 'rgba(240,237,232,0.55)', margin: 0, lineHeight: 1.65 }}>
+      {/* Page header */}
+      <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <span style={sectionLabel}>Blog</span>
+          <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px' }}>
+            Articles &amp; <em>Guides.</em>
+          </h1>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
             Tips, guides and stories from Studio 808 — Chelmsford's home for DJs, producers and podcasters since 2014.
           </p>
         </div>
       </section>
 
-      <section style={{ padding: '64px 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {posts.map(post => (
+      {/* Posts */}
+      <section className="section" style={{ background: BG }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {posts.map((post, idx) => (
             <Link
               key={post.slug}
               to={`/blog/${post.slug}`}
-              style={{ textDecoration: 'none', display: 'block', background: '#111111', border: '1px solid rgba(240,237,232,0.08)', borderRadius: '12px', padding: '28px 32px', transition: 'border-color 0.15s' }}
+              style={{
+                textDecoration: 'none',
+                display: 'block',
+                background: idx % 2 === 0 ? SURF : BG,
+                border: `1px solid ${BORDER}`,
+                borderRadius: '16px',
+                padding: '32px 36px',
+              }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '10px' }}>
-                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '11px', fontWeight: 600, color: '#e8355a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{post.category}</span>
-                <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '12px', color: 'rgba(240,237,232,0.3)', flexShrink: 0 }}>{post.date}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '12px' }}>
+                <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{post.category}</span>
+                <span style={{ fontFamily: F_BODY, fontSize: '12px', color: 'rgba(240,237,232,0.3)', flexShrink: 0 }}>{post.date}</span>
               </div>
-              <h2 style={{ fontFamily: '"DM Serif Display", serif', fontSize: 'clamp(18px, 2.5vw, 22px)', color: '#f0ede8', margin: '0 0 10px', fontWeight: 400 }}>{post.title}</h2>
-              <p style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '14px', color: 'rgba(240,237,232,0.5)', margin: '0 0 16px', lineHeight: 1.6 }}>{post.excerpt}</p>
-              <span style={{ fontFamily: '"DM Sans", sans-serif', fontSize: '13px', color: '#e8355a', fontWeight: 500 }}>Read more →</span>
+              <h2 className="mh" style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+                {post.title}
+              </h2>
+              <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: '0 0 18px', lineHeight: 1.6 }}>{post.excerpt}</p>
+              <span style={{ fontFamily: F_BODY, fontSize: '13px', color: ACCENT, fontWeight: 600 }}>Read more →</span>
             </Link>
           ))}
         </div>
