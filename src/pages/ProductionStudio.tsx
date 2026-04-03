@@ -1,5 +1,11 @@
 import SEO from '../components/SEO'
+import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+
+const STUDIO4_IMAGES = [
+  '/images/studios/studio4-production-1.jpg',
+  '/images/studios/studio4-production-2.jpg',
+]
 
 const BOOK_URL = 'https://book.studio-808.com'
 
@@ -48,13 +54,7 @@ export default function ProductionStudio() {
       <section className="section" style={{ borderBottom: `1px solid ${BORDER}`, background: BG }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'start' }}>
           {/* Image */}
-          <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
-            <img
-              src="/images/studios/studio4-production-1.jpg"
-              alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
-          </div>
+          <StudioCarousel images={STUDIO4_IMAGES} alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073" />
           {/* Details */}
           <div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
