@@ -74,6 +74,7 @@ export default function DjStudios() {
         title="DJ Studios Chelmsford | Studio 808 — From £8/hr"
         description="Three professional DJ studios in Chelmsford from £8/hr. Pioneer CDJ-3000s, DJM-A9, XDJ-AZ, Technics 1210s. Book online — no deposit required."
         canonical="/dj-studio"
+        image="/images/studios/studio3-prodj-1.jpg"
       />
 
       {/* Page header */}

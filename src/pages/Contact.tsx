@@ -27,6 +27,7 @@ export default function Contact() {
         title="Contact Studio 808 | Chelmsford Music Studios"
         description="Get in touch with Studio 808. Email info@studio-808.com or book a studio online. Unit 11–11A Robjohns House, Navigation Road, Chelmsford CM2 6ND."
         canonical="/contact"
+        image="/images/studios/studio1-performer-1.jpg"
       />
 
       {/* Page header */}

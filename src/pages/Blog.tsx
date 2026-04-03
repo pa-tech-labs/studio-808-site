@@ -47,6 +47,7 @@ export default function Blog() {
         title="Blog | Studio 808 Chelmsford — DJing, Production & Podcasting Tips"
         description="Articles on DJing, music production and podcasting from the team at Studio 808, Chelmsford's creative hub since 2014."
         canonical="/blog"
+        image="/images/studios/studio3-prodj-1.jpg"
       />
 
       {/* Page header */}

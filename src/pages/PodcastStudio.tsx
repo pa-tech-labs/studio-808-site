@@ -17,8 +17,9 @@ export default function PodcastStudio() {
     <>
       <SEO
         title="Podcast Studio Chelmsford | PA Media — Professional Podcast Recording"
-        description="Professional podcast recording and production in Chelmsford. Studio 808's podcast services are now provided by PA Media — our sister company specialising in content creation."
+        description="Podcast recording in Chelmsford via PA Media, Studio 808's sister company. Professional studio, editing, video podcasts and distribution support."
         canonical="/podcast-studio"
+        image="/images/studios/studio4-production-1.jpg"
       />
 
       {/* Page header */}

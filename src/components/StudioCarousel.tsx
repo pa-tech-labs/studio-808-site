@@ -60,6 +60,7 @@ export default function StudioCarousel({ images, alt }: Props) {
       <img
         src={images[idx]}
         alt={`${alt} — photo ${idx + 1} of ${images.length}`}
+        loading="lazy"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
 

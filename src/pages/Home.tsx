@@ -80,6 +80,7 @@ export default function Home() {
         title="Studio 808 | Chelmsford's Creative Music Studios"
         description="DJ studios, production studio and content creation in Chelmsford city centre. Book online from £8/hr. Pioneer CDJ-3000s, Neve 1073, Neumann U87 and more."
         canonical="/"
+        image="/images/studios/studio3-prodj-1.jpg"
       />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -164,7 +165,7 @@ export default function Home() {
               <div key={s.name} className="hover-lift" style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {/* Photo */}
                 <div style={{ background: 'rgba(240,237,232,0.04)', height: '210px', flexShrink: 0, overflow: 'hidden' }}>
-                  <img src={s.image} alt={`${s.name} — ${s.sub} at Studio 808 Chelmsford`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <img src={s.image} alt={`${s.name} — ${s.sub} at Studio 808 Chelmsford`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
                 {/* Body */}
                 <div style={{ padding: '22px', flex: 1, display: 'flex', flexDirection: 'column' }}>

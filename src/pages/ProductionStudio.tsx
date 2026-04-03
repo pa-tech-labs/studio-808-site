@@ -35,6 +35,7 @@ export default function ProductionStudio() {
         title="Production Studio Chelmsford | Studio 808 — Neve 1073 · Neumann U87"
         description="Professional recording studio in Chelmsford. Focal SM9 monitors, Neve 1073, UA Apollo 8x, Neumann U87. Dry hire from £60/hr or with engineer from £100/hr."
         canonical="/main-production-studio"
+        image="/images/studios/studio4-production-1.jpg"
       />
 
       {/* Page header */}

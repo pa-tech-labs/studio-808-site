@@ -17,6 +17,7 @@ export default function About() {
         title="About Studio 808 | Chelmsford's Creative Hub Since 2014"
         description="Studio 808 was founded in 2014 with a simple mission: make everyone feel welcome. Chelmsford's home for DJs, producers, podcasters and content creators."
         canonical="/about-us"
+        image="/images/studios/studio1-performer-1.jpg"
       />
 
       {/* Page header */}
@@ -49,7 +50,7 @@ export default function About() {
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'center' }}>
           {/* Image */}
           <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
-            <img src="/images/studios/studio3-prodj-2.jpg" alt="Studio 808 Chelmsford — reception and studio entrance" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/images/studios/studio3-prodj-2.jpg" alt="Studio 808 Chelmsford — reception and studio entrance" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           {/* Text */}
           <div>
