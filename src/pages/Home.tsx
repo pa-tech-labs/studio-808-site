@@ -85,16 +85,20 @@ export default function Home() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', overflow: 'hidden', background: '#080808',
       }}>
-        {/* Dark photo placeholder — replace src with real image */}
-        <img
-          src=""
-          alt="Studio 808 DJ studio — Pioneer CDJ-3000s and DJM-A9"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
-        />
-        {/* Gradient overlay */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.5) 60%, rgba(13,13,13,1) 100%)' }} />
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
 
-        <div style={{ position: 'relative', maxWidth: '860px', padding: '0 24px' }}>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '860px', padding: '0 24px' }}>
           <span style={{ ...sectionLabel, marginBottom: '28px' }}>Chelmsford, Essex · Est. 2014</span>
           <h1
             className="mh"
