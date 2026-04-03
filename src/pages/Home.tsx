@@ -15,6 +15,7 @@ const studios = [
   {
     name: 'Studio 1',
     sub: 'Performer',
+    image: '/images/studios/studio1-performer-1.jpg',
     price: 'From £10/hr',
     desc: 'Pioneer AlphaTheta XDJ-AZ, streaming-ready. No laptop needed.',
     tags: ['Streaming', 'Air Con', 'Accessible'],
@@ -23,6 +24,7 @@ const studios = [
   {
     name: 'Studio 2',
     sub: 'Creator',
+    image: '/images/studios/studio2-creator-1.jpg',
     price: 'From £8/hr',
     desc: 'Hybrid DJ/production — Pioneer RX3, Yamaha HS8 monitors, Rode NT1.',
     tags: ['DJ + Production', 'Recording', 'Self-serve'],
@@ -31,6 +33,7 @@ const studios = [
   {
     name: 'Studio 3',
     sub: 'Pro DJ',
+    image: '/images/studios/studio3-prodj-1.jpg',
     price: 'From £14/hr',
     desc: 'CDJ-3000s, DJM-A9, Technics 1210s. Club booth. 4K content-ready.',
     tags: ['CDJ-3000', 'Vinyl', '4K Camera'],
@@ -39,6 +42,7 @@ const studios = [
   {
     name: 'Studio 4',
     sub: 'Production',
+    image: '/images/studios/studio4-production-1.jpg',
     price: 'From £60/hr',
     desc: 'Focal SM9, Neve 1073, UA Apollo 8x, Neumann U87. Engineer available.',
     tags: ['Neve 1073', 'U87 Mic', 'Mix & Master'],
@@ -160,7 +164,7 @@ export default function Home() {
               <div key={s.name} className="hover-lift" style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {/* Photo */}
                 <div style={{ background: 'rgba(240,237,232,0.04)', height: '210px', flexShrink: 0, overflow: 'hidden' }}>
-                  <img src="" alt={`${s.name} — ${s.sub} at Studio 808 Chelmsford`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <img src={s.image} alt={`${s.name} — ${s.sub} at Studio 808 Chelmsford`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
                 {/* Body */}
                 <div style={{ padding: '22px', flex: 1, display: 'flex', flexDirection: 'column' }}>

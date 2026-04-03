@@ -8,6 +8,7 @@ const studios = [
     id: 'studio-1',
     num: '01',
     name: 'Studio 1 — Performer',
+    image: '/images/studios/studio1-performer-1.jpg',
     price: 'From £10/hr',
     capacity: 'Up to 8 people',
     desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library — no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
@@ -25,6 +26,7 @@ const studios = [
     id: 'studio-2',
     num: '02',
     name: 'Studio 2 — Creator',
+    image: '/images/studios/studio2-creator-1.jpg',
     price: 'From £8/hr',
     capacity: 'Up to 4 people',
     desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
@@ -44,6 +46,7 @@ const studios = [
     id: 'studio-3',
     num: '03',
     name: 'Studio 3 — Pro DJ',
+    image: '/images/studios/studio3-prodj-1.jpg',
     price: 'From £14/hr',
     capacity: 'Up to 8 people',
     desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
@@ -96,7 +99,7 @@ export default function DjStudios() {
             {/* Image */}
             <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
               <img
-                src=""
+                src={s.image}
                 alt={`${s.name} DJ studio at Studio 808, Chelmsford`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
               />

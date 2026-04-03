@@ -49,7 +49,7 @@ export default function About() {
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'center' }}>
           {/* Image */}
           <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
-            <img src="" alt="Studio 808 Chelmsford — reception and studio entrance" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/images/studios/studio3-prodj-2.jpg" alt="Studio 808 Chelmsford — reception and studio entrance" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           {/* Text */}
           <div>

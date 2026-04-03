@@ -9,6 +9,7 @@ const studios = [
     id: 'studio-1',
     name: 'Studio 1 — Performer',
     subtitle: 'DJ Studio',
+    image: '/images/studios/studio1-performer-2.jpg',
     price: 'From £10/hr',
     capacity: 'Up to 8 people',
     href: '/dj-studio',
@@ -19,6 +20,7 @@ const studios = [
     id: 'studio-2',
     name: 'Studio 2 — Creator',
     subtitle: 'Hybrid DJ & Production',
+    image: '/images/studios/studio2-creator-2.jpg',
     price: 'From £8/hr',
     capacity: 'Up to 4 people',
     href: '/dj-studio',
@@ -29,6 +31,7 @@ const studios = [
     id: 'studio-3',
     name: 'Studio 3 — Pro DJ',
     subtitle: 'Club Booth',
+    image: '/images/studios/studio3-prodj-2.jpg',
     price: 'From £14/hr',
     capacity: 'Up to 8 people',
     href: '/dj-studio',
@@ -39,6 +42,7 @@ const studios = [
     id: 'studio-4',
     name: 'Studio 4 — Pro Production',
     subtitle: 'Recording & Production Studio',
+    image: '/images/studios/studio4-production-2.jpg',
     price: 'From £60/hr',
     capacity: 'Up to 5 people',
     href: '/main-production-studio',
@@ -99,7 +103,7 @@ export default function Studios() {
                 order: idx % 2 === 0 ? 0 : 1,
               }}>
                 <img
-                  src=""
+                  src={s.image}
                   alt={`${s.name} — ${s.subtitle} at Studio 808 Chelmsford`}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '340px', display: 'block' }}
                 />

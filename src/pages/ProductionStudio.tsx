@@ -50,7 +50,7 @@ export default function ProductionStudio() {
           {/* Image */}
           <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
             <img
-              src=""
+              src="/images/studios/studio4-production-1.jpg"
               alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
