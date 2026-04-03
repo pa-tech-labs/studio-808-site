@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/((?!api/.*).*)", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/production-studio", "destination": "/main-production-studio", "permanent": true }
+  ]
+}

@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: #080808;
+    color: #f0ede8;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #080808;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .text-primary { color: #f0ede8; }
+  .text-muted { color: rgba(240, 237, 232, 0.5); }
+  .border-subtle { border-color: rgba(240, 237, 232, 0.08); }
+}
