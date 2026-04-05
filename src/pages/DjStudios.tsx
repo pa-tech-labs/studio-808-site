@@ -31,7 +31,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
     name: 'Studio 1 — Performer',
     images: STATIC_IMAGES['01'],
     price: '£25/hr · 2hr min',
-    capacity: 'Up to 8 people',
+    capacity: '8',
     desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library — no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
     equipment: [
       'Pioneer AlphaTheta XDJ-AZ (standalone)',
@@ -49,7 +49,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
     name: 'Studio 2 — Creator',
     images: STATIC_IMAGES['02'],
     price: '£35/hr · 2hr min',
-    capacity: 'Up to 4 people',
+    capacity: '4',
     desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
     equipment: [
       'Pioneer DDJ-RX3 DJ controller',
@@ -69,7 +69,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
     name: 'Studio 3 — Pro DJ',
     images: STATIC_IMAGES['03'],
     price: '£35/hr · 2hr min',
-    capacity: 'Up to 8 people',
+    capacity: '8',
     desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
     equipment: [
       '2× Pioneer CDJ-3000 media players',
@@ -89,14 +89,16 @@ const DEFAULT_STUDIOS: StudioData[] = [
 
 function mapSanityStudio(s: SanityStudio): StudioData {
   const staticImgs = STATIC_IMAGES[s.studioNumber] ?? []
-  const sanityImgs = (s.galleryImages ?? [])
+  const heroImg = s.heroImage ? sanityImageUrl(s.heroImage, 900) : null
+  const galleryImgs = (s.galleryImages ?? [])
     .map(img => sanityImageUrl(img, 900))
     .filter((u): u is string => u !== null)
+  const allSanityImgs = [...(heroImg ? [heroImg] : []), ...galleryImgs]
   return {
     id: `studio-${s.studioNumber}`,
     num: s.studioNumber,
     name: s.name,
-    images: sanityImgs.length > 0 ? sanityImgs : staticImgs,
+    images: allSanityImgs.length > 0 ? allSanityImgs : staticImgs,
     price: formatPrice(s),
     capacity: s.capacity,
     desc: s.description,
@@ -161,7 +163,7 @@ export default function DjStudios() {
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '24px' }}>
                 <span style={{ fontFamily: F_BODY, fontSize: '15px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>
                 <span style={{ color: BORDER, fontSize: '16px' }}>·</span>
-                <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>{s.capacity}</span>
+                <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>{s.capacity ? `Up to ${s.capacity} people` : ''}</span>
               </div>
               <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.7, margin: '0 0 28px' }}>{s.desc}</p>
               <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>Equipment</p>

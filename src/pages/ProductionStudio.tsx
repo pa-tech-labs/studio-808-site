@@ -41,7 +41,7 @@ interface Studio4Data {
 const DEFAULT_DATA: Studio4Data = {
   images: STUDIO4_IMAGES,
   price: '£55/hr · 2hr min',
-  capacity: '5 people',
+  capacity: '5',
   equipment: DEFAULT_EQUIPMENT,
   services: DEFAULT_SERVICES,
 }
@@ -55,12 +55,14 @@ export default function ProductionStudio() {
         const studio4 = all.find(s => s.sortOrder === 4)
         if (!studio4) return
 
-        const sanityImgs = (studio4.galleryImages ?? [])
+        const heroImg = studio4.heroImage ? sanityImageUrl(studio4.heroImage, 900) : null
+        const galleryImgs = (studio4.galleryImages ?? [])
           .map(img => sanityImageUrl(img, 900))
           .filter((u): u is string => u !== null)
+        const allSanityImgs = [...(heroImg ? [heroImg] : []), ...galleryImgs]
 
         setData({
-          images: sanityImgs.length > 0 ? sanityImgs : STUDIO4_IMAGES,
+          images: allSanityImgs.length > 0 ? allSanityImgs : STUDIO4_IMAGES,
           price: formatPrice(studio4),
           capacity: studio4.capacity ?? DEFAULT_DATA.capacity,
           equipment: studio4.equipment?.length ? studio4.equipment : DEFAULT_EQUIPMENT,
@@ -103,7 +105,7 @@ export default function ProductionStudio() {
               {[
                 { label: 'Dry Hire',      value: data.price },
                 { label: 'With Engineer', value: 'From £100/hr' },
-                { label: 'Capacity',      value: data.capacity },
+                { label: 'Capacity',      value: data.capacity ? `Up to ${data.capacity} people` : '' },
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '12px 18px' }}>
                   <p style={{ fontFamily: F_BODY, fontSize: '10px', fontWeight: 600, color: 'rgba(240,237,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
