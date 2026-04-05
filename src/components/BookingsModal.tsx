@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ACCENT, BG, BORDER, F_BODY, MUTED, SURF, TEXT } from '../styles'
+import { supabase } from '../lib/supabase'
 
 const DASHBOARD_URL = 'https://book.studio-808.com/dashboard'
 
@@ -29,24 +30,23 @@ export default function BookingsModal({ onClose }: Props) {
     setError(null)
 
     try {
-      const res = await fetch('/api/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       })
-      const data = await res.json()
 
-      if (!res.ok) {
-        setError(data.error ?? 'Invalid email or password.')
+      if (authError || !data.session) {
+        setError(authError?.message ?? 'Invalid email or password.')
         setLoading(false)
         return
       }
 
-      // Redirect to the booking dashboard, passing tokens in the URL hash
-      // so the Supabase client on book.studio-808.com can pick up the session.
+      // Pass tokens in the URL hash so the Supabase client on
+      // book.studio-808.com picks up the session automatically.
+      const { access_token, refresh_token } = data.session
       const hash = [
-        `access_token=${encodeURIComponent(data.access_token)}`,
-        `refresh_token=${encodeURIComponent(data.refresh_token)}`,
+        `access_token=${encodeURIComponent(access_token)}`,
+        `refresh_token=${encodeURIComponent(refresh_token)}`,
         'token_type=bearer',
         'type=signin',
       ].join('&')

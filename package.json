@@ -15,6 +15,7 @@
   "dependencies": {
     "@sanity/client": "^6.28.4",
     "@sanity/image-url": "^1.1.0",
+    "@supabase/supabase-js": "^2.101.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-helmet-async": "^3.0.0",
