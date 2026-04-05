@@ -1,9 +1,31 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BG, TEXT, MUTED, BORDER, F_HEAD, F_BODY, ACCENT } from '../styles'
+import { getSiteSettings, type SanitySettings } from '../lib/sanity'
 
-const BOOK_URL = 'https://book.studio-808.com'
+const DEFAULT_SETTINGS: SanitySettings = {
+  siteName: 'Studio 808',
+  contactEmail: 'info@studio-808.com',
+  phone: null,
+  bookingUrl: 'https://book.studio-808.com',
+  address: 'Unit 11–11A Robjohns House\nNavigation Road\nChelmsford, CM2 6ND',
+  socialLinks: [
+    { platform: 'Instagram', url: 'https://instagram.com/studio808chlm' },
+    { platform: 'Facebook',  url: 'https://facebook.com/studio808chelmsford' },
+  ],
+}
 
 export default function Footer() {
+  const [settings, setSettings] = useState<SanitySettings>(DEFAULT_SETTINGS)
+
+  useEffect(() => {
+    getSiteSettings()
+      .then(s => { if (s) setSettings(s) })
+      .catch(() => { /* use defaults */ })
+  }, [])
+
+  const addressLines = settings.address?.split('\n') ?? []
+
   return (
     <footer style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: '80px 24px 40px' }}>
       <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
@@ -15,19 +37,16 @@ export default function Footer() {
               <div style={{ width: '34px', height: '34px', background: ACCENT, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ fontFamily: F_HEAD, color: '#fff', fontSize: '16px' }}>8</span>
               </div>
-              <span style={{ fontFamily: F_HEAD, fontSize: '19px', color: TEXT }}>Studio 808</span>
+              <span style={{ fontFamily: F_HEAD, fontSize: '19px', color: TEXT }}>{settings.siteName}</span>
             </Link>
             <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, lineHeight: 1.65, margin: '0 0 24px', maxWidth: '240px' }}>
               Chelmsford's creative hub for DJs, producers and content creators. Est. 2014.
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              {[
-                { href: 'https://instagram.com/studio808chlm',      label: 'Instagram' },
-                { href: 'https://facebook.com/studio808chelmsford',  label: 'Facebook' },
-              ].map(({ href, label }) => (
+              {settings.socialLinks.map(({ url, platform }) => (
                 <a
-                  key={href}
-                  href={href}
+                  key={url}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -38,7 +57,7 @@ export default function Footer() {
                     transition: 'border-color 0.15s, color 0.15s',
                   }}
                 >
-                  {label}
+                  {platform}
                 </a>
               ))}
             </div>
@@ -67,7 +86,7 @@ export default function Footer() {
               <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px' }}>{label}</Link>
             ))}
             <a
-              href={BOOK_URL}
+              href={settings.bookingUrl}
               style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px', marginTop: '4px' }}
             >
               Book Online →
@@ -78,12 +97,12 @@ export default function Footer() {
           <div>
             <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Contact</p>
             <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', margin: '0 0 12px', lineHeight: 1.6 }}>
-              Unit 11–11A Robjohns House<br />
-              Navigation Road<br />
-              Chelmsford, CM2 6ND
+              {addressLines.map((line, i) => (
+                <span key={i}>{line}{i < addressLines.length - 1 ? <br /> : null}</span>
+              ))}
             </p>
-            <a href="mailto:info@studio-808.com" style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', display: 'block' }}>
-              info@studio-808.com
+            <a href={`mailto:${settings.contactEmail}`} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', display: 'block' }}>
+              {settings.contactEmail}
             </a>
           </div>
         </div>

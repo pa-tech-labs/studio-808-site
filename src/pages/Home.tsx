@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary, btnSecondary } from '../styles'
+import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
@@ -11,7 +13,40 @@ const stats = [
   { value: 'City Centre', label: 'Chelmsford, Essex' },
 ]
 
-const studios = [
+const features = [
+  {
+    num: '01',
+    title: 'Club-Standard Gear',
+    desc: 'Pioneer CDJ-3000s, DJM-A9, Technics 1210s, Neumann U87, Neve 1073 — the same equipment used by professionals worldwide.',
+  },
+  {
+    num: '02',
+    title: 'Content-Ready',
+    desc: 'Studio 3 has a 4K camera built in. Create content as you practice — no extra kit needed.',
+  },
+  {
+    num: '03',
+    title: 'City Centre',
+    desc: 'Five minutes from Chelmsford station. Easy parking nearby. Right in the heart of Essex.',
+  },
+  {
+    num: '04',
+    title: 'All Levels Welcome',
+    desc: "Whether you're picking up decks for the first time or recording your next EP, Studio 808 is for you.",
+  },
+]
+
+interface StudioCard {
+  name: string
+  sub: string
+  image: string
+  price: string
+  desc: string
+  tags: string[]
+  href: string
+}
+
+const DEFAULT_STUDIOS: StudioCard[] = [
   {
     name: 'Studio 1',
     sub: 'Performer',
@@ -50,30 +85,37 @@ const studios = [
   },
 ]
 
-const features = [
-  {
-    num: '01',
-    title: 'Club-Standard Gear',
-    desc: 'Pioneer CDJ-3000s, DJM-A9, Technics 1210s, Neumann U87, Neve 1073 — the same equipment used by professionals worldwide.',
-  },
-  {
-    num: '02',
-    title: 'Content-Ready',
-    desc: 'Studio 3 has a 4K camera built in. Create content as you practice — no extra kit needed.',
-  },
-  {
-    num: '03',
-    title: 'City Centre',
-    desc: 'Five minutes from Chelmsford station. Easy parking nearby. Right in the heart of Essex.',
-  },
-  {
-    num: '04',
-    title: 'All Levels Welcome',
-    desc: "Whether you're picking up decks for the first time or recording your next EP, Studio 808 is for you.",
-  },
-]
+const STATIC_HERO: Record<string, string> = {
+  '01': '/images/studios/studio1-performer-1.jpg',
+  '02': '/images/studios/studio2-creator-1.jpg',
+  '03': '/images/studios/studio3-prodj-1.jpg',
+  '04': '/images/studios/studio4-production-1.jpg',
+}
+
+function mapSanityCard(s: SanityStudio): StudioCard {
+  const heroImg = s.heroImage ? sanityImageUrl(s.heroImage, 600) : null
+  return {
+    name: s.name.split(' — ')[0],
+    sub: s.tagline,
+    image: heroImg ?? STATIC_HERO[s.studioNumber.padStart(2, '0')] ?? '',
+    price: formatPrice(s),
+    desc: s.shortDescription ?? s.description ?? '',
+    tags: s.tags ?? [],
+    href: s.pageHref ?? (s.sortOrder <= 3 ? '/dj-studio' : '/main-production-studio'),
+  }
+}
 
 export default function Home() {
+  const [studios, setStudios] = useState<StudioCard[]>(DEFAULT_STUDIOS)
+
+  useEffect(() => {
+    getStudios()
+      .then(all => {
+        if (all.length > 0) setStudios(all.map(mapSanityCard))
+      })
+      .catch(() => { /* use defaults */ })
+  }, [])
+
   return (
     <>
       <SEO

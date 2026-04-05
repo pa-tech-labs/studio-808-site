@@ -1,15 +1,35 @@
+import { useState, useEffect } from 'react'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
-const studios = [
+interface StudioData {
+  id: string
+  num: string
+  name: string
+  images: string[]
+  price: string
+  capacity: string
+  desc: string
+  equipment: string[]
+  note: string | null
+}
+
+const STATIC_IMAGES: Record<string, string[]> = {
+  '01': ['/images/studios/studio1-performer-1.jpg', '/images/studios/studio1-performer-2.jpg'],
+  '02': ['/images/studios/studio2-creator-1.jpg', '/images/studios/studio2-creator-2.jpg'],
+  '03': ['/images/studios/studio3-prodj-1.jpg', '/images/studios/studio3-prodj-2.jpg'],
+}
+
+const DEFAULT_STUDIOS: StudioData[] = [
   {
     id: 'studio-1',
     num: '01',
     name: 'Studio 1 — Performer',
-    images: ['/images/studios/studio1-performer-1.jpg', '/images/studios/studio1-performer-2.jpg'],
+    images: STATIC_IMAGES['01'],
     price: '£25/hr · 2hr min',
     capacity: 'Up to 8 people',
     desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library — no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
@@ -27,7 +47,7 @@ const studios = [
     id: 'studio-2',
     num: '02',
     name: 'Studio 2 — Creator',
-    images: ['/images/studios/studio2-creator-1.jpg', '/images/studios/studio2-creator-2.jpg'],
+    images: STATIC_IMAGES['02'],
     price: '£35/hr · 2hr min',
     capacity: 'Up to 4 people',
     desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
@@ -47,7 +67,7 @@ const studios = [
     id: 'studio-3',
     num: '03',
     name: 'Studio 3 — Pro DJ',
-    images: ['/images/studios/studio3-prodj-1.jpg', '/images/studios/studio3-prodj-2.jpg'],
+    images: STATIC_IMAGES['03'],
     price: '£35/hr · 2hr min',
     capacity: 'Up to 8 people',
     desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
@@ -67,7 +87,37 @@ const studios = [
   },
 ]
 
+function mapSanityStudio(s: SanityStudio): StudioData {
+  const staticImgs = STATIC_IMAGES[s.studioNumber] ?? []
+  const sanityImgs = (s.galleryImages ?? [])
+    .map(img => sanityImageUrl(img, 900))
+    .filter((u): u is string => u !== null)
+  return {
+    id: `studio-${s.studioNumber}`,
+    num: s.studioNumber,
+    name: s.name,
+    images: sanityImgs.length > 0 ? sanityImgs : staticImgs,
+    price: formatPrice(s),
+    capacity: s.capacity,
+    desc: s.description,
+    equipment: s.equipment ?? [],
+    note: s.note ?? null,
+  }
+}
+
 export default function DjStudios() {
+  const [studios, setStudios] = useState<StudioData[]>(DEFAULT_STUDIOS)
+
+  useEffect(() => {
+    getStudios()
+      .then(all => {
+        // DJ studios are sortOrder 1–3
+        const dj = all.filter(s => s.sortOrder <= 3)
+        if (dj.length > 0) setStudios(dj.map(mapSanityStudio))
+      })
+      .catch(() => { /* use defaults */ })
+  }, [])
+
   return (
     <>
       <SEO

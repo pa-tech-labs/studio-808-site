@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { getStudios, formatPrice, sanityImageUrl, type SanityService } from '../lib/sanity'
 
 const STUDIO4_IMAGES = [
   '/images/studios/studio4-production-1.jpg',
@@ -9,7 +11,7 @@ const STUDIO4_IMAGES = [
 
 const BOOK_URL = 'https://book.studio-808.com'
 
-const equipment = [
+const DEFAULT_EQUIPMENT = [
   'Focal SM9 reference monitors',
   'SPL Tube Vitalizer channel strip',
   'Neve 1073 microphone preamp',
@@ -21,14 +23,53 @@ const equipment = [
   'Selection of microphones',
 ]
 
-const services = [
-  { name: 'Dry Hire',               price: '£55/hr · 2hr min', desc: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
-  { name: 'With Engineer',          price: 'From £100/hr',   desc: 'Includes the room and one of our experienced house engineers. Perfect for recording sessions and artist production.' },
-  { name: 'Mixing & Mastering',     price: '£150 / track',   desc: 'Professional mix and master from our in-house team. Delivery within agreed timeframe.' },
-  { name: 'Custom Track Production', price: '£600 – £1,000', desc: 'Full custom track production from idea to finished master. Price varies by complexity and revisions.' },
+const DEFAULT_SERVICES: SanityService[] = [
+  { name: 'Dry Hire',               price: '£55/hr · 2hr min', description: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
+  { name: 'With Engineer',          price: 'From £100/hr',     description: 'Includes the room and one of our experienced house engineers. Perfect for recording sessions and artist production.' },
+  { name: 'Mixing & Mastering',     price: '£150 / track',     description: 'Professional mix and master from our in-house team. Delivery within agreed timeframe.' },
+  { name: 'Custom Track Production', price: '£600 – £1,000',  description: 'Full custom track production from idea to finished master. Price varies by complexity and revisions.' },
 ]
 
+interface Studio4Data {
+  images: string[]
+  price: string
+  capacity: string
+  equipment: string[]
+  services: SanityService[]
+}
+
+const DEFAULT_DATA: Studio4Data = {
+  images: STUDIO4_IMAGES,
+  price: '£55/hr · 2hr min',
+  capacity: '5 people',
+  equipment: DEFAULT_EQUIPMENT,
+  services: DEFAULT_SERVICES,
+}
+
 export default function ProductionStudio() {
+  const [data, setData] = useState<Studio4Data>(DEFAULT_DATA)
+
+  useEffect(() => {
+    getStudios()
+      .then(all => {
+        const studio4 = all.find(s => s.sortOrder === 4)
+        if (!studio4) return
+
+        const sanityImgs = (studio4.galleryImages ?? [])
+          .map(img => sanityImageUrl(img, 900))
+          .filter((u): u is string => u !== null)
+
+        setData({
+          images: sanityImgs.length > 0 ? sanityImgs : STUDIO4_IMAGES,
+          price: formatPrice(studio4),
+          capacity: studio4.capacity ?? DEFAULT_DATA.capacity,
+          equipment: studio4.equipment?.length ? studio4.equipment : DEFAULT_EQUIPMENT,
+          services: studio4.services?.length ? studio4.services : DEFAULT_SERVICES,
+        })
+      })
+      .catch(() => { /* use defaults */ })
+  }, [])
+
   return (
     <>
       <SEO
@@ -55,14 +96,14 @@ export default function ProductionStudio() {
       <section className="section" style={{ borderBottom: `1px solid ${BORDER}`, background: BG }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'start' }}>
           {/* Image */}
-          <StudioCarousel images={STUDIO4_IMAGES} alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073" />
+          <StudioCarousel images={data.images} alt="Studio 4 production studio at Studio 808 Chelmsford — Focal SM9 monitors, Neve 1073" />
           {/* Details */}
           <div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
               {[
-                { label: 'Dry Hire',      value: '£55/hr · 2hr min' },
+                { label: 'Dry Hire',      value: data.price },
                 { label: 'With Engineer', value: 'From £100/hr' },
-                { label: 'Capacity',      value: '5 people' },
+                { label: 'Capacity',      value: data.capacity },
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '12px 18px' }}>
                   <p style={{ fontFamily: F_BODY, fontSize: '10px', fontWeight: 600, color: 'rgba(240,237,232,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
@@ -73,7 +114,7 @@ export default function ProductionStudio() {
 
             <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>Equipment</p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {equipment.map(item => (
+              {data.equipment.map(item => (
                 <li key={item} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <span style={{ color: ACCENT, fontSize: '8px', flexShrink: 0, marginTop: '5px' }}>●</span> {item}
                 </li>
@@ -108,11 +149,11 @@ export default function ProductionStudio() {
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-            {services.map(svc => (
+            {data.services.map(svc => (
               <div key={svc.name} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
                 <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>{svc.name}</span>
                 <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '26px', color: TEXT, margin: '0 0 12px', fontWeight: 400, lineHeight: 1.1 }}>{svc.price}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{svc.desc}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{svc.description}</p>
               </div>
             ))}
           </div>

@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { ACCENT, F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
+import { getSiteSettings } from '../lib/sanity'
 
-const BOOK_URL = 'https://book.studio-808.com'
+const DEFAULT_BOOK_URL = 'https://book.studio-808.com'
 
 const links = [
   { to: '/dj-studio',                label: 'DJ Studios' },
@@ -21,11 +22,18 @@ export default function Nav() {
   const [scrolled, setScrolled]       = useState(false)
   const [open, setOpen]               = useState(false)
   const [showBookings, setShowBookings] = useState(false)
+  const [bookUrl, setBookUrl]         = useState(DEFAULT_BOOK_URL)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    getSiteSettings()
+      .then(s => { if (s?.bookingUrl) setBookUrl(s.bookingUrl) })
+      .catch(() => { /* use default */ })
   }, [])
 
   const navBg = scrolled || open
@@ -112,7 +120,7 @@ export default function Nav() {
               My Bookings
             </button>
             <a
-              href={BOOK_URL}
+              href={bookUrl}
               style={{
                 background: TEXT, color: '#0d0d0d',
                 fontFamily: F_BODY, fontSize: '13px', fontWeight: 700,
@@ -168,7 +176,7 @@ export default function Nav() {
               </Link>
             ))}
             <a
-              href={BOOK_URL}
+              href={bookUrl}
               onClick={() => setOpen(false)}
               style={{
                 display: 'block', marginTop: '20px',
