@@ -68,8 +68,6 @@ export default function Footer() {
             ))}
             <a
               href={BOOK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px', marginTop: '4px' }}
             >
               Book Online →

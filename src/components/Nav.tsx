@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { ACCENT, F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
+import BookingsModal from './BookingsModal'
 
 const BOOK_URL = 'https://book.studio-808.com'
 
@@ -17,8 +18,9 @@ const mobileLinks = [
 ]
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen]         = useState(false)
+  const [scrolled, setScrolled]       = useState(false)
+  const [open, setOpen]               = useState(false)
+  const [showBookings, setShowBookings] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -91,12 +93,26 @@ export default function Nav() {
             ))}
           </nav>
 
-          {/* CTA — right */}
-          <div className="nav-desktop" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* CTAs — right */}
+          <div className="nav-desktop" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => setShowBookings(true)}
+              style={{
+                background: 'transparent',
+                color: MUTED,
+                fontFamily: F_BODY, fontSize: '13px', fontWeight: 500,
+                padding: '9px 16px', borderRadius: '999px',
+                border: '1px solid rgba(240,237,232,0.18)',
+                cursor: 'pointer', letterSpacing: '-0.01em',
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = TEXT; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(240,237,232,0.35)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = MUTED; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(240,237,232,0.18)' }}
+            >
+              My Bookings
+            </button>
             <a
               href={BOOK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               style={{
                 background: TEXT, color: '#0d0d0d',
                 fontFamily: F_BODY, fontSize: '13px', fontWeight: 700,
@@ -153,8 +169,6 @@ export default function Nav() {
             ))}
             <a
               href={BOOK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
               style={{
                 display: 'block', marginTop: '20px',
@@ -166,9 +180,23 @@ export default function Nav() {
             >
               Book Now
             </a>
+            <button
+              onClick={() => { setOpen(false); setShowBookings(true) }}
+              style={{
+                display: 'block', width: '100%', marginTop: '10px',
+                background: 'transparent', color: TEXT,
+                fontFamily: F_BODY, fontSize: '15px', fontWeight: 500,
+                padding: '15px 20px', borderRadius: '999px', textAlign: 'center',
+                border: '1px solid rgba(240,237,232,0.18)', cursor: 'pointer',
+              }}
+            >
+              My Bookings
+            </button>
           </div>
         )}
       </header>
+
+      {showBookings && <BookingsModal onClose={() => setShowBookings(false)} />}
     </>
   )
 }

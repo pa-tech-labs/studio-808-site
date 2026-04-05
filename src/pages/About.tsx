@@ -67,7 +67,7 @@ export default function About() {
             <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.75, margin: '0 0 36px' }}>
               We've invested continuously in the best equipment — Pioneer CDJ-3000s, Neve 1073, Neumann U87, Focal SM9 — so our members can practise and record with the same tools they'll encounter on the biggest stages.
             </p>
-            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+            <a href={BOOK_URL}
               style={btnPrimary}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}

@@ -115,7 +115,7 @@ export default function Home() {
             Four professional studios. Club-standard gear. City centre location. Book online in minutes.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+            <a href={BOOK_URL}
               style={{ ...btnPrimary, fontSize: '15px', padding: '15px 36px' }}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -203,7 +203,7 @@ export default function Home() {
               <p style={{ fontFamily: F_BODY, fontSize: '16px', color: MUTED, lineHeight: 1.7, margin: '0 0 32px', maxWidth: '380px' }}>
                 Every room at Studio 808 is equipped with the same tools you'll find at the world's best venues — because you deserve to practise on the real thing.
               </p>
-              <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+              <a href={BOOK_URL}
                 style={btnPrimary}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -272,7 +272,7 @@ export default function Home() {
               Navigation Road<br />
               Chelmsford, CM2 6ND
             </div>
-            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+            <a href={BOOK_URL}
               style={btnPrimary}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}

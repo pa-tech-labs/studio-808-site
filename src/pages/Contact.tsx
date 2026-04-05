@@ -74,7 +74,7 @@ export default function Contact() {
                 Chelmsford, CM2 6ND
               </p>
             </div>
-            <a href={BOOK_URL} target="_blank" rel="noopener noreferrer"
+            <a href={BOOK_URL}
               style={btnPrimary}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
