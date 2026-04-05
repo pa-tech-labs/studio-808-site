@@ -16,7 +16,7 @@ const studios = [
     name: 'Studio 1',
     sub: 'Performer',
     image: '/images/studios/studio1-performer-1.jpg',
-    price: 'From £10/hr',
+    price: '£25/hr · 2hr min',
     desc: 'Pioneer AlphaTheta XDJ-AZ, streaming-ready. No laptop needed.',
     tags: ['Streaming', 'Air Con', 'Accessible'],
     href: '/dj-studio',
@@ -25,7 +25,7 @@ const studios = [
     name: 'Studio 2',
     sub: 'Creator',
     image: '/images/studios/studio2-creator-1.jpg',
-    price: 'From £8/hr',
+    price: '£35/hr · 2hr min',
     desc: 'Hybrid DJ/production — Pioneer RX3, Yamaha HS8 monitors, Rode NT1.',
     tags: ['DJ + Production', 'Recording', 'Self-serve'],
     href: '/dj-studio',
@@ -34,7 +34,7 @@ const studios = [
     name: 'Studio 3',
     sub: 'Pro DJ',
     image: '/images/studios/studio3-prodj-1.jpg',
-    price: 'From £14/hr',
+    price: '£35/hr · 2hr min',
     desc: 'CDJ-3000s, DJM-A9, Technics 1210s. Club booth. 4K content-ready.',
     tags: ['CDJ-3000', 'Vinyl', '4K Camera'],
     href: '/dj-studio',
@@ -43,7 +43,7 @@ const studios = [
     name: 'Studio 4',
     sub: 'Production',
     image: '/images/studios/studio4-production-1.jpg',
-    price: 'From £60/hr',
+    price: '£55/hr · 2hr min',
     desc: 'Focal SM9, Neve 1073, UA Apollo 8x, Neumann U87. Engineer available.',
     tags: ['Neve 1073', 'U87 Mic', 'Mix & Master'],
     href: '/main-production-studio',
@@ -78,7 +78,7 @@ export default function Home() {
     <>
       <SEO
         title="Studio 808 | Chelmsford's Creative Music Studios"
-        description="DJ studios, production studio and content creation in Chelmsford city centre. Book online from £8/hr. Pioneer CDJ-3000s, Neve 1073, Neumann U87 and more."
+        description="DJ studios, production studio and content creation in Chelmsford city centre. Book online from £25/hr. Pioneer CDJ-3000s, Neve 1073, Neumann U87 and more."
         canonical="/"
         image="/images/studios/studio3-prodj-1.jpg"
       />

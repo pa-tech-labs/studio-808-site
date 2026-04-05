@@ -9,7 +9,7 @@ ABOUT STUDIO 808
 - 4 fully equipped studios, available to book by the hour online
 - Booking site: https://book.studio-808.com
 - Smart lock access — no staff needed on site, door code sent automatically after booking
-- No deposit required to book
+- Payment is required in full at the time of booking to secure the session
 - Contact: admin@studio-808.com
 
 THE STUDIOS
@@ -20,7 +20,7 @@ Studio 1 — Performer (DJ)
 - 2× Adam T7V studio monitors
 - Air conditioning, wheelchair accessible
 - Up to 8 people
-- From £10/hr
+- £25/hr — 2-hour minimum booking (minimum cost £50)
 
 Studio 2 — Creator (Hybrid DJ + Production)
 - Pioneer DDJ-RX3 DJ controller
@@ -30,7 +30,7 @@ Studio 2 — Creator (Hybrid DJ + Production)
 - 2× Beyerdynamic DT 770 headphones, Asus ProArt display
 - Bring your own laptop. DAW not provided.
 - Up to 4 people
-- From £8/hr
+- £35/hr — 2-hour minimum booking (minimum cost £70)
 
 Studio 3 — Pro DJ (Club-standard booth)
 - 2× Pioneer CDJ-3000 + 1× CDJ-2000 NXS media players
@@ -42,7 +42,7 @@ Studio 3 — Pro DJ (Club-standard booth)
 - Air conditioning
 - Styluses not provided — bring your own for vinyl
 - Up to 8 people
-- From £14/hr
+- £35/hr — 2-hour minimum booking (minimum cost £70)
 
 Studio 4 — Production (Flagship recording studio)
 - Focal SM9 reference monitors
@@ -53,12 +53,13 @@ Studio 4 — Production (Flagship recording studio)
 - Novation Summit + Korg Minilogue XD synthesisers
 - Akai MPC (standalone)
 - Acoustically treated, first floor
-- Services: Dry Hire from £60/hr | With Engineer from £100/hr | Mix & Master £150/track | Custom Track Production £600–£1,000
+- £55/hr — 2-hour minimum booking (minimum cost £110)
+- Also available: With Engineer from £100/hr | Mix & Master £150/track | Custom Track Production £600–£1,000
 
 BOOKING PROCESS
 1. Go to https://book.studio-808.com
 2. Select a studio and choose date/time
-3. Pay online via card (Stripe)
+3. Pay the full session cost online by card (Stripe) — payment is required in full to secure the booking
 4. Receive door code automatically by SMS/email — let yourself in
 
 GUIDELINES

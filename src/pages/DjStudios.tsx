@@ -10,7 +10,7 @@ const studios = [
     num: '01',
     name: 'Studio 1 — Performer',
     images: ['/images/studios/studio1-performer-1.jpg', '/images/studios/studio1-performer-2.jpg'],
-    price: 'From £10/hr',
+    price: '£25/hr · 2hr min',
     capacity: 'Up to 8 people',
     desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library — no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
     equipment: [
@@ -28,7 +28,7 @@ const studios = [
     num: '02',
     name: 'Studio 2 — Creator',
     images: ['/images/studios/studio2-creator-1.jpg', '/images/studios/studio2-creator-2.jpg'],
-    price: 'From £8/hr',
+    price: '£35/hr · 2hr min',
     capacity: 'Up to 4 people',
     desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
     equipment: [
@@ -48,7 +48,7 @@ const studios = [
     num: '03',
     name: 'Studio 3 — Pro DJ',
     images: ['/images/studios/studio3-prodj-1.jpg', '/images/studios/studio3-prodj-2.jpg'],
-    price: 'From £14/hr',
+    price: '£35/hr · 2hr min',
     capacity: 'Up to 8 people',
     desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
     equipment: [
@@ -71,8 +71,8 @@ export default function DjStudios() {
   return (
     <>
       <SEO
-        title="DJ Studios Chelmsford | Studio 808 — From £8/hr"
-        description="Three professional DJ studios in Chelmsford from £8/hr. Pioneer CDJ-3000s, DJM-A9, XDJ-AZ, Technics 1210s. Book online — no deposit required."
+        title="DJ Studios Chelmsford | Studio 808 — From £25/hr"
+        description="Three professional DJ studios in Chelmsford from £25/hr. Pioneer CDJ-3000s, DJM-A9, XDJ-AZ, Technics 1210s. 2-hour minimum booking. Book online."
         canonical="/dj-studio"
         image="/images/studios/studio3-prodj-1.jpg"
       />
@@ -85,7 +85,7 @@ export default function DjStudios() {
             Three Rooms. <em>One Standard.</em>
           </h1>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
-            From beginner to touring DJ — Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, no deposit required.
+            From beginner to touring DJ — Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, with a 2-hour minimum.
           </p>
         </div>
       </section>

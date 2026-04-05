@@ -22,7 +22,7 @@ const equipment = [
 ]
 
 const services = [
-  { name: 'Dry Hire',               price: 'From £60/hr',    desc: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
+  { name: 'Dry Hire',               price: '£55/hr · 2hr min', desc: 'Room only — bring your own engineer or work independently. Ideal for experienced producers and mix engineers.' },
   { name: 'With Engineer',          price: 'From £100/hr',   desc: 'Includes the room and one of our experienced house engineers. Perfect for recording sessions and artist production.' },
   { name: 'Mixing & Mastering',     price: '£150 / track',   desc: 'Professional mix and master from our in-house team. Delivery within agreed timeframe.' },
   { name: 'Custom Track Production', price: '£600 – £1,000', desc: 'Full custom track production from idea to finished master. Price varies by complexity and revisions.' },
@@ -33,7 +33,7 @@ export default function ProductionStudio() {
     <>
       <SEO
         title="Production Studio Chelmsford | Studio 808 — Neve 1073 · Neumann U87"
-        description="Professional recording studio in Chelmsford. Focal SM9 monitors, Neve 1073, UA Apollo 8x, Neumann U87. Dry hire from £60/hr or with engineer from £100/hr."
+        description="Professional recording studio in Chelmsford. Focal SM9 monitors, Neve 1073, UA Apollo 8x, Neumann U87. Dry hire £55/hr (2hr min) or with engineer from £100/hr."
         canonical="/main-production-studio"
         image="/images/studios/studio4-production-1.jpg"
       />
@@ -60,7 +60,7 @@ export default function ProductionStudio() {
           <div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
               {[
-                { label: 'Dry Hire',      value: 'From £60/hr' },
+                { label: 'Dry Hire',      value: '£55/hr · 2hr min' },
                 { label: 'With Engineer', value: 'From £100/hr' },
                 { label: 'Capacity',      value: '5 people' },
               ].map(({ label, value }) => (
