@@ -1,9 +1,15 @@
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 
+const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID ?? ''
+const DATASET    = import.meta.env.VITE_SANITY_DATASET ?? 'production'
+
+// Debug: confirm env vars are inlined at build time
+console.log('[sanity] projectId:', PROJECT_ID || '(not set — check VITE_SANITY_PROJECT_ID env var)')
+
 export const sanityClient = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID ?? '',
-  dataset: import.meta.env.VITE_SANITY_DATASET ?? 'production',
+  projectId: PROJECT_ID,
+  dataset: DATASET,
   useCdn: true,
   apiVersion: '2024-01-01',
 })
@@ -64,7 +70,7 @@ export interface SanitySettings {
 // ── Query helpers ─────────────────────────────────────────────────────────────
 
 function isConfigured(): boolean {
-  return Boolean(import.meta.env.VITE_SANITY_PROJECT_ID)
+  return Boolean(PROJECT_ID)
 }
 
 export async function getStudios(): Promise<SanityStudio[]> {
