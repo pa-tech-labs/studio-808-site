@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
+import ChatWidget from './components/ChatWidget'
 import Home from './pages/Home'
 import DjStudios from './pages/DjStudios'
 import ProductionStudio from './pages/ProductionStudio'
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
+        <ChatWidget />
       </BrowserRouter>
     </HelmetProvider>
   )
