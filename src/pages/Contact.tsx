@@ -18,8 +18,11 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 }
 
+const FORM_URL = 'https://studio-808-058105e2.lumentry.io/embed/forms/47a08cea-a18e-442d-8c4d-16cd07255ba3/submit'
+
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
   return (
     <>
@@ -89,15 +92,34 @@ export default function Contact() {
             <h2 className="mh" style={{ fontSize: 'clamp(22px, 3vw, 32px)', color: TEXT, margin: '0 0 28px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               Send a <em>Message.</em>
             </h2>
+            {status === 'sent' ? (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <p style={{ fontFamily: F_BODY, fontSize: '18px', fontWeight: 600, color: TEXT, margin: '0 0 8px' }}>Message sent!</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0 }}>Thanks for getting in touch — we'll get back to you soon.</p>
+              </div>
+            ) : (
             <form
-              action={`mailto:info@studio-808.com?subject=Enquiry from ${encodeURIComponent(form.name)}&body=${encodeURIComponent(form.message)}%0A%0AFrom: ${encodeURIComponent(form.name)}%0AEmail: ${encodeURIComponent(form.email)}`}
-              method="get"
-              encType="text/plain"
+              onSubmit={async e => {
+                e.preventDefault()
+                setStatus('sending')
+                try {
+                  const res = await fetch(FORM_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, message: form.message }),
+                  })
+                  if (!res.ok) throw new Error()
+                  setStatus('sent')
+                } catch {
+                  setStatus('error')
+                }
+              }}
               style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}
             >
               {[
                 { id: 'name', label: 'Your Name', type: 'text', placeholder: 'Full name' },
                 { id: 'email', label: 'Email Address', type: 'email', placeholder: 'you@example.com' },
+                { id: 'phone', label: 'Phone', type: 'tel', placeholder: '+44 7xxx xxxxxx' },
               ].map(({ id, label, type, placeholder }) => (
                 <div key={id}>
                   <label htmlFor={id} style={{ display: 'block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 500, color: TEXT, marginBottom: '8px' }}>{label}</label>
@@ -105,7 +127,7 @@ export default function Contact() {
                     id={id}
                     type={type}
                     placeholder={placeholder}
-                    value={form[id as 'name' | 'email']}
+                    value={form[id as 'name' | 'email' | 'phone']}
                     onChange={e => setForm(f => ({ ...f, [id]: e.target.value }))}
                     style={inputStyle}
                   />
@@ -122,18 +144,22 @@ export default function Contact() {
                   style={{ ...inputStyle, height: 'auto', padding: '14px 16px', resize: 'vertical', lineHeight: 1.5 }}
                 />
               </div>
+              {status === 'error' && (
+                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: '#ef4444', margin: 0 }}>
+                  Something went wrong. Please try again or email us at info@studio-808.com
+                </p>
+              )}
               <button
                 type="submit"
-                style={{ ...btnPrimary, border: 'none', cursor: 'pointer', textAlign: 'center' }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                disabled={status === 'sending'}
+                style={{ ...btnPrimary, border: 'none', cursor: 'pointer', textAlign: 'center', opacity: status === 'sending' ? 0.6 : 1 }}
+                onMouseEnter={e => { if (status !== 'sending') e.currentTarget.style.opacity = '0.88' }}
+                onMouseLeave={e => { if (status !== 'sending') e.currentTarget.style.opacity = '1' }}
               >
-                Send Message
+                {status === 'sending' ? 'Sending…' : 'Send Message'}
               </button>
-              <p style={{ fontFamily: F_BODY, fontSize: '12px', color: 'rgba(240,237,232,0.3)', margin: 0 }}>
-                This will open your email client. Alternatively, email us directly at info@studio-808.com
-              </p>
             </form>
+            )}
           </div>
         </div>
       </section>
