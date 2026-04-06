@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary, btnSecondary } from '../styles'
+import GoogleReviews from '../components/GoogleReviews'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
@@ -269,33 +270,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Reviews CTA ──────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: BG, textAlign: 'center' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '24px' }}>
-            {[0,1,2,3,4].map(i => (
-              <span key={i} style={{ fontSize: '20px' }}>★</span>
-            ))}
-          </div>
-          <span style={sectionLabel}>Reviews</span>
-          <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 46px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-            Don't just take <em>our word for it.</em>
-          </h2>
-          <p style={{ fontFamily: F_BODY, fontSize: '16px', color: MUTED, margin: '0 0 36px', lineHeight: 1.65 }}>
-            Hundreds of sessions booked by DJs, producers and podcasters across Essex. See what our customers say on Google.
-          </p>
-          <a
-            href="https://g.page/r/studio808chelmsford/review"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={btnPrimary}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >
-            Read our Google Reviews
-          </a>
-        </div>
-      </section>
+      {/* ── Reviews ────────────────────────────────────────────────────── */}
+      <GoogleReviews />
 
       {/* ── Location ─────────────────────────────────────────────────────── */}
       <section className="section" style={{ background: SURF, borderTop: `1px solid ${BORDER}` }}>
