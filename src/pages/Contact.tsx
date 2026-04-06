@@ -149,7 +149,7 @@ export default function Contact() {
               </div>
               <div>
                 <label style={{ display: 'block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 500, color: TEXT, marginBottom: '10px' }}>I'm interested in</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   {SERVICES.map(s => {
                     const checked = selectedServices.includes(s)
                     return (
