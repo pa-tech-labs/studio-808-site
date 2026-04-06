@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { BG, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
 const PLACE_ID = 'ChIJY9ttgnvp2EcRbCmku6lPW08'
@@ -85,8 +85,8 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
 
 function ReviewCard({ review }: { review: GoogleReview }) {
   const [expanded, setExpanded] = useState(false)
-  const needsTruncate = review.text.length > 150
-  const displayText = !expanded && needsTruncate ? review.text.slice(0, 150) + '…' : review.text
+  const needsTruncate = review.text.length > 100
+  const displayText = !expanded && needsTruncate ? review.text.slice(0, 100) + '…' : review.text
 
   return (
     <div
@@ -94,57 +94,54 @@ function ReviewCard({ review }: { review: GoogleReview }) {
       style={{
         background: '#111111',
         border: `1px solid ${BORDER}`,
-        borderRadius: '12px',
-        padding: '24px',
+        borderRadius: '10px',
+        padding: '16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
-        minWidth: '300px',
-        maxWidth: '380px',
-        flex: '0 0 auto',
+        gap: '10px',
       }}
     >
       {/* Author */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <a href={review.author_url} target="_blank" rel="noopener noreferrer">
           <img
             src={review.profile_photo_url}
             alt={review.author_name}
-            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+            style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', display: 'block' }}
             loading="lazy"
           />
         </a>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <a
             href={review.author_url}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: TEXT, textDecoration: 'none' }}
+            style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
           >
             {review.author_name}
           </a>
-          <p style={{ fontFamily: F_BODY, fontSize: '12px', color: MUTED, margin: '2px 0 0' }}>
+          <p style={{ fontFamily: F_BODY, fontSize: '11px', color: MUTED, margin: '1px 0 0' }}>
             {review.relative_time_description}
           </p>
         </div>
       </div>
 
       {/* Stars */}
-      <Stars rating={review.rating} size={14} />
+      <Stars rating={review.rating} size={12} />
 
       {/* Text */}
-      <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.75)', margin: 0, lineHeight: 1.65, flex: 1 }}>
+      <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.7)', margin: 0, lineHeight: 1.55, flex: 1 }}>
         {displayText}
         {needsTruncate && (
           <button
             onClick={() => setExpanded(!expanded)}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              fontFamily: F_BODY, fontSize: '13px', fontWeight: 600,
+              fontFamily: F_BODY, fontSize: '12px', fontWeight: 600,
               color: ACCENT, padding: '0 0 0 4px',
             }}
           >
-            {expanded ? 'Show less' : 'Read more'}
+            {expanded ? 'Less' : 'More'}
           </button>
         )}
       </p>
@@ -154,24 +151,23 @@ function ReviewCard({ review }: { review: GoogleReview }) {
 
 function LoadingSkeleton() {
   return (
-    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-      {[0, 1, 2].map(i => (
+    <div className="reviews-grid" style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 16px' }}>
+      {[0, 1, 2, 3, 4, 5].map(i => (
         <div key={i} style={{
-          background: '#111111', border: `1px solid ${BORDER}`, borderRadius: '12px',
-          padding: '24px', width: '300px', display: 'flex', flexDirection: 'column', gap: '14px',
+          background: '#111111', border: `1px solid ${BORDER}`, borderRadius: '10px',
+          padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(240,237,232,0.06)' }} />
-            <div>
-              <div style={{ width: '100px', height: '14px', borderRadius: '4px', background: 'rgba(240,237,232,0.06)', marginBottom: '6px' }} />
-              <div style={{ width: '70px', height: '10px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(240,237,232,0.06)', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ width: '80px', height: '12px', borderRadius: '3px', background: 'rgba(240,237,232,0.06)', marginBottom: '5px' }} />
+              <div style={{ width: '55px', height: '9px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
             </div>
           </div>
-          <div style={{ width: '80px', height: '14px', borderRadius: '3px', background: 'rgba(240,237,232,0.06)' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '100%', height: '12px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
-            <div style={{ width: '85%', height: '12px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
-            <div style={{ width: '60%', height: '12px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
+          <div style={{ width: '70px', height: '12px', borderRadius: '3px', background: 'rgba(240,237,232,0.06)' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ width: '100%', height: '10px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
+            <div style={{ width: '75%', height: '10px', borderRadius: '3px', background: 'rgba(240,237,232,0.04)' }} />
           </div>
         </div>
       ))}
@@ -198,8 +194,6 @@ export default function GoogleReviews() {
   const [data, setData] = useState<PlaceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (!API_KEY) { setError(true); setLoading(false); return }
     fetchPlaceDetails()
@@ -210,12 +204,9 @@ export default function GoogleReviews() {
   return (
     <section className="section" style={{ background: BG, textAlign: 'center' }}>
       <style>{`
-        .reviews-scroll{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 24px 8px;scrollbar-width:none}
-        .reviews-scroll::-webkit-scrollbar{display:none}
-        .reviews-scroll>div{scroll-snap-align:start}
+        .reviews-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;max-width:1240px;margin:0 auto}
         @media(min-width:960px){
-          .reviews-scroll{display:grid!important;grid-template-columns:repeat(3,1fr)!important;overflow:visible!important;padding:0!important;max-width:1240px;margin:0 auto}
-          .reviews-scroll>div{min-width:0!important;max-width:none!important}
+          .reviews-grid{grid-template-columns:repeat(3,1fr);gap:14px;padding:0}
         }
       `}</style>
 
@@ -254,8 +245,8 @@ export default function GoogleReviews() {
         {error && <Fallback />}
         {data && data.reviews.length > 0 && (
           <>
-            <div className="reviews-scroll" ref={scrollRef}>
-              {data.reviews.map((r, i) => (
+            <div className="reviews-grid">
+              {data.reviews.slice(0, 6).map((r, i) => (
                 <ReviewCard key={i} review={r} />
               ))}
             </div>
