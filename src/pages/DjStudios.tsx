@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
@@ -128,6 +129,24 @@ export default function DjStudios() {
         canonical="/dj-studio"
         image="/images/studios/studio3-prodj-1.jpg"
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          serviceType: 'DJ Studio Hire',
+          provider: { '@type': 'LocalBusiness', name: 'Studio 808', url: 'https://www.studio-808.com' },
+          areaServed: { '@type': 'City', name: 'Chelmsford' },
+          hasOfferCatalog: {
+            '@type': 'OfferCatalog',
+            name: 'DJ Studios',
+            itemListElement: [
+              { '@type': 'Offer', name: 'Studio 1 — Performer', price: '25', priceCurrency: 'GBP', unitText: 'per hour', description: 'Pioneer AlphaTheta XDJ-AZ standalone DJ setup. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Studio 2 — Creator', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Hybrid DJ/production room with Pioneer RX3, Yamaha HS8, Rode NT1. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Studio 3 — Pro DJ', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Club-standard booth with CDJ-3000s, DJM-A9, Technics 1210s, 4K camera. 2-hour minimum.' },
+            ],
+          },
+        })}</script>
+      </Helmet>
 
       {/* Page header */}
       <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>

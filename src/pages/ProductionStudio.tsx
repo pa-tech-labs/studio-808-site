@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
@@ -80,6 +81,25 @@ export default function ProductionStudio() {
         canonical="/main-production-studio"
         image="/images/studios/studio4-production-1.jpg"
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          serviceType: 'Recording & Production Studio Hire',
+          provider: { '@type': 'LocalBusiness', name: 'Studio 808', url: 'https://www.studio-808.com' },
+          areaServed: { '@type': 'City', name: 'Chelmsford' },
+          hasOfferCatalog: {
+            '@type': 'OfferCatalog',
+            name: 'Production Studio Services',
+            itemListElement: [
+              { '@type': 'Offer', name: 'Dry Hire', price: '55', priceCurrency: 'GBP', unitText: 'per hour', description: 'Room only — bring your own engineer or work independently. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'With Engineer', price: '100', priceCurrency: 'GBP', unitText: 'per hour', description: 'Room and experienced house engineer for recording sessions and artist production.' },
+              { '@type': 'Offer', name: 'Mixing & Mastering', price: '150', priceCurrency: 'GBP', unitText: 'per track', description: 'Professional mix and master from the in-house team.' },
+              { '@type': 'Offer', name: 'Custom Track Production', price: '600', priceCurrency: 'GBP', description: 'Full custom track production from idea to finished master. £600–£1,000 depending on complexity.' },
+            ],
+          },
+        })}</script>
+      </Helmet>
 
       {/* Page header */}
       <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>

@@ -1,13 +1,32 @@
 import { useParams, Navigate, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import { BG, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel } from '../styles'
 import posts from '../data/blogPosts'
+
+function parseDateStr(d: string): string {
+  const parsed = new Date(d)
+  return isNaN(parsed.getTime()) ? d : parsed.toISOString().split('T')[0]
+}
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>()
   const post = posts.find(p => p.slug === slug)
 
   if (!post) return <Navigate to="/blog" replace />
+
+  const blogPostSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: parseDateStr(post.date),
+    author: { '@type': 'Organization', name: 'Studio 808', url: 'https://www.studio-808.com' },
+    publisher: { '@type': 'Organization', name: 'Studio 808', url: 'https://www.studio-808.com', logo: { '@type': 'ImageObject', url: 'https://www.studio-808.com/images/logo.png' } },
+    image: 'https://www.studio-808.com/images/studios/studio3-prodj-1.jpg',
+    url: `https://www.studio-808.com/blog/${post.slug}`,
+    mainEntityOfPage: `https://www.studio-808.com/blog/${post.slug}`,
+  }
 
   return (
     <>
@@ -16,6 +35,9 @@ export default function BlogPost() {
         description={post.excerpt}
         canonical={`/blog/${post.slug}`}
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(blogPostSchema)}</script>
+      </Helmet>
 
       <article style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>

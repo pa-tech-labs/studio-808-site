@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { BG, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
 const PLACE_ID = 'ChIJY9ttgnvp2EcRbCmku6lPW08'
@@ -223,6 +224,25 @@ export default function GoogleReviews() {
         <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 46px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
           Don't just take <em>our word for it.</em>
         </h2>
+
+        {/* AggregateRating structured data */}
+        {data && (
+          <Helmet>
+            <script type="application/ld+json">{JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'LocalBusiness',
+              name: 'Studio 808',
+              url: 'https://www.studio-808.com',
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: data.rating.toFixed(1),
+                reviewCount: data.totalReviews,
+                bestRating: '5',
+                worstRating: '1',
+              },
+            })}</script>
+          </Helmet>
+        )}
 
         {/* Overall rating */}
         {data && (
