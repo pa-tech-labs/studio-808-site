@@ -18,10 +18,13 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 }
 
-const FORM_URL = 'https://studio-808-058105e2.lumentry.io/embed/forms/47a08cea-a18e-442d-8c4d-16cd07255ba3/submit'
+const FORM_URL = 'https://access-hub-production.up.railway.app/api/forms/47a08cea-a18e-442d-8c4d-16cd07255ba3/submit'
+
+const SERVICES = ['Recording Studio', 'DJ Studio', 'Podcast Studio', 'Voiceovers', 'Audiobooks']
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
   return (
@@ -106,7 +109,7 @@ export default function Contact() {
                   const res = await fetch(FORM_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone, message: form.message }),
+                    body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone || null, message: form.message || null, selected_services: selectedServices }),
                   })
                   if (!res.ok) throw new Error()
                   setStatus('sent')
@@ -143,6 +146,27 @@ export default function Contact() {
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   style={{ ...inputStyle, height: 'auto', padding: '14px 16px', resize: 'vertical', lineHeight: 1.5 }}
                 />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 500, color: TEXT, marginBottom: '10px' }}>I'm interested in</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {SERVICES.map(s => {
+                    const checked = selectedServices.includes(s)
+                    return (
+                      <label key={s} onClick={() => setSelectedServices(prev => checked ? prev.filter(x => x !== s) : [...prev, s])}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', border: `1px solid ${checked ? ACCENT : BORDER}`, borderRadius: '10px', cursor: 'pointer', background: checked ? 'rgba(232,53,90,0.08)' : 'transparent', transition: 'border-color 0.15s, background 0.15s' }}>
+                        <div style={{ width: '18px', height: '18px', borderRadius: '5px', flexShrink: 0, border: `2px solid ${checked ? ACCENT : BORDER}`, background: checked ? ACCENT : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+                          {checked && (
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M1.5 5l2.5 2.5 4.5-4.5" />
+                            </svg>
+                          )}
+                        </div>
+                        <span style={{ fontFamily: F_BODY, fontSize: '14px', color: TEXT, fontWeight: checked ? 600 : 400 }}>{s}</span>
+                      </label>
+                    )
+                  })}
+                </div>
               </div>
               {status === 'error' && (
                 <p style={{ fontFamily: F_BODY, fontSize: '13px', color: '#ef4444', margin: 0 }}>
