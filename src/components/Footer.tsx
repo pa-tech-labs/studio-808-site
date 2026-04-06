@@ -98,9 +98,6 @@ export default function Footer() {
                 <span key={i}>{line}{i < addressLines.length - 1 ? <br /> : null}</span>
               ))}
             </p>
-            <a href={`mailto:${settings.contactEmail}`} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', display: 'block' }}>
-              {settings.contactEmail}
-            </a>
           </div>
         </div>
 
