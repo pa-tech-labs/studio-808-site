@@ -325,7 +325,7 @@ export default function Home() {
           <div style={{ borderRadius: '16px', overflow: 'hidden', height: '340px' }}>
             <iframe
               title="Studio 808 location map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2474.97!2d0.47!3d51.73!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8927e60000001%3A0x1!2sRobjohns+House+Navigation+Rd+Chelmsford!5e0!3m2!1sen!2suk!4v1"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2481.5!2d0.4811709!3d51.7331205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8e97b826ddb63%3A0x4f5b4fa9bba4296c!2sStudio%20808!5e0!3m2!1sen!2suk!4v1"
               width="100%" height="340"
               style={{ border: 0, display: 'block', filter: 'grayscale(30%) brightness(0.85)' }}
               allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
