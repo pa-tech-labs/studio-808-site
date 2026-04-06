@@ -175,15 +175,14 @@ export default function Home() {
       </section>
 
       {/* ── Stats band ───────────────────────────────────────────────────── */}
-      <section style={{ borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, background: SURF }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
-          <style>{`@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr)!important}}`}</style>
+      <section style={{ borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, background: SURF, overflowX: 'hidden' }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 16px', display: 'flex' }}>
           {stats.map(({ value, label }, i) => (
             <div
               key={value}
-              className="stats-grid"
               style={{
-                padding: '40px 24px', textAlign: 'center',
+                flex: 1, minWidth: 0,
+                padding: 'clamp(16px, 4vw, 40px) clamp(4px, 2vw, 24px)', textAlign: 'center',
                 borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none',
               }}
             >
