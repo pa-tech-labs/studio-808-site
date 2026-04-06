@@ -72,9 +72,7 @@ export default function Nav() {
 
           {/* Logo — left */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '34px', height: '34px', background: ACCENT, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontFamily: F_HEAD, color: '#fff', fontSize: '16px', lineHeight: 1 }}>8</span>
-            </div>
+            <img src="/images/logo.png" alt="Studio 808" style={{ height: '40px', width: 'auto', flexShrink: 0 }} />
             <span style={{ fontFamily: F_HEAD, fontSize: '19px', color: TEXT, fontWeight: 400, letterSpacing: '-0.01em' }}>
               Studio 808
             </span>
