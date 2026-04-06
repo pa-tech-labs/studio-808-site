@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { BG, TEXT, MUTED, BORDER, F_HEAD, F_BODY, ACCENT } from '../styles'
+import { BG, TEXT, MUTED, BORDER, F_BODY } from '../styles'
 import { getSiteSettings, type SanitySettings } from '../lib/sanity'
 
 const DEFAULT_SETTINGS: SanitySettings = {
@@ -34,10 +34,7 @@ export default function Footer() {
           {/* Brand */}
           <div style={{ gridColumn: 'span 1' }}>
             <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-              <div style={{ width: '34px', height: '34px', background: ACCENT, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ fontFamily: F_HEAD, color: '#fff', fontSize: '16px' }}>8</span>
-              </div>
-              <span style={{ fontFamily: F_HEAD, fontSize: '19px', color: TEXT }}>{settings.siteName}</span>
+              <img src="/images/logo.png" alt="Studio 808" style={{ height: '40px', width: 'auto' }} />
             </Link>
             <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, lineHeight: 1.65, margin: '0 0 24px', maxWidth: '240px' }}>
               Chelmsford's creative hub for DJs, producers and content creators. Est. 2014.
