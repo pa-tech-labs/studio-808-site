@@ -13,6 +13,7 @@ interface GoogleReview {
   rating: number
   relative_time_description: string
   text: string
+  time: number
 }
 
 interface PlaceData {
@@ -61,6 +62,7 @@ function fetchPlaceDetails(): Promise<PlaceData> {
               rating: r.rating,
               relative_time_description: r.relative_time_description,
               text: r.text,
+              time: r.time ?? 0,
             })),
           }
           sessionStorage.setItem(CACHE_KEY, JSON.stringify(data))
@@ -246,9 +248,13 @@ export default function GoogleReviews() {
         {data && data.reviews.length > 0 && (
           <>
             <div className="reviews-grid">
-              {data.reviews.slice(0, 6).map((r, i) => (
-                <ReviewCard key={i} review={r} />
-              ))}
+              {data.reviews
+                .filter(r => r.text?.trim())
+                .sort((a, b) => b.time - a.time)
+                .slice(0, 6)
+                .map((r, i) => (
+                  <ReviewCard key={i} review={r} />
+                ))}
             </div>
 
             {/* Attribution + link */}
