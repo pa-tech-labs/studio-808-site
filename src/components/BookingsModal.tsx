@@ -9,10 +9,12 @@ interface Props {
 }
 
 export default function BookingsModal({ onClose }: Props) {
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+  const savedEmail = localStorage.getItem('studio808_remember_email')
+  const [email, setEmail]         = useState(savedEmail ?? '')
+  const [password, setPassword]   = useState('')
+  const [rememberMe, setRememberMe] = useState(!!savedEmail)
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState<string | null>(null)
   const emailRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -40,6 +42,10 @@ export default function BookingsModal({ onClose }: Props) {
         setLoading(false)
         return
       }
+
+      // Persist or clear remembered email
+      if (rememberMe) localStorage.setItem('studio808_remember_email', email.trim())
+      else localStorage.removeItem('studio808_remember_email')
 
       // Pass tokens in the URL hash so the Supabase client on
       // book.studio-808.com picks up the session automatically.
@@ -111,6 +117,24 @@ export default function BookingsModal({ onClose }: Props) {
             style={inp}
             autoComplete="current-password"
           />
+
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            cursor: 'pointer', userSelect: 'none',
+          }}>
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={e => setRememberMe(e.target.checked)}
+              style={{
+                width: '16px', height: '16px', margin: 0,
+                accentColor: ACCENT, cursor: 'pointer',
+              }}
+            />
+            <span style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED }}>
+              Remember me
+            </span>
+          </label>
 
           {error && (
             <p style={{
