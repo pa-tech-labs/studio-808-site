@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { ACCENT, F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
+import { F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
 import { getSiteSettings } from '../lib/sanity'
 
