@@ -1,44 +1,7 @@
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel } from '../styles'
-
-const posts = [
-  {
-    slug: '10-years-of-studio-808',
-    title: '10 Years Of Studio 808',
-    excerpt: 'A decade of music, creativity and community in Chelmsford. We look back at how Studio 808 grew from a single room to four professional studios.',
-    date: '2024',
-    category: 'News',
-  },
-  {
-    slug: 'how-to-start-a-podcast',
-    title: 'How to Start a Podcast: From Idea to Launch',
-    excerpt: 'Everything you need to know to launch your first podcast — from finding your format and buying gear to recording your first episode and publishing it online.',
-    date: '2024',
-    category: 'Podcasting',
-  },
-  {
-    slug: 'how-to-publish-your-podcast',
-    title: 'How to Publish Your Podcast: From Recording to Launch',
-    excerpt: "You've recorded your first episode \u2014 now what? A step-by-step guide to editing, exporting and distributing your podcast across Spotify, Apple and more.",
-    date: '2024',
-    category: 'Podcasting',
-  },
-  {
-    slug: 'finding-your-podcast-niche',
-    title: 'Finding Your Podcast Niche: Stand Out from the Crowd',
-    excerpt: 'With millions of podcasts competing for listeners, how do you carve out a space? We break down how to identify your niche and build an audience.',
-    date: '2024',
-    category: 'Podcasting',
-  },
-  {
-    slug: 'get-better-chelmsford-case-study',
-    title: 'The Get Better in Chelmsford Podcast | Case Study',
-    excerpt: 'How local business podcast \u201cGet Better in Chelmsford\u201d used Studio 808 to build a consistent, professional-sounding show on a small budget.',
-    date: '2024',
-    category: 'Case Study',
-  },
-]
+import posts from '../data/blogPosts'
 
 export default function Blog() {
   return (

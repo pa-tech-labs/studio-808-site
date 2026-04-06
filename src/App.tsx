@@ -10,6 +10,7 @@ import PodcastStudio from './pages/PodcastStudio'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -27,7 +28,7 @@ export default function App() {
           <Route path="/about-us" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<NotFound />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
