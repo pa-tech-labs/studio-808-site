@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { F_HEAD, F_BODY, TEXT, MUTED } from '../styles'
+import { F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
 import { getSiteSettings } from '../lib/sanity'
 
@@ -73,9 +73,6 @@ export default function Nav() {
           {/* Logo — left */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="/images/logo.png" alt="Studio 808" style={{ height: '40px', width: 'auto', flexShrink: 0 }} />
-            <span style={{ fontFamily: F_HEAD, fontSize: '19px', color: TEXT, fontWeight: 400, letterSpacing: '-0.01em' }}>
-              Studio 808
-            </span>
           </Link>
 
           {/* Nav links — centre */}
