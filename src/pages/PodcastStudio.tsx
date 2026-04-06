@@ -1,7 +1,7 @@
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
-const PA_MEDIA_BOOK = 'https://pa-media-7049.lumentry.io/book'
+const PA_MEDIA_BOOK = 'https://www.paulalexander.media/'
 
 const features = [
   'Professional podcast recording studio',
