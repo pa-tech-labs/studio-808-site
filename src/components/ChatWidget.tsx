@@ -8,7 +8,7 @@ interface Message {
 
 const GREETING = "Hi! I'm the Studio 808 assistant. Ask me anything about our studios, pricing, or how to book — I'm here to help."
 
-const WA_URL = 'https://wa.me/447700174614?text=' + encodeURIComponent('Hi, I have a question about Studio 808')
+const WA_URL = 'https://wa.me/447348426746?text=' + encodeURIComponent('Hi, I have a question about Studio 808')
 const WA_NUDGE_AFTER = 3 // show WhatsApp suggestion after this many user messages
 
 const CONTACT_TRIGGERS = [
