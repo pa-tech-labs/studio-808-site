@@ -79,6 +79,8 @@ export default function Footer() {
               { to: '/about-us', label: 'About Us' },
               { to: '/blog',     label: 'Blog' },
               { to: '/contact',  label: 'Contact' },
+              { to: '/privacy',  label: 'Privacy Policy' },
+              { to: '/terms',    label: 'Terms of Service' },
             ].map(({ to, label }) => (
               <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px' }}>{label}</Link>
             ))}
