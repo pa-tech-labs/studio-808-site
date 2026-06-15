@@ -21,7 +21,7 @@ Studio 2 — Creator (Hybrid DJ + Production)
 - £35/hr — 2-hour minimum booking (minimum cost £70)
 
 Studio 3 — Pro DJ (Club-standard booth)
-- 2× Pioneer CDJ-3000 + 1× CDJ-2000 NXS media players
+- 3× Pioneer CDJ-3000 media players
 - Pioneer DJM-A9 mixer
 - Pioneer RMX-1000 remix station
 - 2× Technics SL-1210 MK2 turntables

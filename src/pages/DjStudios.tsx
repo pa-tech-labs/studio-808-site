@@ -73,8 +73,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
     capacity: '8',
     desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
     equipment: [
-      '2× Pioneer CDJ-3000 media players',
-      '1× Pioneer CDJ-2000 NXS media player',
+      '3× Pioneer CDJ-3000 media players',
       'Pioneer DJM-A9 mixer',
       'Pioneer RMX-1000 remix station',
       '2× Technics SL-1210 MK2 turntables',
