@@ -181,6 +181,120 @@ export default function ProductionStudio() {
           </div>
         </div>
       </section>
+
+      {/* ───────────── Producer Membership ───────────── */}
+
+      {/* How it works */}
+      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
+            <span style={sectionLabel}>How It Works</span>
+            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Your studio, <em>every month.</em>
+            </h2>
+            <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
+              Stop paying day rates. Lock in Studio 4 with a fixed monthly plan — show up whenever inspiration hits.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+            {[
+              { n: '1', title: 'Pick your plan', body: 'Choose 2hr or 4hr sessions on a 3 or 6 month commitment.' },
+              { n: '2', title: 'Get your monthly code', body: 'A unique booking code lands via WhatsApp on the 1st of each month.' },
+              { n: '3', title: 'Book whenever', body: 'Use your code at checkout for Studio 4. Book any combination of sessions until your hours are used.' },
+            ].map(step => (
+              <div key={step.n} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '999px', background: 'rgba(232,53,90,0.12)', color: ACCENT, fontFamily: '"DM Serif Display", serif', fontSize: '18px', marginBottom: '18px' }}>{step.n}</span>
+                <p style={{ fontFamily: F_BODY, fontSize: '17px', fontWeight: 600, color: TEXT, margin: '0 0 10px' }}>{step.title}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Membership plans */}
+      <section className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
+            <span style={sectionLabel}>Producer Membership</span>
+            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Choose your <em>plan.</em>
+            </h2>
+            <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
+              3-month plans offer flexibility. 6-month plans cost less — commit longer, save more.
+            </p>
+          </div>
+          <div style={{ maxWidth: '840px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+            {[
+              { price: '£160', hrs: '8 hrs / month',  term: '3-month minimum', save: 'Save £280/mo vs ad hoc', popular: false },
+              { price: '£260', hrs: '16 hrs / month', term: '3-month minimum', save: 'Save £620/mo vs ad hoc', popular: true  },
+              { price: '£100', hrs: '8 hrs / month',  term: '6-month minimum', save: 'Save £340/mo vs ad hoc', popular: false },
+              { price: '£200', hrs: '16 hrs / month', term: '6-month minimum', save: 'Save £680/mo vs ad hoc', popular: false },
+            ].map(plan => (
+              <div key={plan.price + plan.term} style={{ position: 'relative', background: BG, border: `1px solid ${plan.popular ? ACCENT : BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+                {plan.popular && (
+                  <span style={{ position: 'absolute', top: '-11px', left: '28px', background: ACCENT, color: '#fff', fontFamily: F_BODY, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: '999px', padding: '5px 12px' }}>Most popular</span>
+                )}
+                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '40px', color: TEXT, margin: 0, fontWeight: 400, lineHeight: 1 }}>
+                  {plan.price}<span style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, fontWeight: 400 }}> /mo</span>
+                </p>
+                <p style={{ fontFamily: F_BODY, fontSize: '15px', fontWeight: 600, color: TEXT, margin: '16px 0 4px' }}>{plan.hrs}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '0 0 14px' }}>{plan.term}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '12px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 24px' }}>{plan.save}</p>
+                <a href="https://book.studio-808.com/membership"
+                  style={{ ...btnPrimary, marginTop: 'auto', textAlign: 'center' }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  Join Now
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '48px' }}>
+            <span style={sectionLabel}>FAQ</span>
+            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Common <em>questions.</em>
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '16px' }}>
+            {[
+              { q: "What happens if I don't use all my hours?", a: "Your hours are valid for the calendar month. Unused hours don't roll over, so make sure you book them in." },
+              { q: 'Can I cancel my membership?', a: 'You can cancel any time after your minimum commitment period. Your membership stays active until the end of your current billing period.' },
+              { q: 'Is Studio 4 always available to members?', a: 'Members access the standard booking calendar. We recommend booking early in the month to secure your preferred slots.' },
+              { q: 'What is Studio 4?', a: 'Studio 4 is our dedicated music production room — fully equipped for beatmaking, recording, and music production. First floor, Studio 808, Chelmsford.' },
+            ].map(item => (
+              <div key={item.q} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
+                <p style={{ fontFamily: F_BODY, fontSize: '16px', fontWeight: 600, color: TEXT, margin: '0 0 10px', lineHeight: 1.4 }}>{item.q}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.65 }}>{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA banner */}
+      <section style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: '100px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+          <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            Ready to lock in your <em>studio time?</em>
+          </h2>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65 }}>
+            Join now and your first monthly code arrives via WhatsApp within 24 hours of payment.
+          </p>
+          <a href="https://book.studio-808.com/membership"
+            style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px' }}
+          >
+            Join the Producer Membership →
+          </a>
+        </div>
+      </section>
     </>
   )
 }
