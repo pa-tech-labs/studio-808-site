@@ -184,6 +184,31 @@ export default function ProductionStudio() {
 
       {/* ───────────── Producer Membership ───────────── */}
 
+      {/* Membership intro / hero */}
+      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <span style={sectionLabel}>
+            <span style={{ color: ACCENT }}>NEW ·</span> Studio 4 Membership
+          </span>
+          <h2 className="mh" style={{ fontSize: 'clamp(36px, 5vw, 60px)', color: TEXT, margin: '0 0 24px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+            Membership.<br /><em>Your studio, on tap.</em>
+          </h2>
+          <p style={{ fontFamily: F_BODY, fontSize: '19px', color: TEXT, margin: '0 0 18px', lineHeight: 1.6, maxWidth: '640px' }}>
+            Our Pro Production Studio is now available on a monthly membership. Get dedicated hours in Studio 4 every month for one fixed price — a fraction of the day rate. Built for producers and artists who want a real studio to come back to, without the pay-as-you-go maths.
+          </p>
+          <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65, maxWidth: '640px' }}>
+            Choose your hours. Get a fresh booking code each month. Make music whenever you want.
+          </p>
+          <a href="#membership-plans"
+            style={btnPrimary}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            View membership plans
+          </a>
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
@@ -213,7 +238,7 @@ export default function ProductionStudio() {
       </section>
 
       {/* Membership plans */}
-      <section className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
+      <section id="membership-plans" className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
           <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
             <span style={sectionLabel}>Producer Membership</span>
