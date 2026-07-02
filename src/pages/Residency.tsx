@@ -208,8 +208,8 @@ export default function Residency() {
                   </div>
 
                   <div>
-                    <label htmlFor="work_links" style={labelStyle}>Recent work <span style={{ color: MUTED }}>(2-3 links)</span></label>
-                    <textarea id="work_links" rows={3} placeholder={'Links to recent posts or your best work\nOne URL per line'} value={form.work_links} onChange={set('work_links')} style={textareaStyle} />
+                    <label htmlFor="work_links" style={labelStyle}>Recent work <span style={{ color: ACCENT }}>*</span> <span style={{ color: MUTED }}>(2-3 links)</span></label>
+                    <textarea id="work_links" rows={3} required placeholder={'Links to recent posts or your best work\nOne URL per line'} value={form.work_links} onChange={set('work_links')} style={textareaStyle} />
                     <p style={hintStyle}>Paste 2-3 links, one per line.</p>
                   </div>
 

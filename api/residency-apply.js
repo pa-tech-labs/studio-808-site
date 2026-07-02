@@ -63,6 +63,7 @@ export default async function handler(req, res) {
   if (!application.handle_url) errors.push('Handle or profile URL is required.')
   if (!application.discipline) errors.push('Discipline is required.')
   else if (!DISCIPLINES.includes(application.discipline)) errors.push('Invalid discipline.')
+  if (!application.work_links) errors.push('Please share 2-3 links to your recent work.')
   if (!application.why_text) errors.push('Please tell us why Studio 808.')
   else if (application.why_text.length > WHY_MAX) errors.push(`"Why Studio 808" must be ${WHY_MAX} characters or fewer.`)
   if (!application.consent_ad_disclosure) errors.push('You must agree to the ASA ad-disclosure statement.')
