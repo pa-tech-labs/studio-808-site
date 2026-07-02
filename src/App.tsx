@@ -11,6 +11,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
+import Residency from './pages/Residency'
 import NotFound from './pages/NotFound'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import MembershipTerms from './pages/MembershipTerms'
@@ -29,6 +30,8 @@ export default function App() {
           <Route path="/podcast-studio" element={<PodcastStudio />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/residency" element={<Residency />} />
+          <Route path="/apply" element={<Navigate to="/residency" replace />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
