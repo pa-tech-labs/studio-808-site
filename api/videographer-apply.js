@@ -15,7 +15,7 @@
 //   SUPABASE_SERVICE_ROLE_KEY    (Lumentry project service_role key — secret)
 //   RESEND_API_KEY               (Resend API key — secret)
 //   VIDEOGRAPHER_NOTIFY_TO       (optional, default paul@studio-808.com)
-//   VIDEOGRAPHER_NOTIFY_FROM     (optional, default videographer@send.studio-808.com)
+//   VIDEOGRAPHER_NOTIFY_FROM     (optional, default videographer@send.lumentry.io)
 
 export const config = {
   api: {
@@ -214,7 +214,7 @@ async function sendNotification(application, inserted, storage) {
   }
 
   const to = process.env.VIDEOGRAPHER_NOTIFY_TO || 'paul@studio-808.com'
-  const from = process.env.VIDEOGRAPHER_NOTIFY_FROM || 'Studio 808 <videographer@send.studio-808.com>'
+  const from = process.env.VIDEOGRAPHER_NOTIFY_FROM || 'Studio 808 <videographer@send.lumentry.io>'
 
   const cvUrl = await signCv(application.cv_path, storage)
 
