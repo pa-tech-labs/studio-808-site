@@ -6,6 +6,7 @@ import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
+const MEMBERSHIP_URL = `${BOOK_URL}/membership`
 
 interface StudioData {
   id: string
@@ -208,6 +209,83 @@ export default function DjStudios() {
           </div>
         </section>
       ))}
+
+      {/* ───────────── DJ Membership ───────────── */}
+
+      {/* Membership intro / hero */}
+      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <span style={sectionLabel}>
+            <span style={{ color: ACCENT }}>NEW ·</span> DJ Membership
+          </span>
+          <h2 className="mh" style={{ fontSize: 'clamp(36px, 5vw, 60px)', color: TEXT, margin: '0 0 24px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+            Membership.<br /><em>Your decks, every month.</em>
+          </h2>
+          <p style={{ fontFamily: F_BODY, fontSize: '19px', color: TEXT, margin: '0 0 18px', lineHeight: 1.6, maxWidth: '640px' }}>
+            £25 a month gets you one free 2-hour DJ session every month in any of our DJ studios (1, 2 or 3), on off-peak and super off-peak slots — plus the perks that get you heard.
+          </p>
+          <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65, maxWidth: '640px' }}>
+            No commitment, cancel anytime. A fresh booking code lands each month.
+          </p>
+          <a href={MEMBERSHIP_URL}
+            style={btnPrimary}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            Join £25/month
+          </a>
+        </div>
+      </section>
+
+      {/* What's included */}
+      <section className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
+            <span style={sectionLabel}>What's included</span>
+            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              One membership, <em>every perk.</em>
+            </h2>
+            <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
+              £25 a month, on any of the DJ studios. Here's everything you get.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+            {[
+              { title: '1 free 2-hour session / month', body: 'In any DJ studio (1, 2 or 3), on the full Pioneer setup. Covers off-peak and super off-peak slots — peak slots are available at the standard rate.' },
+              { title: 'Play at Studio 808 events', body: 'Members get first access to play at our events, offered via the members Discord.' },
+              { title: 'Feature on Undiscovered', body: 'Get featured on the Undiscovered YouTube channel — offered to members first.' },
+              { title: 'Discounted 1-to-1 tuition', body: 'Book discounted sessions with our official Pioneer DJ specialist at a member rate.' },
+              { title: 'Priority WhatsApp support', body: 'Jump the queue with priority support whenever you need a hand.' },
+              { title: 'Members Discord', body: 'Access the members-only Discord community of Studio 808 DJs.' },
+            ].map(perk => (
+              <div key={perk.title} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '999px', background: 'rgba(232,53,90,0.12)', color: ACCENT, fontSize: '15px', marginBottom: '18px' }}>●</span>
+                <p style={{ fontFamily: F_BODY, fontSize: '17px', fontWeight: 600, color: TEXT, margin: '0 0 10px', lineHeight: 1.3 }}>{perk.title}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{perk.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Membership CTA banner */}
+      <section style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: '100px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+          <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            A free session, <em>every month.</em>
+          </h2>
+          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65 }}>
+            Join the DJ membership for £25/month and your first booking code arrives once your payment is confirmed.
+          </p>
+          <a href={MEMBERSHIP_URL}
+            style={btnPrimary}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            Join the DJ Membership →
+          </a>
+        </div>
+      </section>
     </>
   )
 }
