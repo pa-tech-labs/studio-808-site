@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { FoundingBadge, FoundingCounter, useFoundingStatus } from '../components/FoundingBadge'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
@@ -109,6 +110,7 @@ function mapSanityStudio(s: SanityStudio): StudioData {
 }
 
 export default function DjStudios() {
+  const founding = useFoundingStatus()
   const [studios, setStudios] = useState<StudioData[]>(DEFAULT_STUDIOS)
 
   useEffect(() => {
@@ -222,13 +224,13 @@ export default function DjStudios() {
             Membership.<br /><em>Your decks, every month.</em>
           </h2>
           <p style={{ fontFamily: F_BODY, fontSize: '19px', color: TEXT, margin: '0 0 18px', lineHeight: 1.6, maxWidth: '640px' }}>
-            Two tiers. 808 DJ gives you £25.00 of booking credit every month, spent at member rates across every room. 808 Resident doubles it to £50.00 — plus a yearly Undiscovered feature slot and members-first casting.
+            Two tiers. 808 DJ gives you £25.00 of booking credit every month, spent at member rates across every room. 808 Resident doubles it to £50.00, plus a yearly Undiscovered feature slot and members-first casting.
           </p>
           <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 12px', lineHeight: 1.65, maxWidth: '640px' }}>
             Credit resets on the 1st of every month and never rolls over. Founding memberships: 3-month initial term, then monthly rolling. Standard memberships: monthly rolling, cancel anytime.
           </p>
           <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 32px' }}>
-            Founding offer — first 15 members only
+            Founding offer - first 15 members only
           </p>
           <a href={MEMBERSHIP_URL}
             style={btnPrimary}
@@ -252,11 +254,12 @@ export default function DjStudios() {
               Founding pricing for the first 15 members — locked for life. Credit resets on the 1st of every month and never rolls over.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', maxWidth: '880px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', maxWidth: '880px', margin: '0 auto' }}>
             {[
               {
                 name: '808 DJ',
-                founding: '£20/mo founding — first 15 members, locked for life. £25/mo after.',
+                founding: '£20/mo founding - first 15 members, locked for life. £25/mo after.',
+                standard: '£25/mo - monthly rolling, cancel anytime.',
                 perks: [
                   '£25.00 booking credit every month, spent at member rates',
                   'Member pricing on all rooms',
@@ -268,7 +271,8 @@ export default function DjStudios() {
               },
               {
                 name: '808 Resident',
-                founding: '£45/mo founding — locked for life. £50/mo after.',
+                founding: '£45/mo founding - locked for life. £50/mo after.',
+                standard: '£50/mo - monthly rolling, cancel anytime.',
                 perks: [
                   '£50.00 booking credit every month',
                   'Everything in 808 DJ',
@@ -277,9 +281,14 @@ export default function DjStudios() {
                 ],
               },
             ].map(tier => (
-              <div key={tier.name} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div key={tier.name} style={{ background: BG, border: `1px solid ${founding.dj === 0 ? BORDER : 'rgba(232,53,90,0.35)'}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+                <div><FoundingBadge remaining={founding.dj} label="Founding offer - first 15 members only" /></div>
                 <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '28px', color: TEXT, margin: '0 0 6px', fontWeight: 400, lineHeight: 1.1 }}>{tier.name}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: TEXT, margin: '0 0 18px' }}>{tier.founding}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: founding.dj === 0 ? TEXT : ACCENT, margin: '0 0 6px' }}>
+                  {founding.dj === 0 ? tier.standard : tier.founding}
+                </p>
+                <FoundingCounter remaining={founding.dj} cap={15} />
+                <div style={{ marginBottom: '12px' }} />
                 <ul style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: '0 0 18px', paddingLeft: '18px', lineHeight: 1.7 }}>
                   {tier.perks.map(perk => <li key={perk}>{perk}</li>)}
                 </ul>
@@ -306,7 +315,7 @@ export default function DjStudios() {
             Credit in your pocket, <em>every month.</em>
           </h2>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65 }}>
-            Join as a founding member from £20/month — your booking credit lands the moment you sign up, and again on the 1st of every month.
+            Join as a founding member from £20/month - your booking credit lands the moment you sign up, and again on the 1st of every month.
           </p>
           <a href={MEMBERSHIP_URL}
             style={btnPrimary}

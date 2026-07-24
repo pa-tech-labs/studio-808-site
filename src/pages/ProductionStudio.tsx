@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { FoundingBadge, FoundingCounter, useFoundingStatus } from '../components/FoundingBadge'
 import { getStudios, formatPrice, sanityImageUrl, type SanityService } from '../lib/sanity'
 
 const STUDIO4_IMAGES = [
@@ -48,6 +49,7 @@ const DEFAULT_DATA: Studio4Data = {
 }
 
 export default function ProductionStudio() {
+  const founding = useFoundingStatus()
   const [data, setData] = useState<Studio4Data>(DEFAULT_DATA)
 
   useEffect(() => {
@@ -243,30 +245,34 @@ export default function ProductionStudio() {
           <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
             <span style={sectionLabel}>Producer Membership</span>
             <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              Choose your <em>plan.</em>
+              <span style={{ color: ACCENT }}>NEW · </span>Choose your <em>plan.</em>
             </h2>
             <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
-              3-month plans offer flexibility. 6-month plans cost less — commit longer, save more.
+              3-month plans offer flexibility. 6-month plans cost less - commit longer, save more.
             </p>
-            <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '14px 0 0' }}>
-              Founding Producers — first 3 only, price locked for life
-            </p>
+            {founding.producer !== 0 && (
+              <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '14px 0 0' }}>
+                Founding Producers - first 3 only, price locked for life
+              </p>
+            )}
           </div>
           <div style={{ maxWidth: '840px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {[
-              { price: '£160', hours: 8,  months: 3, perHour: '£20/hr — walk-in £55/hr' },
+              { price: '£160', hours: 8,  months: 3, perHour: '£20/hr - walk-in £55/hr' },
               { price: '£260', hours: 16, months: 3, perHour: '£16.25/hr' },
               { price: '£100', hours: 8,  months: 6, perHour: '£12.50/hr' },
               { price: '£200', hours: 16, months: 6, perHour: '£12.50/hr' },
             ].map(plan => (
-              <div key={plan.price + plan.months} style={{ position: 'relative', background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div key={plan.price + plan.months} style={{ position: 'relative', background: BG, border: `1px solid ${founding.producer === 0 ? BORDER : 'rgba(232,53,90,0.35)'}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+                <div><FoundingBadge remaining={founding.producer} label="Founding producers - first 3 only" /></div>
                 <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '40px', color: TEXT, margin: 0, fontWeight: 400, lineHeight: 1 }}>
                   {plan.price}<span style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, fontWeight: 400 }}> /mo</span>
                 </p>
-                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '8px 0 14px' }}>{plan.perHour}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '8px 0 6px' }}>{plan.perHour}</p>
+                <FoundingCounter remaining={founding.producer} cap={3} />
                 <ul style={{ fontFamily: F_BODY, fontSize: '13.5px', color: MUTED, margin: '0 0 14px', paddingLeft: '18px', lineHeight: 1.7 }}>
-                  <li>{plan.hours} hours a month in Studio 4 — the pro room</li>
-                  <li>Weekend Studio 4 access — producer members only</li>
+                  <li>{plan.hours} hours a month in Studio 4 - the pro room</li>
+                  <li>Weekend Studio 4 access - producer members only</li>
                   <li>Overflow hours at £25/hr past your allowance</li>
                   {plan.hours === 16 && <li>One professionally filmed session per year, shot and edited by us</li>}
                 </ul>
