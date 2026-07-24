@@ -222,17 +222,20 @@ export default function DjStudios() {
             Membership.<br /><em>Your decks, every month.</em>
           </h2>
           <p style={{ fontFamily: F_BODY, fontSize: '19px', color: TEXT, margin: '0 0 18px', lineHeight: 1.6, maxWidth: '640px' }}>
-            £25 a month gets you one free 2-hour DJ session every month in any of our DJ studios (1, 2 or 3), on off-peak and super off-peak slots — plus the perks that get you heard.
+            Two tiers. 808 DJ gives you £25.00 of booking credit every month, spent at member rates across every room. 808 Resident doubles it to £50.00 — plus a yearly Undiscovered feature slot and members-first casting.
           </p>
-          <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65, maxWidth: '640px' }}>
-            No commitment, cancel anytime. A fresh booking code lands each month.
+          <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 12px', lineHeight: 1.65, maxWidth: '640px' }}>
+            Credit resets on the 1st of every month and never rolls over. Founding memberships: 3-month initial term, then monthly rolling. Standard memberships: monthly rolling, cancel anytime.
+          </p>
+          <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 32px' }}>
+            Founding offer — first 15 members only
           </p>
           <a href={MEMBERSHIP_URL}
             style={btnPrimary}
             onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
             onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
           >
-            Join £25/month
+            Join from £20/month
           </a>
         </div>
       </section>
@@ -243,25 +246,53 @@ export default function DjStudios() {
           <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
             <span style={sectionLabel}>What's included</span>
             <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              One membership, <em>every perk.</em>
+              Two tiers, <em>pick your lane.</em>
             </h2>
             <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
-              £25 a month, on any of the DJ studios. Here's everything you get.
+              Founding pricing for the first 15 members — locked for life. Credit resets on the 1st of every month and never rolls over.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', maxWidth: '880px' }}>
             {[
-              { title: '1 free 2-hour session / month', body: 'In any DJ studio (1, 2 or 3), on the full Pioneer setup. Covers off-peak and super off-peak slots — peak slots are available at the standard rate.' },
-              { title: 'Play at Studio 808 events', body: 'Members get first access to play at our events, offered via the members Discord.' },
-              { title: 'Feature on Undiscovered', body: 'Get featured on the Undiscovered YouTube channel — offered to members first.' },
-              { title: 'Discounted 1-to-1 tuition', body: 'Book discounted sessions with our official Pioneer DJ specialist at a member rate.' },
-              { title: 'Priority WhatsApp support', body: 'Jump the queue with priority support whenever you need a hand.' },
-              { title: 'Members Discord', body: 'Access the members-only Discord community of Studio 808 DJs.' },
-            ].map(perk => (
-              <div key={perk.title} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '999px', background: 'rgba(232,53,90,0.12)', color: ACCENT, fontSize: '15px', marginBottom: '18px' }}>●</span>
-                <p style={{ fontFamily: F_BODY, fontSize: '17px', fontWeight: 600, color: TEXT, margin: '0 0 10px', lineHeight: 1.3 }}>{perk.title}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{perk.body}</p>
+              {
+                name: '808 DJ',
+                founding: '£20/mo founding — first 15 members, locked for life. £25/mo after.',
+                perks: [
+                  '£25.00 booking credit every month, spent at member rates',
+                  'Member pricing on all rooms',
+                  'Members-only late-night hours',
+                  'One bonus daytime session per month (2h max, starts and ends by 16:00)',
+                  'Undiscovered casting eligibility',
+                  'Event invites',
+                ],
+              },
+              {
+                name: '808 Resident',
+                founding: '£45/mo founding — locked for life. £50/mo after.',
+                perks: [
+                  '£50.00 booking credit every month',
+                  'Everything in 808 DJ',
+                  'One Undiscovered feature slot per year',
+                  'Members-first casting',
+                ],
+              },
+            ].map(tier => (
+              <div key={tier.name} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
+                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '28px', color: TEXT, margin: '0 0 6px', fontWeight: 400, lineHeight: 1.1 }}>{tier.name}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: TEXT, margin: '0 0 18px' }}>{tier.founding}</p>
+                <ul style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: '0 0 18px', paddingLeft: '18px', lineHeight: 1.7 }}>
+                  {tier.perks.map(perk => <li key={perk}>{perk}</li>)}
+                </ul>
+                <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 22px', lineHeight: 1.6 }}>
+                  Credit resets on the 1st of every month and never rolls over. Founding: 3-month initial term, then monthly rolling. Standard: monthly rolling, cancel anytime.
+                </p>
+                <a href={MEMBERSHIP_URL}
+                  style={{ ...btnPrimary, marginTop: 'auto', textAlign: 'center' }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  Join from £20/month
+                </a>
               </div>
             ))}
           </div>
@@ -272,10 +303,10 @@ export default function DjStudios() {
       <section style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: '100px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '680px', margin: '0 auto' }}>
           <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            A free session, <em>every month.</em>
+            Credit in your pocket, <em>every month.</em>
           </h2>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65 }}>
-            Join the DJ membership for £25/month and your first booking code arrives once your payment is confirmed.
+            Join as a founding member from £20/month — your booking credit lands the moment you sign up, and again on the 1st of every month.
           </p>
           <a href={MEMBERSHIP_URL}
             style={btnPrimary}

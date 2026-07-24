@@ -223,7 +223,7 @@ export default function ProductionStudio() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             {[
-              { n: '1', title: 'Pick your plan', body: 'Choose 2hr or 4hr sessions on a 3 or 6 month commitment.' },
+              { n: '1', title: 'Pick your plan', body: 'Choose 8 or 16 hours a month, on a 3 or 6 month commitment.' },
               { n: '2', title: 'Get your monthly code', body: 'A unique booking code lands via WhatsApp on the 1st of each month.' },
               { n: '3', title: 'Book whenever', body: 'Use your code at checkout for Studio 4. Book any combination of sessions until your hours are used.' },
             ].map(step => (
@@ -248,24 +248,31 @@ export default function ProductionStudio() {
             <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
               3-month plans offer flexibility. 6-month plans cost less — commit longer, save more.
             </p>
+            <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '14px 0 0' }}>
+              Founding Producers — first 3 only, price locked for life
+            </p>
           </div>
           <div style={{ maxWidth: '840px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {[
-              { price: '£160', hrs: '8 hrs / month',  term: '3-month minimum', save: 'Save £280/mo vs ad hoc', popular: false },
-              { price: '£260', hrs: '16 hrs / month', term: '3-month minimum', save: 'Save £620/mo vs ad hoc', popular: true  },
-              { price: '£100', hrs: '8 hrs / month',  term: '6-month minimum', save: 'Save £340/mo vs ad hoc', popular: false },
-              { price: '£200', hrs: '16 hrs / month', term: '6-month minimum', save: 'Save £680/mo vs ad hoc', popular: false },
+              { price: '£160', hours: 8,  months: 3, perHour: '£20/hr — walk-in £55/hr' },
+              { price: '£260', hours: 16, months: 3, perHour: '£16.25/hr' },
+              { price: '£100', hours: 8,  months: 6, perHour: '£12.50/hr' },
+              { price: '£200', hours: 16, months: 6, perHour: '£12.50/hr' },
             ].map(plan => (
-              <div key={plan.price + plan.term} style={{ position: 'relative', background: BG, border: `1px solid ${plan.popular ? ACCENT : BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
-                {plan.popular && (
-                  <span style={{ position: 'absolute', top: '-11px', left: '28px', background: ACCENT, color: '#fff', fontFamily: F_BODY, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: '999px', padding: '5px 12px' }}>Most popular</span>
-                )}
+              <div key={plan.price + plan.months} style={{ position: 'relative', background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
                 <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '40px', color: TEXT, margin: 0, fontWeight: 400, lineHeight: 1 }}>
                   {plan.price}<span style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, fontWeight: 400 }}> /mo</span>
                 </p>
-                <p style={{ fontFamily: F_BODY, fontSize: '15px', fontWeight: 600, color: TEXT, margin: '16px 0 4px' }}>{plan.hrs}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '0 0 14px' }}>{plan.term}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '12px', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 24px' }}>{plan.save}</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '8px 0 14px' }}>{plan.perHour}</p>
+                <ul style={{ fontFamily: F_BODY, fontSize: '13.5px', color: MUTED, margin: '0 0 14px', paddingLeft: '18px', lineHeight: 1.7 }}>
+                  <li>{plan.hours} hours a month in Studio 4 — the pro room</li>
+                  <li>Weekend Studio 4 access — producer members only</li>
+                  <li>Overflow hours at £25/hr past your allowance</li>
+                  {plan.hours === 16 && <li>One professionally filmed session per year, shot and edited by us</li>}
+                </ul>
+                <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 22px', lineHeight: 1.6 }}>
+                  Hours reset monthly and never roll over. {plan.months}-month minimum, then monthly rolling.
+                </p>
                 <a href="https://book.studio-808.com/membership"
                   style={{ ...btnPrimary, marginTop: 'auto', textAlign: 'center' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
