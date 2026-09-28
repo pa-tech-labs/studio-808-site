@@ -1,6 +1,7 @@
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import type { FinderQuestion, FinderRule } from './studioFinder.js'
+import type { MembershipPageContent } from './membershipPageContent.js'
 
 const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID ?? ''
 const DATASET    = import.meta.env.VITE_SANITY_DATASET ?? 'production'
@@ -167,6 +168,20 @@ export async function getStudioFinder(): Promise<SanityStudioFinder | null> {
         studio-> { _id, name, tagline, shortDescription, hourlyRate, minimumHours, heroImage, pageHref, cueRoomSlug, sortOrder, studioNumber }
       },
       tutor, result
+    }`,
+  )
+}
+
+/**
+ * The published Membership page singleton. Null when Sanity is not
+ * configured or the document does not exist.
+ */
+export async function getMembershipPage(): Promise<MembershipPageContent | null> {
+  if (!isConfigured()) return null
+  return sanityClient.fetch<MembershipPageContent | null>(
+    `*[_id == "membershipPage"][0] {
+      seoTitle, seoDescription, eyebrow, heading, intro, selector,
+      dj, producer, socials, tiers
     }`,
   )
 }

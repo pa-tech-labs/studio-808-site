@@ -16,8 +16,7 @@ import Videographer from './pages/Videographer'
 import NotFound from './pages/NotFound'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import MembershipTerms from './pages/MembershipTerms'
-import ExternalRedirect from './components/ExternalRedirect'
-import { MEMBERSHIP_URL } from './lib/links'
+import Membership from './pages/Membership'
 import StudioFinder from './components/StudioFinder'
 import { FINDER_PATH, backgroundOf } from './lib/studioFinderRoute'
 
@@ -51,7 +50,7 @@ function AppRoutes() {
       <Route path="/about-us" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/residency" element={<ResidencyRoute />} />
-      <Route path="/membership" element={<ExternalRedirect to={MEMBERSHIP_URL} />} />
+      <Route path="/membership" element={<Membership />} />
       <Route path="/videographer" element={<Videographer />} />
       <Route path="/apply" element={<Navigate to="/residency" replace />} />
       <Route path="/blog" element={<Blog />} />

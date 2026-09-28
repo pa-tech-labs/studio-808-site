@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BG, TEXT, MUTED, BORDER, F_BODY } from '../styles'
 import { getSiteSettings, type SanitySettings } from '../lib/sanity'
-import { MEMBERSHIP_URL } from '../lib/links'
+import { MEMBERSHIP_PATH } from '../lib/links'
 
 const DEFAULT_SETTINGS: SanitySettings = {
   siteName: 'Studio 808',
@@ -82,10 +82,10 @@ export default function Footer() {
               { to: '/contact',  label: 'Contact' },
               { to: '/privacy',          label: 'Privacy Policy' },
               { to: '/membership-terms', label: 'Membership Terms' },
+              { to: MEMBERSHIP_PATH,     label: 'Membership' },
             ].map(({ to, label }) => (
               <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px' }}>{label}</Link>
             ))}
-            <a href={MEMBERSHIP_URL} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px' }}>Membership</a>
             <a
               href={settings.bookingUrl}
               style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px', marginTop: '4px' }}
