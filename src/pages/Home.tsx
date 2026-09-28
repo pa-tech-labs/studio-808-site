@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary, btnSecondary } from '../styles'
 import GoogleReviews from '../components/GoogleReviews'
@@ -7,6 +7,7 @@ import StudioFinderSection from '../components/StudioFinderSection'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
+const STUDIOS_ID = 'studios'
 
 const stats = [
   { value: 'Est. 2014', label: 'A decade of music' },
@@ -107,8 +108,28 @@ function mapSanityCard(s: SanityStudio): StudioCard {
   }
 }
 
+// Scroll to the section named in the URL hash (e.g. /#studios). The SPA renders
+// after the browser's own hash jump, so do it here, and again once the page has
+// fully loaded in case late content above the section moved it.
+function useHashScroll() {
+  const { hash, key } = useLocation()
+  useEffect(() => {
+    const id = decodeURIComponent(hash.slice(1))
+    if (!id) return
+    const scroll = () => {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+    }
+    scroll()
+    if (document.readyState === 'complete') return
+    window.addEventListener('load', scroll, { once: true })
+    return () => window.removeEventListener('load', scroll)
+  }, [hash, key])
+}
+
 export default function Home() {
   const [studios, setStudios] = useState<StudioCard[]>(DEFAULT_STUDIOS)
+  useHashScroll()
 
   useEffect(() => {
     getStudios()
@@ -166,7 +187,7 @@ export default function Home() {
             >
               Book a Studio
             </a>
-            <Link to="/dj-studio"
+            <Link to={{ pathname: '/', hash: STUDIOS_ID }}
               style={{ ...btnSecondary, fontSize: '15px', padding: '15px 36px' }}
             >
               View Studios
@@ -174,8 +195,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <StudioFinderSection />
 
       {/* ── Stats band ───────────────────────────────────────────────────── */}
       <section style={{ borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, background: SURF, overflowX: 'hidden' }}>
@@ -197,7 +216,7 @@ export default function Home() {
       </section>
 
       {/* ── Studios grid ─────────────────────────────────────────────────── */}
-      <section className="section" style={{ background: BG }}>
+      <section id={STUDIOS_ID} className="section" style={{ background: BG, scrollMarginTop: '72px' }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <span style={sectionLabel}>Studios</span>
@@ -234,6 +253,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StudioFinderSection />
 
       {/* ── Why Studio 808 ───────────────────────────────────────────────── */}
       <section className="section" style={{ background: SURF, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
