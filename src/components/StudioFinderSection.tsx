@@ -13,7 +13,7 @@ export default function StudioFinderSection() {
   if (!finder) return null
 
   return (
-    <section style={{ background: SURF, borderBottom: `1px solid ${BORDER}`, padding: '56px 16px' }}>
+    <section style={{ background: SURF, borderTop: `1px solid ${BORDER}`, padding: '56px 16px' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         {finder.heading && (
           <h2 className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '0 0 14px' }}>
