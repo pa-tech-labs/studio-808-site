@@ -11,11 +11,13 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
-import Residency from './pages/Residency'
+import ResidencyRoute from './pages/ResidencyRoute'
 import Videographer from './pages/Videographer'
 import NotFound from './pages/NotFound'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import MembershipTerms from './pages/MembershipTerms'
+import ExternalRedirect from './components/ExternalRedirect'
+import { MEMBERSHIP_URL } from './lib/links'
 
 export default function App() {
   return (
@@ -31,7 +33,8 @@ export default function App() {
           <Route path="/podcast-studio" element={<PodcastStudio />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/residency" element={<Residency />} />
+          <Route path="/residency" element={<ResidencyRoute />} />
+          <Route path="/membership" element={<ExternalRedirect to={MEMBERSHIP_URL} />} />
           <Route path="/videographer" element={<Videographer />} />
           <Route path="/apply" element={<Navigate to="/residency" replace />} />
           <Route path="/blog" element={<Blog />} />

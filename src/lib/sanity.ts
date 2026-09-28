@@ -96,6 +96,19 @@ export async function getPage(slug: string): Promise<SanityPage | null> {
   )
 }
 
+/**
+ * A page is enabled unless its `page` document explicitly says `isEnabled: false`.
+ * No document, no field, or Sanity not configured all read as enabled.
+ */
+export async function isPageEnabled(slug: string): Promise<boolean> {
+  if (!isConfigured()) return true
+  const enabled = await sanityClient.fetch<boolean | null>(
+    `*[_type == "page" && slug.current == $slug][0].isEnabled`,
+    { slug },
+  )
+  return enabled !== false
+}
+
 export async function getSiteSettings(): Promise<SanitySettings | null> {
   if (!isConfigured()) return null
   return sanityClient.fetch<SanitySettings | null>(

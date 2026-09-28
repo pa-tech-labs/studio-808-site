@@ -3,27 +3,41 @@ import { Link, NavLink } from 'react-router-dom'
 import { F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
 import { getSiteSettings } from '../lib/sanity'
+import { MEMBERSHIP_URL } from '../lib/links'
+import { useResidencyEnabled } from '../lib/residency'
 
 const DEFAULT_BOOK_URL = 'https://book.studio-808.com'
 
-const links = [
-  { to: '/dj-studio',                label: 'DJ Studios' },
-  { to: '/main-production-studio',   label: 'Production Studio' },
-  { to: '/residency',                label: 'Residency' },
-  { to: '/about-us',                 label: 'About' },
-  { to: '/contact',                  label: 'Contact' },
-]
+type NavItem = { to: string; label: string; external?: boolean }
 
-const mobileLinks = [
-  ...links,
-  { to: '/podcast-studio', label: 'Podcast' },
-]
+// One slot: Residency while it is enabled, Membership once it is switched
+// off. Empty while the flag loads, so neither flashes in the wrong state.
+function buildLinks(residencyEnabled: boolean | null): NavItem[] {
+  const slot: NavItem[] =
+    residencyEnabled === null ? []
+    : residencyEnabled ? [{ to: '/residency', label: 'Residency' }]
+    : [{ to: MEMBERSHIP_URL, label: 'Membership', external: true }]
+  return [
+    { to: '/dj-studio',                label: 'DJ Studios' },
+    { to: '/main-production-studio',   label: 'Production Studio' },
+    ...slot,
+    { to: '/about-us',                 label: 'About' },
+    { to: '/contact',                  label: 'Contact' },
+  ]
+}
 
 export default function Nav() {
   const [scrolled, setScrolled]       = useState(false)
   const [open, setOpen]               = useState(false)
   const [showBookings, setShowBookings] = useState(false)
   const [bookUrl, setBookUrl]         = useState(DEFAULT_BOOK_URL)
+  const residencyEnabled              = useResidencyEnabled()
+
+  const links = buildLinks(residencyEnabled)
+  const mobileLinks: NavItem[] = [
+    ...links,
+    { to: '/podcast-studio', label: 'Podcast' },
+  ]
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -78,7 +92,23 @@ export default function Nav() {
 
           {/* Nav links — centre */}
           <nav className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
-            {links.map(({ to, label }) => (
+            {links.map(({ to, label, external }) => external ? (
+              <a
+                key={to}
+                href={to}
+                className="nav-link"
+                style={{
+                  textDecoration: 'none',
+                  fontFamily: F_BODY,
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: MUTED,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {label}
+              </a>
+            ) : (
               <NavLink
                 key={to}
                 to={to}
@@ -156,21 +186,19 @@ export default function Nav() {
             borderTop: '1px solid rgba(240,237,232,0.08)',
             padding: '8px 24px 28px',
           }}>
-            {mobileLinks.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setOpen(false)}
-                style={{
-                  display: 'block', padding: '14px 0',
-                  fontFamily: F_BODY, fontSize: '16px', color: TEXT,
-                  textDecoration: 'none', borderBottom: '1px solid rgba(240,237,232,0.06)',
-                  fontWeight: 500,
-                }}
-              >
-                {label}
-              </Link>
-            ))}
+            {mobileLinks.map(({ to, label, external }) => {
+              const style = {
+                display: 'block', padding: '14px 0',
+                fontFamily: F_BODY, fontSize: '16px', color: TEXT,
+                textDecoration: 'none', borderBottom: '1px solid rgba(240,237,232,0.06)',
+                fontWeight: 500,
+              }
+              return external ? (
+                <a key={to} href={to} onClick={() => setOpen(false)} style={style}>{label}</a>
+              ) : (
+                <Link key={to} to={to} onClick={() => setOpen(false)} style={style}>{label}</Link>
+              )
+            })}
             <a
               href={bookUrl}
               onClick={() => setOpen(false)}
