@@ -5,13 +5,12 @@ import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 import { FoundingBadge, FoundingCounter, useFoundingStatus } from '../components/FoundingBadge'
 import { getStudios, formatPrice, sanityImageUrl, type SanityService } from '../lib/sanity'
+import { roomBookingUrl } from '../lib/roomBookingUrl.js'
 
 const STUDIO4_IMAGES = [
   '/images/studios/studio4-production-1.jpg',
   '/images/studios/studio4-production-2.jpg',
 ]
-
-const BOOK_URL = 'https://book.studio-808.com'
 
 const DEFAULT_EQUIPMENT = [
   'Focal SM9 reference monitors',
@@ -38,6 +37,8 @@ interface Studio4Data {
   capacity: string
   equipment: string[]
   services: SanityService[]
+  /** Cue booking-link slug; null books the plain page, never a guessed room. */
+  cueRoomSlug: string | null
 }
 
 const DEFAULT_DATA: Studio4Data = {
@@ -46,6 +47,7 @@ const DEFAULT_DATA: Studio4Data = {
   capacity: '5',
   equipment: DEFAULT_EQUIPMENT,
   services: DEFAULT_SERVICES,
+  cueRoomSlug: 'studio-4',
 }
 
 export default function ProductionStudio() {
@@ -70,6 +72,7 @@ export default function ProductionStudio() {
           capacity: studio4.capacity ?? DEFAULT_DATA.capacity,
           equipment: studio4.equipment?.length ? studio4.equipment : DEFAULT_EQUIPMENT,
           services: studio4.services?.length ? studio4.services : DEFAULT_SERVICES,
+          cueRoomSlug: studio4.cueRoomSlug ?? null,
         })
       })
       .catch(() => { /* use defaults */ })
@@ -152,7 +155,7 @@ export default function ProductionStudio() {
               </p>
             </div>
 
-            <a href={BOOK_URL}
+            <a href={roomBookingUrl(data.cueRoomSlug)}
               style={btnPrimary}
               onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
               onMouseLeave={e => (e.currentTarget.style.opacity = '1')}

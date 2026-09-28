@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { CUE_ROOM_SLUG_PATTERN } from '../src/lib/roomBookingUrl.js'
 
 export default defineType({
   name: 'studio',
@@ -58,6 +59,18 @@ export default defineType({
     }),
     defineField({ name: 'note', title: 'Important Note (optional)', type: 'string', description: 'Shown as a warning box on the studio detail page.' }),
     defineField({ name: 'pageHref', title: 'Page URL (e.g. /dj-studio)', type: 'string' }),
+    defineField({
+      name: 'cueRoomSlug',
+      title: 'Booking room slug',
+      type: 'string',
+      description: 'Matches the Booking link in Cue > Rooms, e.g. studio-2',
+      // Same rule as the booking side, so every value saved here is one the
+      // booking page can match. Empty is allowed: the Book button then opens
+      // the plain booking page rather than a guessed room.
+      validation: r => r
+        .max(40)
+        .regex(CUE_ROOM_SLUG_PATTERN, { name: 'lowercase letters, digits and hyphens' }),
+    }),
     defineField({
       name: 'heroImage',
       title: 'Hero Image',

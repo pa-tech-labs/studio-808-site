@@ -1,6 +1,8 @@
 // Vercel serverless function — proxies chat requests to Anthropic API.
 // Set ANTHROPIC_API_KEY, VITE_SANITY_PROJECT_ID, VITE_SANITY_DATASET in Vercel env vars.
 
+import { roomBookingUrl } from '../src/lib/roomBookingUrl.js';
+
 const STATIC_STUDIO_INFO = `
 Studio 1 — Performer (DJ)
 - Pioneer AlphaTheta XDJ-AZ (standalone — no laptop needed)
@@ -9,6 +11,7 @@ Studio 1 — Performer (DJ)
 - Air conditioning, wheelchair accessible
 - Up to 8 people
 - £25/hr — 2-hour minimum booking (minimum cost £50)
+- Book this studio: ${roomBookingUrl('studio-1')}
 
 Studio 2 — Creator (Hybrid DJ + Production)
 - Pioneer DDJ-RX3 DJ controller
@@ -19,6 +22,7 @@ Studio 2 — Creator (Hybrid DJ + Production)
 - Bring your own laptop. DAW not provided.
 - Up to 4 people
 - £35/hr — 2-hour minimum booking (minimum cost £70)
+- Book this studio: ${roomBookingUrl('studio-2')}
 
 Studio 3 — Pro DJ (Club-standard booth)
 - 3× Pioneer CDJ-3000 media players
@@ -31,6 +35,7 @@ Studio 3 — Pro DJ (Club-standard booth)
 - Styluses not provided — bring your own for vinyl
 - Up to 8 people
 - £35/hr — 2-hour minimum booking (minimum cost £70)
+- Book this studio: ${roomBookingUrl('studio-3')}
 
 Studio 4 — Production (Flagship recording studio)
 - Focal SM9 reference monitors
@@ -42,6 +47,7 @@ Studio 4 — Production (Flagship recording studio)
 - Akai MPC (standalone)
 - Acoustically treated, first floor
 - £55/hr — 2-hour minimum booking (minimum cost £110)
+- Book this studio: ${roomBookingUrl('studio-4')}
 - Also available: With Engineer from £100/hr | Mix & Master £150/track | Custom Track Production £600–£1,000`;
 
 function buildPromptFromStudios(studios) {
@@ -56,6 +62,7 @@ function buildPromptFromStudios(studios) {
       s.equipment.forEach(item => { text += `- ${item}\n`; });
     }
     if (s.note) text += `- Note: ${s.note}\n`;
+    text += `- Book this studio: ${roomBookingUrl(s.cueRoomSlug)}\n`;
     if (s.services?.length) {
       text += `- Additional services:\n`;
       s.services.forEach(svc => { text += `  • ${svc.name}: ${svc.price} — ${svc.description}\n`; });
@@ -88,6 +95,7 @@ BOOKING PROCESS
 GUIDELINES
 - Be concise and friendly — 2–4 sentences per reply for simple questions
 - If asked about specific pricing for Studio 4 services, give the ranges above
+- If someone wants to book a particular studio, give that studio's "Book this studio" link from above so the booking page opens on that room
 - If asked something you don't know (e.g. exact availability, custom quotes), suggest contacting admin@studio-808.com or messaging on WhatsApp (+44 7348 426746), or visiting the booking site
 - Do not make up information about facilities, pricing, or availability not listed above
 - If the user wants to speak to a human or needs help you can't provide, say so warmly and direct them to WhatsApp or email as described in the CONTACTING US section below
@@ -129,7 +137,7 @@ async function getSystemPrompt() {
 
   try {
     const query = encodeURIComponent(
-      `*[_type == "studio"] | order(sortOrder asc) { name, tagline, hourlyRate, minimumHours, capacity, equipment, note, services[] { name, price, description } }`
+      `*[_type == "studio"] | order(sortOrder asc) { name, tagline, hourlyRate, minimumHours, capacity, equipment, note, cueRoomSlug, services[] { name, price, description } }`
     );
     const url = `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${query}`;
 

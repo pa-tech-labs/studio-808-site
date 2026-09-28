@@ -5,6 +5,7 @@ import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 import { FoundingBadge, FoundingCounter, useFoundingStatus } from '../components/FoundingBadge'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
+import { roomBookingUrl } from '../lib/roomBookingUrl.js'
 
 const BOOK_URL = 'https://book.studio-808.com'
 const MEMBERSHIP_URL = `${BOOK_URL}/membership`
@@ -19,6 +20,8 @@ interface StudioData {
   desc: string
   equipment: string[]
   note: string | null
+  /** Cue booking-link slug; null books the plain page, never a guessed room. */
+  cueRoomSlug: string | null
 }
 
 const STATIC_IMAGES: Record<string, string[]> = {
@@ -45,6 +48,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
       'Wheelchair accessible',
     ],
     note: null,
+    cueRoomSlug: 'studio-1',
   },
   {
     id: 'studio-2',
@@ -65,6 +69,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
       'Asus ProArt display monitor',
     ],
     note: 'Bring your own laptop. DAW not provided.',
+    cueRoomSlug: 'studio-2',
   },
   {
     id: 'studio-3',
@@ -86,6 +91,7 @@ const DEFAULT_STUDIOS: StudioData[] = [
       'Air conditioning',
     ],
     note: 'Styluses are not provided — please bring your own if using vinyl.',
+    cueRoomSlug: 'studio-3',
   },
 ]
 
@@ -106,6 +112,7 @@ function mapSanityStudio(s: SanityStudio): StudioData {
     desc: s.description,
     equipment: s.equipment ?? [],
     note: s.note ?? null,
+    cueRoomSlug: s.cueRoomSlug ?? null,
   }
 }
 
@@ -200,7 +207,7 @@ export default function DjStudios() {
                   <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.6)', margin: 0 }}>⚠ {s.note}</p>
                 </div>
               )}
-              <a href={BOOK_URL}
+              <a href={roomBookingUrl(s.cueRoomSlug)}
                 style={btnPrimary}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
