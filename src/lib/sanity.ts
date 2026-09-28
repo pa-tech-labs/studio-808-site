@@ -46,6 +46,8 @@ export interface SanityStudio {
   services?: SanityService[]
   note?: string | null
   pageHref: string
+  /** Cue booking-link slug (studio-1 .. studio-4); null until set in Studio. */
+  cueRoomSlug?: string | null
   heroImage?: SanityImage
   galleryImages?: SanityImage[]
   sortOrder: number
@@ -79,7 +81,7 @@ export async function getStudios(): Promise<SanityStudio[]> {
     `*[_type == "studio"] | order(sortOrder asc) {
       _id, name, studioNumber, tagline, shortDescription, description,
       hourlyRate, minimumHours, capacity, tags, equipment, services,
-      note, pageHref, heroImage, galleryImages, sortOrder
+      note, pageHref, cueRoomSlug, heroImage, galleryImages, sortOrder
     }`,
   )
 }
