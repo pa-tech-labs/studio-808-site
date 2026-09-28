@@ -19,7 +19,7 @@ export default defineType({
       title: 'Page enabled',
       type: 'boolean',
       initialValue: true,
-      description: 'Turn off to hide this page. Currently honoured by residency only: its nav link disappears and /residency redirects to /membership.',
+      description: 'Turn off to hide this page. Currently honoured by residency only: Membership replaces it in the nav and /residency redirects to /membership.',
     }),
     defineField({ name: 'heroHeadline', title: 'Hero Headline', type: 'string' }),
     defineField({ name: 'heroSubtext', title: 'Hero Subtext', type: 'text', rows: 2 }),

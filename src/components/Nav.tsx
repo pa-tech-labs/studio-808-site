@@ -10,13 +10,17 @@ const DEFAULT_BOOK_URL = 'https://book.studio-808.com'
 
 type NavItem = { to: string; label: string; external?: boolean }
 
-// Residency is only listed once Sanity confirms it is enabled.
-function buildLinks(residencyEnabled: boolean): NavItem[] {
+// One slot: Residency while it is enabled, Membership once it is switched
+// off. Empty while the flag loads, so neither flashes in the wrong state.
+function buildLinks(residencyEnabled: boolean | null): NavItem[] {
+  const slot: NavItem[] =
+    residencyEnabled === null ? []
+    : residencyEnabled ? [{ to: '/residency', label: 'Residency' }]
+    : [{ to: MEMBERSHIP_URL, label: 'Membership', external: true }]
   return [
     { to: '/dj-studio',                label: 'DJ Studios' },
     { to: '/main-production-studio',   label: 'Production Studio' },
-    { to: MEMBERSHIP_URL,              label: 'Membership', external: true },
-    ...(residencyEnabled ? [{ to: '/residency', label: 'Residency' }] : []),
+    ...slot,
     { to: '/about-us',                 label: 'About' },
     { to: '/contact',                  label: 'Contact' },
   ]
@@ -29,7 +33,7 @@ export default function Nav() {
   const [bookUrl, setBookUrl]         = useState(DEFAULT_BOOK_URL)
   const residencyEnabled              = useResidencyEnabled()
 
-  const links = buildLinks(residencyEnabled === true)
+  const links = buildLinks(residencyEnabled)
   const mobileLinks: NavItem[] = [
     ...links,
     { to: '/podcast-studio', label: 'Podcast' },
