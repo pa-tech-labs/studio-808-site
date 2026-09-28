@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
-import { FoundingBadge, FoundingCounter, useFoundingStatus } from '../components/FoundingBadge'
+import MembershipTeaser from '../components/MembershipTeaser'
 import { getStudios, formatPrice, sanityImageUrl, type SanityService } from '../lib/sanity'
 import { roomBookingUrl } from '../lib/roomBookingUrl.js'
 
@@ -51,7 +51,6 @@ const DEFAULT_DATA: Studio4Data = {
 }
 
 export default function ProductionStudio() {
-  const founding = useFoundingStatus()
   const [data, setData] = useState<Studio4Data>(DEFAULT_DATA)
 
   useEffect(() => {
@@ -187,155 +186,7 @@ export default function ProductionStudio() {
         </div>
       </section>
 
-      {/* ───────────── Producer Membership ───────────── */}
-
-      {/* Membership intro / hero */}
-      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <span style={sectionLabel}>
-            <span style={{ color: ACCENT }}>NEW ·</span> Studio 4 Membership
-          </span>
-          <h2 className="mh" style={{ fontSize: 'clamp(36px, 5vw, 60px)', color: TEXT, margin: '0 0 24px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
-            Membership.<br /><em>Your studio, on tap.</em>
-          </h2>
-          <p style={{ fontFamily: F_BODY, fontSize: '19px', color: TEXT, margin: '0 0 18px', lineHeight: 1.6, maxWidth: '640px' }}>
-            Our Pro Production Studio is now available on a monthly membership. Get dedicated hours in Studio 4 every month for one fixed price — a fraction of the day rate. Built for producers and artists who want a real studio to come back to, without the pay-as-you-go maths.
-          </p>
-          <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65, maxWidth: '640px' }}>
-            Choose your hours. Get a fresh booking code each month. Make music whenever you want.
-          </p>
-          <a href="#membership-plans"
-            style={btnPrimary}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >
-            View membership plans
-          </a>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
-            <span style={sectionLabel}>How It Works</span>
-            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              Your studio, <em>every month.</em>
-            </h2>
-            <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
-              Stop paying day rates. Lock in Studio 4 with a fixed monthly plan — show up whenever inspiration hits.
-            </p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-            {[
-              { n: '1', title: 'Pick your plan', body: 'Choose 8 or 16 hours a month, on a 3 or 6 month commitment.' },
-              { n: '2', title: 'Get your monthly code', body: 'A unique booking code lands via WhatsApp on the 1st of each month.' },
-              { n: '3', title: 'Book whenever', body: 'Use your code at checkout for Studio 4. Book any combination of sessions until your hours are used.' },
-            ].map(step => (
-              <div key={step.n} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '999px', background: 'rgba(232,53,90,0.12)', color: ACCENT, fontFamily: '"DM Serif Display", serif', fontSize: '18px', marginBottom: '18px' }}>{step.n}</span>
-                <p style={{ fontFamily: F_BODY, fontSize: '17px', fontWeight: 600, color: TEXT, margin: '0 0 10px' }}>{step.title}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Membership plans */}
-      <section id="membership-plans" className="section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
-            <span style={sectionLabel}>Producer Membership</span>
-            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              <span style={{ color: ACCENT }}>NEW · </span>Choose your <em>plan.</em>
-            </h2>
-            <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65 }}>
-              3-month plans offer flexibility. 6-month plans cost less - commit longer, save more.
-            </p>
-            {founding.producer !== 0 && (
-              <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '14px 0 0' }}>
-                Founding Producers - first 3 only, price locked for life
-              </p>
-            )}
-          </div>
-          <div style={{ maxWidth: '840px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-            {[
-              { price: '£160', hours: 8,  months: 3, perHour: '£20/hr - walk-in £55/hr' },
-              { price: '£260', hours: 16, months: 3, perHour: '£16.25/hr' },
-              { price: '£100', hours: 8,  months: 6, perHour: '£12.50/hr' },
-              { price: '£200', hours: 16, months: 6, perHour: '£12.50/hr' },
-            ].map(plan => (
-              <div key={plan.price + plan.months} style={{ position: 'relative', background: BG, border: `1px solid ${founding.producer === 0 ? BORDER : 'rgba(232,53,90,0.35)'}`, borderRadius: '12px', padding: '32px 28px', display: 'flex', flexDirection: 'column' }}>
-                <div><FoundingBadge remaining={founding.producer} label="Founding producers - first 3 only" /></div>
-                <p style={{ fontFamily: '"DM Serif Display", serif', fontSize: '40px', color: TEXT, margin: 0, fontWeight: 400, lineHeight: 1 }}>
-                  {plan.price}<span style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, fontWeight: 400 }}> /mo</span>
-                </p>
-                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '8px 0 6px' }}>{plan.perHour}</p>
-                <FoundingCounter remaining={founding.producer} cap={3} />
-                <ul style={{ fontFamily: F_BODY, fontSize: '13.5px', color: MUTED, margin: '0 0 14px', paddingLeft: '18px', lineHeight: 1.7 }}>
-                  <li>{plan.hours} hours a month in Studio 4 - the pro room</li>
-                  <li>Weekend Studio 4 access - producer members only</li>
-                  <li>Overflow hours at £25/hr past your allowance</li>
-                  {plan.hours === 16 && <li>One professionally filmed session per year, shot and edited by us</li>}
-                </ul>
-                <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 22px', lineHeight: 1.6 }}>
-                  Hours reset monthly and never roll over. {plan.months}-month minimum, then monthly rolling.
-                </p>
-                <a href="https://book.studio-808.com/membership"
-                  style={{ ...btnPrimary, marginTop: 'auto', textAlign: 'center' }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                >
-                  Join Now
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '48px' }}>
-            <span style={sectionLabel}>FAQ</span>
-            <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              Common <em>questions.</em>
-            </h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '16px' }}>
-            {[
-              { q: "What happens if I don't use all my hours?", a: "Your hours are valid for the calendar month. Unused hours don't roll over, so make sure you book them in." },
-              { q: 'Can I cancel my membership?', a: 'You can cancel any time after your minimum commitment period. Your membership stays active until the end of your current billing period.' },
-              { q: 'Is Studio 4 always available to members?', a: 'Members access the standard booking calendar. We recommend booking early in the month to secure your preferred slots.' },
-              { q: 'What is Studio 4?', a: 'Studio 4 is our dedicated music production room — fully equipped for beatmaking, recording, and music production. First floor, Studio 808, Chelmsford.' },
-            ].map(item => (
-              <div key={item.q} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '28px' }}>
-                <p style={{ fontFamily: F_BODY, fontSize: '16px', fontWeight: 600, color: TEXT, margin: '0 0 10px', lineHeight: 1.4 }}>{item.q}</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.65 }}>{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA banner */}
-      <section style={{ background: BG, borderTop: `1px solid ${BORDER}`, padding: '100px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
-          <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            Ready to lock in your <em>studio time?</em>
-          </h2>
-          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: '0 0 32px', lineHeight: 1.65 }}>
-            Join now and your first monthly code arrives via WhatsApp within 24 hours of payment.
-          </p>
-          <a href="https://book.studio-808.com/membership"
-            style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px' }}
-          >
-            Join the Producer Membership →
-          </a>
-        </div>
-      </section>
+      <MembershipTeaser track="producer" />
     </>
   )
 }

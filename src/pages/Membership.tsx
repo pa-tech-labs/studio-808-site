@@ -8,16 +8,17 @@
 // unreachable. Plan names and prices come from Cue's public tiers endpoint,
 // falling back to the tiers stored on the singleton (lib/membershipPlans.js).
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, type CSSProperties, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
 import Headline from '../components/Headline'
 import { FoundingBadge, FoundingCounter, useFoundingStatus, type FoundingStatus } from '../components/FoundingBadge'
 import { ACCENT, BG, BORDER, BORDER_SM, F_BODY, MUTED, MUTED_LT, SURF, TEXT, btnPrimary, sectionLabel } from '../styles'
-import { getMembershipPage, sanityImageUrl, type SanityImage } from '../lib/sanity'
-import { membershipPageContent, type MembershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
+import { sanityImageUrl, type SanityImage } from '../lib/sanity'
+import { useMembershipData, type MembershipPlans } from '../hooks/useMembershipData'
+import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
 import {
-  fetchCueTiers, fillTerms, formatPounds, foundingPriceFor, joinUrl, mapSanityTiers, mergePlans, perHourLabel,
+  fillTerms, formatPounds, foundingPriceFor, joinUrl, perHourLabel,
   plansForTrack, priceFromLabel, type MembershipPlan, type Track,
 } from '../lib/membershipPlans.js'
 
@@ -32,43 +33,19 @@ const joinButton: CSSProperties = { ...btnPrimary, background: ACCENT, color: '#
 const imageUrl = (image: MembershipImage | null | undefined, width: number) =>
   sanityImageUrl(image as SanityImage | undefined, width)
 
-const SANITY_WAIT_MS = 3000
-
 const trackFrom = (value: string | null): Track => (value === 'producer' ? 'producer' : 'dj')
 
-type Plans = { plans: MembershipPlan[]; source: 'cue' | 'sanity' }
-
-/** Copy (undefined while loading) and plans (undefined until Cue answers or gives up). */
-function useMembershipData() {
-  const [content, setContent] = useState<MembershipPageContent>()
-  const [plans, setPlans] = useState<Plans>()
-
-  useEffect(() => {
-    let live = true
-    // The Sanity client retries failed requests with backoff, so an outage
-    // would hold the page blank for a long time. Past the cap, the bundled
-    // copy is shown and a late answer is ignored rather than swapped in.
-    const cap = new Promise<null>(resolve => setTimeout(() => resolve(null), SANITY_WAIT_MS))
-    const doc = Promise.race([getMembershipPage().catch(() => null), cap])
-    doc.then(d => { if (live) setContent(d ?? membershipPageContent) })
-    Promise.all([doc, fetchCueTiers()]).then(([d, cue]) => {
-      if (!live) return
-      const stored = d?.tiers?.length ? d.tiers : membershipPageContent.tiers
-      const merged = mergePlans(cue, mapSanityTiers(stored))
-      if (import.meta.env.DEV && merged.source === 'sanity') console.info('[membership] Cue tiers unavailable, showing Sanity tiers')
-      setPlans(merged)
-    })
-    return () => { live = false }
-  }, [])
-
-  return { content, plans }
-}
+type Plans = MembershipPlans
 
 export default function Membership() {
   const { content, plans } = useMembershipData()
   const founding = useFoundingStatus()
   const [params, setParams] = useSearchParams()
   const track = trackFrom(params.get('type'))
+
+  // Linked from deep in the studio pages' teasers; start at the top, as the
+  // other long pages do. Mount only, so switching tracks does not jump.
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   const selectTrack = (t: Track) =>
     setParams(prev => {
