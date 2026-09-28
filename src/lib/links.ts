@@ -1,2 +1,2 @@
-/** Membership lives on our booking domain, not on this site. */
-export const MEMBERSHIP_URL = 'https://book.studio-808.com/membership'
+/** The site's own membership page. Its Join buttons go on to Cue to sign up. */
+export const MEMBERSHIP_PATH = '/membership'

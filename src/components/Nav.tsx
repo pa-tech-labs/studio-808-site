@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
 import { getSiteSettings } from '../lib/sanity'
-import { MEMBERSHIP_URL } from '../lib/links'
+import { MEMBERSHIP_PATH } from '../lib/links'
 import { useResidencyEnabled } from '../lib/residency'
 import { useStudioFinder } from '../hooks/useStudioFinder'
 import { FINDER_PATH, backgroundOf, finderLinkState } from '../lib/studioFinderRoute'
@@ -18,7 +18,7 @@ function buildLinks(residencyEnabled: boolean | null): NavItem[] {
   const slot: NavItem[] =
     residencyEnabled === null ? []
     : residencyEnabled ? [{ to: '/residency', label: 'Residency' }]
-    : [{ to: MEMBERSHIP_URL, label: 'Membership', external: true }]
+    : [{ to: MEMBERSHIP_PATH, label: 'Membership' }]
   return [
     { to: '/dj-studio',                label: 'DJ Studios' },
     { to: '/main-production-studio',   label: 'Production Studio' },

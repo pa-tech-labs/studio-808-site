@@ -1,34 +1,30 @@
 // Founding badge + live counter for the membership sections - a port of the
 // booking app's FoundingBadge/FoundingCounter pattern, themed to THIS site's
 // tokens (red accent, editorial styling), not MDS mint. Counts are fetched
-// live from the booking backend's founding-status endpoint (CORS-permitted
-// for this origin, scoped to that one read-only route). Fallback rule: if
-// the fetch fails the number is HIDDEN and the badge stays - never a stale
-// or made-up count. Everything disappears at 0 remaining.
+// live from Cue's founding-status endpoint on its API host (CORS-permitted
+// for this origin). Fallback rule: if the fetch fails the number is HIDDEN
+// and the badge stays - never a stale or made-up count. Everything
+// disappears at 0 remaining.
 
 import { useEffect, useState } from 'react'
 import { ACCENT, F_BODY } from '../styles'
+import { foundingStatusUrl, parseFoundingStatus, type FoundingInfo } from '../lib/membershipPlans.js'
 
-const STATUS_URL =
-  'https://book.studio-808.com/api/membership/founding-status?tenant_id=fcf37158-bb9e-4cc3-8573-f39e8cfe06b7'
+// dj / producer: remaining places, null = unknown (fetch failed). Also the
+// caps and Cue's DJ founding prices by tier name, in pounds.
+export type FoundingStatus = FoundingInfo
 
-export interface FoundingStatus {
-  dj: number | null       // remaining dj-track places; null = unknown (fetch failed)
-  producer: number | null // remaining producer places; null = unknown
-}
+const UNKNOWN: FoundingStatus = parseFoundingStatus(null)
 
 export function useFoundingStatus(): FoundingStatus {
-  const [status, setStatus] = useState<FoundingStatus>({ dj: null, producer: null })
+  const [status, setStatus] = useState<FoundingStatus>(UNKNOWN)
   useEffect(() => {
     let cancelled = false
-    fetch(STATUS_URL)
+    fetch(foundingStatusUrl())
       .then(r => (r.ok ? r.json() : null))
       .then(b => {
         if (cancelled || !b) return
-        setStatus({
-          dj: Number.isFinite(Number(b.remaining)) ? Number(b.remaining) : null,
-          producer: Number.isFinite(Number(b.producer?.remaining)) ? Number(b.producer.remaining) : null,
-        })
+        setStatus(parseFoundingStatus(b))
       })
       .catch(() => {})
     return () => { cancelled = true }

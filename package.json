@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "test": "node --test 'src/**/*.test.js' 'tests/**/*.test.js'",
     "seed:studio-finder": "node scripts/seedStudioFinder.ts",
+    "seed:membership-page": "node scripts/seedMembershipPage.ts",
     "preview": "vite preview",
     "studio": "sanity dev",
     "studio:build": "sanity build",
