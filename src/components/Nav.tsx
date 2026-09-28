@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { F_BODY, TEXT, MUTED } from '../styles'
 import BookingsModal from './BookingsModal'
 import { getSiteSettings } from '../lib/sanity'
 import { MEMBERSHIP_URL } from '../lib/links'
 import { useResidencyEnabled } from '../lib/residency'
+import { useStudioFinder } from '../hooks/useStudioFinder'
+import { FINDER_PATH, backgroundOf, finderLinkState } from '../lib/studioFinderRoute'
 
 const DEFAULT_BOOK_URL = 'https://book.studio-808.com'
 
@@ -39,6 +41,12 @@ export default function Nav() {
     { to: '/podcast-studio', label: 'Podcast' },
   ]
 
+  const location = useLocation()
+  // Shown only while the Studio finder is enabled in Sanity. Opened over the
+  // current page, which stays behind it.
+  const finderOn = Boolean(useStudioFinder())
+  const finderState = finderLinkState(backgroundOf(location) ?? location)
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -60,6 +68,9 @@ export default function Nav() {
       <style>{`
         .nav-link { transition: color 0.15s; }
         .nav-link:hover { color: ${TEXT} !important; }
+        /* A sixth link crowds the nav below 1200px, so the finder link shows
+           only above that. The home section and the mobile menu still reach it. */
+        @media(max-width:1199px){ .nav-finder { display:none !important; } }
         @media(max-width:768px){
           .nav-desktop { display:none !important; }
           .nav-ham     { display:flex !important; }
@@ -125,6 +136,16 @@ export default function Nav() {
                 {label}
               </NavLink>
             ))}
+            {finderOn && (
+              <Link
+                to={FINDER_PATH}
+                state={finderState}
+                className="nav-link nav-finder"
+                style={{ textDecoration: 'none', fontFamily: F_BODY, fontSize: '14px', fontWeight: 500, color: MUTED, letterSpacing: '-0.01em' }}
+              >
+                Find your studio
+              </Link>
+            )}
           </nav>
 
           {/* CTAs — right */}
@@ -199,6 +220,21 @@ export default function Nav() {
                 <Link key={to} to={to} onClick={() => setOpen(false)} style={style}>{label}</Link>
               )
             })}
+            {finderOn && (
+              <Link
+                to={FINDER_PATH}
+                state={finderState}
+                onClick={() => setOpen(false)}
+                style={{
+                  display: 'block', padding: '14px 0',
+                  fontFamily: F_BODY, fontSize: '16px', color: TEXT,
+                  textDecoration: 'none', borderBottom: '1px solid rgba(240,237,232,0.06)',
+                  fontWeight: 500,
+                }}
+              >
+                Find your studio
+              </Link>
+            )}
             <a
               href={bookUrl}
               onClick={() => setOpen(false)}

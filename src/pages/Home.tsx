@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary, btnSecondary } from '../styles'
 import GoogleReviews from '../components/GoogleReviews'
+import StudioFinderSection from '../components/StudioFinderSection'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 
 const BOOK_URL = 'https://book.studio-808.com'
@@ -173,6 +174,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StudioFinderSection />
 
       {/* ── Stats band ───────────────────────────────────────────────────── */}
       <section style={{ borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, background: SURF, overflowX: 'hidden' }}>

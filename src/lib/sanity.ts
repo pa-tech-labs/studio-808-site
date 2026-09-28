@@ -1,5 +1,6 @@
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
+import type { FinderQuestion, FinderRule } from './studioFinder.js'
 
 const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID ?? ''
 const DATASET    = import.meta.env.VITE_SANITY_DATASET ?? 'production'
@@ -69,6 +70,39 @@ export interface SanitySettings {
   socialLinks: Array<{ platform: string; url: string }>
 }
 
+/** The studio fields the finder's result screen shows. */
+export interface FinderStudio {
+  _id: string
+  name: string
+  tagline: string
+  shortDescription?: string | null
+  hourlyRate: number
+  minimumHours: number
+  heroImage?: SanityImage
+  pageHref?: string | null
+  cueRoomSlug?: string | null
+  sortOrder: number
+  studioNumber: string
+}
+
+/** The "Studio finder" singleton (schemaTypes/studioFinder.ts). */
+export interface SanityStudioFinder {
+  enabled?: boolean | null
+  heading?: string | null
+  intro?: string | null
+  ctaLabel?: string | null
+  questions?: FinderQuestion[] | null
+  rules?: FinderRule<FinderStudio>[] | null
+  tutor?: {
+    enabled?: boolean | null
+    questionCopy?: string | null
+    formTitle?: string | null
+    formIntro?: string | null
+    successMessage?: string | null
+  } | null
+  result?: { heading?: string | null; bookLabel?: string | null; restartLabel?: string | null } | null
+}
+
 // ── Query helpers ─────────────────────────────────────────────────────────────
 
 function isConfigured(): boolean {
@@ -118,9 +152,28 @@ export async function getSiteSettings(): Promise<SanitySettings | null> {
   )
 }
 
+/**
+ * The published Studio finder singleton, with each rule's studio expanded.
+ * Null when Sanity is not configured or the document does not exist.
+ */
+export async function getStudioFinder(): Promise<SanityStudioFinder | null> {
+  if (!isConfigured()) return null
+  return sanityClient.fetch<SanityStudioFinder | null>(
+    `*[_id == "studioFinder"][0] {
+      enabled, heading, intro, ctaLabel,
+      questions[] { key, title, helper, skippable, options[] { label, value, helper }, showIf[] { questionKey, equals } },
+      rules[] {
+        conditions[] { questionKey, equals }, reason, addOns, memberLine,
+        studio-> { _id, name, tagline, shortDescription, hourlyRate, minimumHours, heroImage, pageHref, cueRoomSlug, sortOrder, studioNumber }
+      },
+      tutor, result
+    }`,
+  )
+}
+
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
-export function formatPrice(studio: SanityStudio): string {
+export function formatPrice(studio: Pick<SanityStudio, 'hourlyRate' | 'minimumHours'>): string {
   return `£${studio.hourlyRate}/hr · ${studio.minimumHours}hr min`
 }
 

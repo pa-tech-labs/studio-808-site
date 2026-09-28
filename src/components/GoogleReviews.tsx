@@ -17,6 +17,11 @@ interface GoogleReview {
   time: number
 }
 
+// The slice of the Google Maps Places API this file touches.
+type PlaceResult = { rating?: number; user_ratings_total?: number; reviews?: GoogleReview[] }
+type PlacesApi = { maps: { places: { PlacesService: new (el: HTMLElement) => { getDetails(req: object, cb: (place: PlaceResult | null, status: string) => void): void } } } }
+const googleApi = () => (window as unknown as { google?: PlacesApi }).google
+
 interface PlaceData {
   rating: number
   totalReviews: number
@@ -25,7 +30,7 @@ interface PlaceData {
 
 function loadGoogleMaps(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if ((window as any).google?.maps?.places) { resolve(); return }
+    if (googleApi()?.maps?.places) { resolve(); return }
     const existing = document.getElementById('google-maps-script')
     if (existing) { existing.addEventListener('load', () => resolve()); return }
     const script = document.createElement('script')
@@ -48,15 +53,16 @@ function fetchPlaceDetails(): Promise<PlaceData> {
   return loadGoogleMaps().then(() => {
     return new Promise<PlaceData>((resolve, reject) => {
       const div = document.createElement('div')
-      const service = new (window as any).google.maps.places.PlacesService(div)
+      const { PlacesService } = googleApi()!.maps.places
+      const service = new PlacesService(div)
       service.getDetails(
         { placeId: PLACE_ID, fields: ['reviews', 'rating', 'user_ratings_total'] },
-        (place: any, status: any) => {
+        (place, status) => {
           if (status !== 'OK' || !place) { reject(new Error(`Places API: ${status}`)); return }
           const data: PlaceData = {
             rating: place.rating ?? 0,
             totalReviews: place.user_ratings_total ?? 0,
-            reviews: (place.reviews ?? []).map((r: any) => ({
+            reviews: (place.reviews ?? []).map(r => ({
               author_name: r.author_name,
               author_url: r.author_url,
               profile_photo_url: r.profile_photo_url,
@@ -195,10 +201,11 @@ function Fallback() {
 
 export default function GoogleReviews() {
   const [data, setData] = useState<PlaceData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  // No key: settled as an error from the first render, not via the effect.
+  const [loading, setLoading] = useState(Boolean(API_KEY))
+  const [error, setError] = useState(!API_KEY)
   useEffect(() => {
-    if (!API_KEY) { setError(true); setLoading(false); return }
+    if (!API_KEY) return
     fetchPlaceDetails()
       .then(d => { setData(d); setLoading(false) })
       .catch(() => { setError(true); setLoading(false) })
