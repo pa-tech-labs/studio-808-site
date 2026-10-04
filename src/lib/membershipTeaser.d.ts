@@ -11,7 +11,15 @@ export interface TeaserModel {
   priceLine: string
   creditLine: string
   perks: TeaserPerk[]
-  founding: { show: boolean; label: string; remaining: number | null; cap: number }
+  /** The perks are the track's numbered steps rather than perks. */
+  perksAreSteps: boolean
+  founding: { show: boolean; note: string; remaining: number | null; cap: number }
+  heroKey: string | null
+  bestValueLabel: string
+  compareLabel: string
+  terms: string
+  foundingTerms: string
+  planJoinLabel: string
   seeHref: string
   joinHref: string
   joinLabel: string
@@ -28,6 +36,7 @@ export declare function teaserPerks(
   plans: MembershipPlan[] | null | undefined,
   track: Track,
 ): TeaserPerk[]
+export declare function teaserPerksAreSteps(copy: TrackCopy | null | undefined): boolean
 export declare function teaserModel(input: {
   track: string
   content: MembershipPageContent | null | undefined

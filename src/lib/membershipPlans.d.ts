@@ -111,3 +111,19 @@ export declare function memberHoursWeek(room: MembershipRoom | null | undefined,
   hasEvenings: boolean
   hasWeekends: boolean
 }
+export declare function planDisplayName(plan: MembershipPlan | null | undefined): string
+export declare function termLabel(months: number): string
+export declare function planSlug(plan: MembershipPlan | null | undefined): string
+export declare function planTerms(plans: MembershipPlan[] | null | undefined, track: Track): number[]
+export declare function pickTerm(plans: MembershipPlan[] | null | undefined, track: Track, requested: string | number | null | undefined): number
+export declare function heroPlanKey(plans: MembershipPlan[] | null | undefined, track: Track): string | null
+export declare function planValue(
+  plan: MembershipPlan | null | undefined,
+  rate: number | null | undefined,
+  founding: Partial<FoundingInfo> | null | undefined,
+): { perHour: number | null; saving: number | null; vs: 'public' | 'founding' | null }
+export declare function foundingSummary(
+  note: string | null | undefined,
+  remaining: number | null,
+  cap: number,
+): { show: boolean; label: string; count: string; taken: number | null; cap: number }

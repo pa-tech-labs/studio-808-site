@@ -4,7 +4,6 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { firstSentence, teaserModel, teaserPerks, teaserPriceLine } from './membershipTeaser.js'
 import { mapCueRooms, mapCueTiers, mapSanityTiers, mergePlans, parseFoundingStatus } from './membershipPlans.js'
-import { DEFAULT_PERKS } from '../config/membershipPerks.js'
 import { membershipPageContent } from './membershipPageContent.js'
 
 const CUE_BODY = {
@@ -31,11 +30,13 @@ test('the DJ teaser takes the DJ copy, perks, plans and join link', () => {
   assert.equal(m.track, 'dj')
   assert.equal(m.heading, membershipPageContent.dj.heading)
   assert.deepEqual(m.perks.map(p => p.title), ['Play at 808 events', 'Get featured', 'Member-only discounts'])
+  assert.equal(m.perksAreSteps, false)
   assert.equal(m.priceLine, 'From £20/mo founding, then £25/mo')
   assert.equal(m.creditLine, membershipPageContent.dj.creditLine)
   assert.equal(m.joinHref, 'https://book.studio-808.com/membership?type=dj')
   assert.equal(m.seeHref, '/membership?type=dj')
-  assert.deepEqual(m.founding, { show: true, label: 'Founding offer - first 15 members only', remaining: 8, cap: 15 })
+  assert.deepEqual(m.founding, { show: true, note: 'Founding price, locked for life', remaining: 8, cap: 15 })
+  assert.equal(m.heroKey, 'dj', 'the entry DJ plan is the card')
 })
 
 test('the producer teaser takes the producer copy, plan perks, plans and join link', () => {
@@ -45,14 +46,14 @@ test('the producer teaser takes the producer copy, plan perks, plans and join li
   assert.equal(m.intro, 'Stop paying day rates.')
   assert.equal(m.priceLine, 'From £100/mo', 'producer founding is never a discount')
   assert.equal(m.creditLine, '')
-  assert.equal(m.perks.length, 3)
-  // Steps are not perks, so the entry plan's included list is used: its Cue
-  // perks, or with none, the producer defaults filled from the plan and room.
-  assert.equal(m.perks[0].title, '8 hours a month in Studio 4', 'steps are not perks; the entry plan\'s included list is used')
-  assert.equal(m.perks.length, DEFAULT_PERKS.producer.length)
+  // The plan card lists what is included, so the teaser's points are the
+  // producer's "How it works" steps, numbered.
+  assert.deepEqual(m.perks.map(p => p.title), membershipPageContent.producer.perks.slice(0, 3).map(p => p.title))
+  assert.equal(m.perksAreSteps, true)
   assert.equal(m.joinHref, 'https://book.studio-808.com/membership?type=producer')
   assert.equal(m.seeHref, '/membership?type=producer')
-  assert.deepEqual(m.founding, { show: true, label: 'Founding producers - first 3 only', remaining: 2, cap: 3 })
+  assert.deepEqual(m.founding, { show: true, note: 'Founding price, locked for life', remaining: 2, cap: 3 })
+  assert.equal(m.heroKey, 'p8-6', 'the 6-month 8-hour plan is the card, as on /membership')
 })
 
 test('an unknown track reads as DJ', () => {
@@ -91,7 +92,7 @@ test('the price line is empty while plans load, and the rest still renders', () 
   assert.ok(m.heading && m.perks.length === 3)
 })
 
-test('once founding places are gone, the badge and founding price go', () => {
+test('once founding places are gone, the founding line and founding price go', () => {
   const dj = teaserModel({ track: 'dj', content: null, plans: CUE_PLANS, founding: FULL })
   assert.equal(dj.founding.show, false)
   assert.equal(dj.priceLine, 'From £25/mo')
@@ -120,4 +121,17 @@ test('the teaser copy makes none of the retired claims', () => {
     assert.ok(!JSON.stringify(m).includes('—'), `${track}: em dash`)
   }
   assert.ok(!retired.test(JSON.stringify(membershipPageContent)))
+})
+
+test('the teaser labels fall back to the bundled copy', () => {
+  const content = { ...membershipPageContent, dj: { ...membershipPageContent.dj, bestValueLabel: '', compareLabel: null } }
+  const m = teaserModel({ track: 'dj', content, plans: CUE_PLANS, founding: LIVE })
+  assert.equal(m.bestValueLabel, 'Best value')
+  assert.equal(m.compareLabel, 'Compare plans')
+})
+
+test('with no cards, the entry plan\'s included list fills the teaser', () => {
+  const m = teaserModel({ track: 'producer', content: { ...membershipPageContent, producer: { ...membershipPageContent.producer, perks: [] } }, plans: CUE_PLANS, founding: LIVE })
+  assert.equal(m.perks[0].title, '8 hours a month in Studio 4')
+  assert.equal(m.perksAreSteps, false)
 })
