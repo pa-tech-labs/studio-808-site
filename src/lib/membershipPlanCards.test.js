@@ -4,14 +4,14 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   foundingSummary, heroPlanKey, mapCueTiers, parseFoundingStatus, pickTerm, planDisplayName, planSlug, planTerms,
-  planValue, termLabel,
+  planValue, termLabel, creditBackLine,
 } from './membershipPlans.js'
 
 // Cue's live tiers (2026-10-04), trimmed to the fields the cards read.
 const PLANS = mapCueTiers({
   tiers: [
-    { id: 'dj', name: '808 DJ', monthly_price: 25, hours_per_month: 0, commitment_months: 0, membership_type: 'dj' },
-    { id: 'resident', name: '808 Resident', monthly_price: 50, hours_per_month: 0, commitment_months: 0, membership_type: 'dj' },
+    { id: 'dj', name: '808 DJ', monthly_price: 25, hours_per_month: 0, commitment_months: 0, membership_type: 'dj', monthly_credit_pence: 2500 },
+    { id: 'resident', name: '808 Resident', monthly_price: 50, hours_per_month: 0, commitment_months: 0, membership_type: 'dj', monthly_credit_pence: 5000 },
     { id: 'p8-3', name: 'Producer Membership - 8hrs/mo (3 Month)', monthly_price: 160, hours_per_month: 8, commitment_months: 3, membership_type: 'producer' },
     { id: 'p16-3', name: 'Producer Membership - 16hrs/mo (3 Month)', monthly_price: 260, hours_per_month: 16, commitment_months: 3, membership_type: 'producer' },
     { id: 'p8-6', name: 'Producer Membership - 8hrs/mo (6 Month)', monthly_price: 100, hours_per_month: 8, commitment_months: 6, membership_type: 'producer' },
@@ -60,14 +60,28 @@ test('heroPlanKey falls back to the lowest hourly rate when there is no 6-month 
 })
 
 test('planValue: producer plans save against the room rate, matching the savings block', () => {
-  assert.deepEqual(planValue(plan('p8-6'), 55, FOUNDING), { perHour: 12.5, saving: 340, vs: 'public' })
-  assert.deepEqual(planValue(plan('p16-3'), 55, FOUNDING), { perHour: 16.25, saving: 620, vs: 'public' })
-  assert.deepEqual(planValue(plan('p8-6'), null, FOUNDING), { perHour: 12.5, saving: null, vs: null }, 'no rate, no saving')
+  assert.deepEqual(planValue(plan('p8-6'), 55), { perHour: 12.5, saving: 340, credit: null })
+  assert.deepEqual(planValue(plan('p16-3'), 55), { perHour: 16.25, saving: 620, credit: null })
+  assert.deepEqual(planValue(plan('p8-6'), null), { perHour: 12.5, saving: null, credit: null }, 'no rate, no saving')
 })
 
-test('planValue: DJ plans show the founding discount while it is on offer', () => {
-  assert.deepEqual(planValue(plan('dj'), 55, FOUNDING), { perHour: null, saving: 5, vs: 'founding' })
-  assert.deepEqual(planValue(plan('dj'), 55, { ...FOUNDING, dj: 0 }), { perHour: null, saving: null, vs: null })
+test('planValue: DJ plans show the monthly credit from Cue, never a hardcoded figure', () => {
+  assert.deepEqual(planValue(plan('dj'), 55), { perHour: null, saving: null, credit: 25 })
+  assert.deepEqual(planValue(plan('resident'), 55), { perHour: null, saving: null, credit: 50 })
+  assert.deepEqual(planValue({ ...plan('dj'), monthlyCredit: null }, 55), { perHour: null, saving: null, credit: null })
+})
+
+test('creditBackLine fills {credit} and hides with no credit', () => {
+  assert.equal(creditBackLine(null, 25), '£25 credit back every month, plus member rates and members-only hours')
+  assert.equal(creditBackLine('{credit} back, monthly', 50), '£50 back, monthly')
+  assert.equal(creditBackLine('{credit} back', 12.5), '£12.50 back')
+  assert.equal(creditBackLine(null, null), '')
+  assert.equal(creditBackLine(null, 0), '')
+})
+
+test('mapCueTiers reads monthly_credit_pence as pounds', () => {
+  assert.equal(plan('dj').monthlyCredit, 25)
+  assert.equal(plan('p8-6').monthlyCredit, null)
 })
 
 test('foundingSummary: one line with a count and places taken, never a made-up count', () => {

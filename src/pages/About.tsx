@@ -50,7 +50,7 @@ export default function About() {
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'center' }}>
           {/* Image */}
           <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '4/3', background: 'rgba(240,237,232,0.04)', border: `1px solid ${BORDER}` }}>
-            <img src="/images/studios/studio3-prodj-2.jpg" alt="Studio 808 Chelmsford — reception and studio entrance" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/images/studios/studio3-prodj-2.jpg" alt="Studio 808 Chelmsford reception and studio entrance" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           {/* Text */}
           <div>
@@ -59,13 +59,13 @@ export default function About() {
               Everyone's <em>Welcome Here.</em>
             </h2>
             <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.75, margin: '0 0 16px' }}>
-              Studio 808 was built on a simple idea: that professional creative spaces shouldn't be exclusive to the few. Whether you're picking up decks for the first time, recording your debut EP or building a podcast audience — you belong here.
+              Studio 808 was built on a simple idea: that professional creative spaces shouldn't be exclusive to the few. Whether you're picking up decks for the first time, recording your debut EP or building a podcast audience, you belong here.
             </p>
             <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.75, margin: '0 0 16px' }}>
               Over the past decade, thousands of artists, producers, DJs and creators have used Studio 808 to develop their craft. Many of them are now touring DJs, signed artists and successful content creators.
             </p>
             <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.75, margin: '0 0 36px' }}>
-              We've invested continuously in the best equipment — Pioneer CDJ-3000s, Neve 1073, Neumann U87, Focal SM9 — so our members can practise and record with the same tools they'll encounter on the biggest stages.
+              We've invested continuously in the best equipment (Pioneer CDJ-3000s, Neve 1073, Neumann U87, Focal SM9) so our members can practise and record with the same tools they'll encounter on the biggest stages.
             </p>
             <a href={BOOK_URL}
               style={btnPrimary}

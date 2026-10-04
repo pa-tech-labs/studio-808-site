@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { BG, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { prefersReducedMotion } from '../hooks/useInView'
 
 const PLACE_ID = 'ChIJY9ttgnvp2EcRbCmku6lPW08'
 const API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY as string
@@ -99,12 +100,11 @@ function ReviewCard({ review }: { review: GoogleReview }) {
 
   return (
     <div
-      className="hover-lift"
+      className="s8-card"
       style={{
-        background: '#111111',
-        border: `1px solid ${BORDER}`,
-        borderRadius: '10px',
-        padding: '16px',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -129,7 +129,7 @@ function ReviewCard({ review }: { review: GoogleReview }) {
           >
             {review.author_name}
           </a>
-          <p style={{ fontFamily: F_BODY, fontSize: '11px', color: MUTED, margin: '1px 0 0' }}>
+          <p style={{ fontFamily: F_BODY, fontSize: '12px', color: 'rgba(240,237,232,0.68)', margin: '1px 0 0' }}>
             {review.relative_time_description}
           </p>
         </div>
@@ -139,21 +139,125 @@ function ReviewCard({ review }: { review: GoogleReview }) {
       <Stars rating={review.rating} size={12} />
 
       {/* Text */}
-      <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.7)', margin: 0, lineHeight: 1.55, flex: 1 }}>
+      <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.78)', margin: 0, lineHeight: 1.55, flex: 1, textAlign: 'left' }}>
         {displayText}
         {needsTruncate && (
           <button
             onClick={() => setExpanded(!expanded)}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              fontFamily: F_BODY, fontSize: '12px', fontWeight: 600,
-              color: ACCENT, padding: '0 0 0 4px',
+              fontFamily: F_BODY, fontSize: '13px', fontWeight: 600,
+              color: 'var(--s8-coral-text)', padding: '0 0 0 4px', textDecoration: 'underline', textUnderlineOffset: '3px',
             }}
           >
             {expanded ? 'Less' : 'More'}
           </button>
         )}
       </p>
+    </div>
+  )
+}
+
+
+const ADVANCE_MS = 6000
+
+/**
+ * The reviews as a row that advances one card every six seconds. Native
+ * scroll-snap, so it swipes on touch; the arrows and the pause button work
+ * from the keyboard. It waits while hovered, focused, paused or off screen,
+ * and never moves on its own under prefers-reduced-motion.
+ */
+function ReviewCarousel({ reviews }: { reviews: GoogleReview[] }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [reduce] = useState(prefersReducedMotion)
+  const [paused, setPaused] = useState(reduce)
+  const [held, setHeld] = useState(false)
+  // Without IntersectionObserver it counts as always on screen.
+  const [visible, setVisible] = useState(() => !('IntersectionObserver' in window))
+  const [at, setAt] = useState(0)
+  const [perView, setPerView] = useState(1)
+
+  const measure = useCallback(() => {
+    const el = trackRef.current
+    if (!el) return
+    const card = el.firstElementChild as HTMLElement | null
+    const step = card ? card.offsetWidth + 14 : el.clientWidth
+    setPerView(Math.max(1, Math.round(el.clientWidth / step)))
+    setAt(Math.round(el.scrollLeft / step))
+  }, [])
+
+  const go = useCallback((i: number) => {
+    const el = trackRef.current
+    const card = el?.children[i] as HTMLElement | undefined
+    if (!el || !card) return
+    el.scrollTo({ left: card.offsetLeft - el.offsetLeft, behavior: reduce ? 'auto' : 'smooth' })
+  }, [reduce])
+
+  const last = Math.max(0, reviews.length - perView)
+  const next = useCallback(() => go(at >= last ? 0 : at + 1), [go, at, last])
+  const prev = () => go(at <= 0 ? last : at - 1)
+
+  useEffect(() => {
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [measure])
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (paused || held || !visible || last === 0) return
+    const t = window.setTimeout(next, ADVANCE_MS)
+    return () => window.clearTimeout(t)
+  }, [paused, held, visible, last, next, at])
+
+  return (
+    <div
+      className="rv-carousel"
+      onMouseEnter={() => setHeld(true)}
+      onMouseLeave={() => setHeld(false)}
+      onFocus={() => setHeld(true)}
+      onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHeld(false) }}
+    >
+      <div
+        ref={trackRef}
+        className="rv-track"
+        onScroll={measure}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Google reviews"
+        tabIndex={0}
+      >
+        {reviews.map((r, i) => (
+          <div key={i} className="rv-slide" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${reviews.length}`}>
+            <ReviewCard review={r} />
+          </div>
+        ))}
+      </div>
+      {last > 0 && (
+        <div className="rv-controls">
+          <button type="button" onClick={prev} aria-label="Previous review">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+          </button>
+          <span className="rv-count" aria-live="polite">{Math.min(at + 1, reviews.length)} / {reviews.length}</span>
+          <button type="button" onClick={next} aria-label="Next review">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+          </button>
+          {!reduce && (
+            <button type="button" onClick={() => setPaused(p => !p)} aria-pressed={paused} aria-label={paused ? 'Play reviews' : 'Pause reviews'}>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+                {paused ? <path d="M3 1.5v9l7.5-4.5z" /> : <><rect x="2.5" y="1.5" width="2.5" height="9" rx="0.5" /><rect x="7" y="1.5" width="2.5" height="9" rx="0.5" /></>}
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -218,6 +322,18 @@ export default function GoogleReviews() {
         @media(min-width:960px){
           .reviews-grid{grid-template-columns:repeat(3,1fr);gap:14px;padding:0}
         }
+        .rv-carousel{max-width:1240px;margin:0 auto}
+        .rv-track{display:grid;grid-auto-flow:column;grid-auto-columns:86%;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 16px 10px;scroll-padding:0 16px}
+        .rv-track::-webkit-scrollbar{display:none}
+        .rv-track:focus-visible{outline:2px solid ${TEXT};outline-offset:4px;border-radius:12px}
+        .rv-slide{scroll-snap-align:start;min-width:0}
+        @media(min-width:640px){.rv-track{grid-auto-columns:calc((100% - 32px - 14px)/2)}}
+        @media(min-width:960px){.rv-track{grid-auto-columns:calc((100% - 28px)/3);padding:6px 0 10px;scroll-padding:0}}
+        .rv-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px}
+        .rv-controls button{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(240,237,232,0.18);background:transparent;color:${TEXT};cursor:pointer;transition:border-color 160ms ease,background-color 160ms ease}
+        .rv-controls button:focus-visible{outline:2px solid ${TEXT};outline-offset:2px}
+        @media (hover:hover) and (pointer:fine){.rv-controls button:hover{border-color:rgba(232,53,90,0.6);background:rgba(232,53,90,0.08)}}
+        .rv-count{font-family:${F_BODY};font-size:13px;color:rgba(240,237,232,0.72);min-width:48px;font-variant-numeric:tabular-nums}
       `}</style>
 
       <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
@@ -274,15 +390,12 @@ export default function GoogleReviews() {
         {error && <Fallback />}
         {data && data.reviews.length > 0 && (
           <>
-            <div className="reviews-grid">
-              {data.reviews
+            <ReviewCarousel
+              reviews={data.reviews
                 .filter(r => r.text?.trim())
                 .sort((a, b) => b.time - a.time)
-                .slice(0, 6)
-                .map((r, i) => (
-                  <ReviewCard key={i} review={r} />
-                ))}
-            </div>
+                .slice(0, 9)}
+            />
 
             {/* Attribution + link */}
             <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -290,11 +403,11 @@ export default function GoogleReviews() {
                 href={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: ACCENT, textDecoration: 'none' }}
+                style={{ fontFamily: F_BODY, fontSize: '14px', fontWeight: 600, color: 'var(--s8-coral-text)', textDecoration: 'underline', textUnderlineOffset: '4px' }}
               >
-                See all reviews on Google →
+                See all reviews on Google
               </a>
-              <span style={{ fontFamily: F_BODY, fontSize: '11px', color: 'rgba(240,237,232,0.3)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontFamily: F_BODY, fontSize: '12px', color: 'rgba(240,237,232,0.6)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

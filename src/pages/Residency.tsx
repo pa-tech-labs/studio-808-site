@@ -118,7 +118,7 @@ export default function Residency() {
     <>
       <SEO
         title="Studio 808 Residency | Apply for Monthly Studio Hours"
-        description="Apply for the Studio 808 Residency — monthly studio hours for content creators in exchange for content. Chelmsford music studios for DJs, singers, rappers and producers."
+        description="Apply for the Studio 808 Residency: monthly studio hours for content creators in exchange for content. Chelmsford music studios for DJs, singers, rappers and producers."
         canonical="/residency"
         image="/images/studios/studio1-performer-1.jpg"
       />

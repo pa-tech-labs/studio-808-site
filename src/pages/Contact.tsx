@@ -98,7 +98,7 @@ export default function Contact() {
             {status === 'sent' ? (
               <div style={{ textAlign: 'center', padding: '40px 0' }}>
                 <p style={{ fontFamily: F_BODY, fontSize: '18px', fontWeight: 600, color: TEXT, margin: '0 0 8px' }}>Message sent!</p>
-                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0 }}>Thanks for getting in touch — we'll get back to you soon.</p>
+                <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0 }}>Thanks for getting in touch. We'll get back to you soon.</p>
               </div>
             ) : (
             <form

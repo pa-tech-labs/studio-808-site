@@ -1,4 +1,4 @@
-// Scroll-reveal and count-up for /membership. One IntersectionObserver per
+// Scroll-reveal and count-up, site-wide. One IntersectionObserver per
 // element, disconnected the first time it is seen, so every reveal runs once.
 // Under prefers-reduced-motion, or without IntersectionObserver, elements are
 // "in view" from the start and numbers show their final value.

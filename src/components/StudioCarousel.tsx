@@ -46,20 +46,22 @@ export default function StudioCarousel({ images, alt }: Props) {
 
   return (
     <div
+      className="s8-carousel"
       style={{
         position: 'relative',
-        borderRadius: '16px',
+        borderRadius: '12px',
         overflow: 'hidden',
         aspectRatio: '4/3',
         background: 'rgba(240,237,232,0.04)',
         border: `1px solid ${BORDER}`,
+        boxShadow: 'var(--mp-shadow)',
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
       <img
         src={images[idx]}
-        alt={`${alt} — photo ${idx + 1} of ${images.length}`}
+        alt={`${alt}, photo ${idx + 1} of ${images.length}`}
         loading="lazy"
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
@@ -99,7 +101,7 @@ export default function StudioCarousel({ images, alt }: Props) {
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            gap: '6px',
+            gap: '0',
             zIndex: 2,
           }}>
             {images.map((_, i) => (
@@ -107,17 +109,23 @@ export default function StudioCarousel({ images, alt }: Props) {
                 key={i}
                 onClick={() => setIdx(i)}
                 aria-label={`Go to photo ${i + 1}`}
+                aria-current={i === idx || undefined}
                 style={{
-                  width: i === idx ? '18px' : '6px',
+                  // A 24px target around the small dot.
+                  width: '24px', height: '24px', padding: 0, border: 'none', background: 'none', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span aria-hidden="true" style={{
+                  display: 'block',
+                  width: '18px',
                   height: '6px',
                   borderRadius: '999px',
                   background: i === idx ? '#fff' : 'rgba(255,255,255,0.4)',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  transition: 'width 0.2s, background 0.2s',
-                }}
-              />
+                  transform: i === idx ? 'scaleX(1)' : 'scaleX(0.34)',
+                  transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.2s',
+                }} />
+              </button>
             ))}
           </div>
         </>

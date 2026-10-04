@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, type CSSProperties } from 'react'
 import { Helmet } from 'react-helmet-async'
 import SEO from '../components/SEO'
 import StudioCarousel from '../components/StudioCarousel'
-import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
+import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, sectionLabel } from '../styles'
 import MembershipTeaser from '../components/MembershipTeaser'
+import Reveal from '../components/Reveal'
+import { SpecGrid, StickyBook, StudioHero, type StickyRoom } from '../components/StudioParts'
 import { getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 import { roomBookingUrl } from '../lib/roomBookingUrl.js'
+import { splitStudioName, studioKey } from '../lib/studioName.js'
 
 interface StudioData {
   id: string
   num: string
-  name: string
+  /** "Studio 1": the room, the hero headline. */
+  room: string
+  /** "Performer": the role, the hero's serif subline. */
+  role: string
   images: string[]
   price: string
   capacity: string
@@ -31,11 +37,12 @@ const DEFAULT_STUDIOS: StudioData[] = [
   {
     id: 'studio-1',
     num: '01',
-    name: 'Studio 1 — Performer',
+    room: 'Studio 1',
+    role: 'Performer',
     images: STATIC_IMAGES['01'],
     price: '£25/hr · 2hr min',
     capacity: '8',
-    desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library — no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
+    desc: 'The most advanced standalone DJ setup available. The Pioneer AlphaTheta XDJ-AZ connects directly to Beatport Streaming, TIDAL and rekordbox cloud library: no laptop, no USB, just plug in and play. Ideal for DJs at any level who want a professional, self-contained practice environment.',
     equipment: [
       'Pioneer AlphaTheta XDJ-AZ (standalone)',
       '2× Adam T7V studio monitors',
@@ -50,11 +57,12 @@ const DEFAULT_STUDIOS: StudioData[] = [
   {
     id: 'studio-2',
     num: '02',
-    name: 'Studio 2 — Creator',
+    room: 'Studio 2',
+    role: 'Creator',
     images: STATIC_IMAGES['02'],
     price: '£35/hr · 2hr min',
     capacity: '4',
-    desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production — use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
+    desc: "Chelmsford's most versatile room. Studio 2 bridges the gap between DJing and music production. Use it for DJ practice, beat-making, recording vocals, or all three in the same session. Bring your laptop and connect seamlessly to the studio's interface and monitors.",
     equipment: [
       'Pioneer DDJ-RX3 DJ controller',
       'Yamaha HS8 studio monitors (production desk)',
@@ -71,11 +79,12 @@ const DEFAULT_STUDIOS: StudioData[] = [
   {
     id: 'studio-3',
     num: '03',
-    name: 'Studio 3 — Pro DJ',
+    room: 'Studio 3',
+    role: 'Pro DJ',
     images: STATIC_IMAGES['03'],
     price: '£35/hr · 2hr min',
     capacity: '8',
-    desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages — CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
+    desc: "Essex's definitive club-standard DJ booth. The same setup you'll find in Fabric, Printworks and festival back-stages: CDJ-3000 multis, DJM-A9, Technics 1210s and a full RMX-1000 effects unit. Whether you're preparing for a gig, recording a mix or shooting content, Studio 3 has everything in one room.",
     equipment: [
       '3× Pioneer CDJ-3000 media players',
       'Pioneer DJM-A9 mixer',
@@ -87,22 +96,25 @@ const DEFAULT_STUDIOS: StudioData[] = [
       '4K camera for content recording',
       'Air conditioning',
     ],
-    note: 'Styluses are not provided — please bring your own if using vinyl.',
+    note: 'Styluses are not provided. Please bring your own if using vinyl.',
     cueRoomSlug: 'studio-3',
   },
 ]
 
 function mapSanityStudio(s: SanityStudio): StudioData {
-  const staticImgs = STATIC_IMAGES[s.studioNumber] ?? []
+  const num = studioKey(s.studioNumber)
+  const staticImgs = STATIC_IMAGES[num] ?? []
+  const { room, role } = splitStudioName(s)
   const heroImg = s.heroImage ? sanityImageUrl(s.heroImage, 900) : null
   const galleryImgs = (s.galleryImages ?? [])
     .map(img => sanityImageUrl(img, 900))
     .filter((u): u is string => u !== null)
   const allSanityImgs = [...(heroImg ? [heroImg] : []), ...galleryImgs]
   return {
-    id: `studio-${s.studioNumber}`,
-    num: s.studioNumber,
-    name: s.name,
+    id: `studio-${num}`,
+    num,
+    room,
+    role,
     images: allSanityImgs.length > 0 ? allSanityImgs : staticImgs,
     price: formatPrice(s),
     capacity: s.capacity,
@@ -126,10 +138,15 @@ export default function DjStudios() {
       .catch(() => { /* use defaults */ })
   }, [])
 
+  const stickyRooms: StickyRoom[] = useMemo(
+    () => studios.map(s => ({ id: s.id, room: s.room, price: s.price, href: roomBookingUrl(s.cueRoomSlug) })),
+    [studios],
+  )
+
   return (
     <>
       <SEO
-        title="DJ Studios Chelmsford | Studio 808 — From £25/hr"
+        title="DJ Studios Chelmsford | Studio 808 | From £25/hr"
         description="Three professional DJ studios in Chelmsford from £25/hr. Pioneer CDJ-3000s, DJM-A9, XDJ-AZ, Technics 1210s. 2-hour minimum booking. Book online."
         canonical="/dj-studio"
         image="/images/studios/studio3-prodj-1.jpg"
@@ -145,9 +162,9 @@ export default function DjStudios() {
             '@type': 'OfferCatalog',
             name: 'DJ Studios',
             itemListElement: [
-              { '@type': 'Offer', name: 'Studio 1 — Performer', price: '25', priceCurrency: 'GBP', unitText: 'per hour', description: 'Pioneer AlphaTheta XDJ-AZ standalone DJ setup. 2-hour minimum.' },
-              { '@type': 'Offer', name: 'Studio 2 — Creator', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Hybrid DJ/production room with Pioneer RX3, Yamaha HS8, Rode NT1. 2-hour minimum.' },
-              { '@type': 'Offer', name: 'Studio 3 — Pro DJ', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Club-standard booth with CDJ-3000s, DJM-A9, Technics 1210s, 4K camera. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Studio 1, Performer', price: '25', priceCurrency: 'GBP', unitText: 'per hour', description: 'Pioneer AlphaTheta XDJ-AZ standalone DJ setup. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Studio 2, Creator', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Hybrid DJ/production room with Pioneer RX3, Yamaha HS8, Rode NT1. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Studio 3, Pro DJ', price: '35', priceCurrency: 'GBP', unitText: 'per hour', description: 'Club-standard booth with CDJ-3000s, DJM-A9, Technics 1210s, 4K camera. 2-hour minimum.' },
             ],
           },
         })}</script>
@@ -156,66 +173,64 @@ export default function DjStudios() {
       {/* Page header */}
       <section style={{ paddingTop: '152px', paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-          <span style={sectionLabel}>DJ Studios</span>
-          <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px' }}>
+          <span className="s8-seq" style={{ ...sectionLabel, '--s': 0 } as CSSProperties}>DJ Studios</span>
+          <h1 className="mh s8-seq" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px', '--s': 1 } as CSSProperties}>
             Three Rooms. <em>One Standard.</em>
           </h1>
-          <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
-            From beginner to touring DJ — Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, with a 2-hour minimum.
+          <p className="s8-seq" style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px', '--s': 2 } as CSSProperties}>
+            From beginner to touring DJ, Studio 808 has the right room for your session. All three DJ studios are available to book online by the hour, with a 2-hour minimum.
           </p>
+          <nav aria-label="DJ studios on this page" className="s8-seq" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '28px', '--s': 3 } as CSSProperties}>
+            {studios.map(s => (
+              <a key={s.id} href={`#${s.id}`} className="dj-jump">{s.room} <span className="s8-subline" style={{ fontSize: '15px' }}>{s.role}</span></a>
+            ))}
+          </nav>
+          <style>{`
+            .dj-jump { display: inline-flex; align-items: baseline; gap: 8px; font-family: ${"'DM Sans', system-ui, sans-serif"}; font-size: 14px; font-weight: 700; color: ${TEXT}; text-decoration: none; border: 1px solid rgba(240,237,232,0.18); border-radius: 999px; padding: 9px 16px; transition: border-color 200ms ease; }
+            .dj-jump:focus-visible { outline: 2px solid ${TEXT}; outline-offset: 3px; }
+            @media (hover: hover) and (pointer: fine) { .dj-jump:hover { border-color: rgba(232,53,90,0.6); } }
+          `}</style>
         </div>
       </section>
 
-      {/* Studio sections */}
+      {/* One room at a time: its hero, then its photos, story and kit. */}
       {studios.map((s, idx) => (
-        <section
-          key={s.id}
-          className="section"
-          style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 1 ? SURF : BG }}
-        >
-          <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', alignItems: 'start' }}>
-            {/* Image */}
-            <StudioCarousel images={s.images} alt={`${s.name} DJ studio at Studio 808, Chelmsford`} />
-            {/* Content */}
-            <div>
-              <span style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '12px' }}>
-                Studio {s.num}
-              </span>
-              <h2 className="mh" style={{ fontSize: 'clamp(28px, 4vw, 40px)', color: TEXT, margin: '0 0 12px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                {s.name.split(' — ')[0]} — <em>{s.name.split(' — ')[1]}</em>
-              </h2>
-              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '24px' }}>
-                <span style={{ fontFamily: F_BODY, fontSize: '15px', color: ACCENT, fontWeight: 700 }}>{s.price}</span>
-                <span style={{ color: BORDER, fontSize: '16px' }}>·</span>
-                <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>{s.capacity ? `Up to ${s.capacity} people` : ''}</span>
+        <article key={s.id} id={s.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 1 ? SURF : BG }}>
+          <StudioHero
+            image={s.images[0] ?? ''}
+            imageAlt={`${s.room}, ${s.role}, DJ studio at Studio 808 Chelmsford`}
+            room={s.room}
+            role={s.role}
+            level={2}
+            meta={<>
+              <span className="sh-price">{s.price}</span>
+              {s.capacity && <span>Up to {s.capacity} people</span>}
+            </>}
+          />
+          <div className="section" style={{ paddingTop: '56px' }}>
+            <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '56px', alignItems: 'start' }}>
+              <Reveal>
+                <StudioCarousel images={s.images.length > 1 ? s.images.slice(1) : s.images} alt={`${s.room}, ${s.role}, DJ studio at Studio 808, Chelmsford`} />
+              </Reveal>
+              <div>
+                <Reveal as="p" style={{ fontFamily: F_BODY, fontSize: '16px', color: 'rgba(240,237,232,0.78)', lineHeight: 1.7, margin: '0 0 32px' }}>{s.desc}</Reveal>
+                <SpecGrid items={s.equipment} />
+                {s.note && (
+                  <div style={{ background: 'rgba(232,53,90,0.07)', border: '1px solid rgba(232,53,90,0.22)', borderRadius: '12px', padding: '12px 16px', marginBottom: '28px' }}>
+                    <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.82)', margin: 0, lineHeight: 1.55 }}>{s.note}</p>
+                  </div>
+                )}
+                <a href={roomBookingUrl(s.cueRoomSlug)} className="s8-btn">
+                  Book {s.room}
+                </a>
               </div>
-              <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.7, margin: '0 0 28px' }}>{s.desc}</p>
-              <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>Equipment</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {s.equipment.map(item => (
-                  <li key={item} style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.7)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <span style={{ color: ACCENT, fontSize: '8px', flexShrink: 0, marginTop: '5px' }}>●</span> {item}
-                  </li>
-                ))}
-              </ul>
-              {s.note && (
-                <div style={{ background: 'rgba(232,53,90,0.07)', border: '1px solid rgba(232,53,90,0.18)', borderRadius: '10px', padding: '12px 16px', marginBottom: '28px' }}>
-                  <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.6)', margin: 0 }}>⚠ {s.note}</p>
-                </div>
-              )}
-              <a href={roomBookingUrl(s.cueRoomSlug)}
-                style={btnPrimary}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                Book {s.name.split(' — ')[0]}
-              </a>
             </div>
           </div>
-        </section>
+        </article>
       ))}
 
       <MembershipTeaser track="dj" />
+      <StickyBook rooms={stickyRooms} />
     </>
   )
 }

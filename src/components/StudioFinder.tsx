@@ -5,9 +5,9 @@
 // State is the answers map alone, mirrored into the URL hash so a refresh
 // keeps the customer's place. No localStorage.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { BG, SURF, TEXT, MUTED, BORDER, BORDER_SM, ACCENT, F_BODY, btnPrimary, btnSecondary } from '../styles'
+import { BG, SURF, TEXT, MUTED, BORDER, BORDER_SM, ACCENT, F_BODY, btnSecondary } from '../styles'
 import { useStudioFinder } from '../hooks/useStudioFinder'
 import { formatPrice, sanityImageUrl, type FinderStudio, type SanityStudioFinder } from '../lib/sanity'
 import {
@@ -17,6 +17,7 @@ import {
 } from '../lib/studioFinder.js'
 import { FINDER_PATH, backgroundOf } from '../lib/studioFinderRoute'
 import Headline from './Headline'
+import { splitStudioName, studioLabel } from '../lib/studioName.js'
 
 // Used when a studio document has no hero image, keyed by sortOrder.
 const STATIC_HERO: Record<number, string> = {
@@ -26,7 +27,6 @@ const STATIC_HERO: Record<number, string> = {
   4: '/images/studios/studio4-production-1.jpg',
 }
 
-const accentButton: React.CSSProperties = { ...btnPrimary, background: ACCENT, color: '#fff', textAlign: 'center' }
 const linkButton: React.CSSProperties = {
   background: 'none', border: 'none', padding: '8px 0', cursor: 'pointer',
   fontFamily: F_BODY, fontSize: '14px', color: MUTED, textDecoration: 'underline', textUnderlineOffset: '3px',
@@ -58,6 +58,8 @@ function Wizard({ finder }: { finder: SanityStudioFinder }) {
   const opts = useMemo(() => ({ tutorEnabled }), [tutorEnabled])
 
   const [answers, setAnswers] = useState<Answers>(() => pruneAnswers(questions, decodeAnswers(location.hash), opts))
+  // Which way the next step slides in: forward from the right, back from the left.
+  const [dir, setDir] = useState<1 | -1>(1)
 
   // Mirror answers into the hash. replaceState keeps react-router's own
   // history state (the background page), and adds no history entries.
@@ -76,15 +78,20 @@ function Wizard({ finder }: { finder: SanityStudioFinder }) {
   const question = nextQuestion(questions, answers, opts)
   const { answered, total } = progress(questions, answers, opts)
 
-  const answer = (key: string, value: string) => setAnswers(a => pruneAnswers(questions, { ...a, [key]: value }, opts))
-  const back = () => setAnswers(a => withoutLastAnswer(questions, a, opts))
-  const restart = () => setAnswers({})
+  const answer = (key: string, value: string) => { setDir(1); setAnswers(a => pruneAnswers(questions, { ...a, [key]: value }, opts)) }
+  const back = () => { setDir(-1); setAnswers(a => withoutLastAnswer(questions, a, opts)) }
+  const restart = () => { setDir(-1); setAnswers({}) }
 
   return (
     <Shell onClose={close}>
+      {/* One bar for the whole wizard, so its fill can grow between steps. */}
+      <div aria-hidden="true" className="sf-progress">
+        <div style={{ transform: `scaleX(${question ? (answered) / Math.max(total, 1) : 1})` }} />
+      </div>
       {question ? (
         <QuestionStep
           key={question.key}
+          dir={dir}
           question={question}
           title={question.key === TUTOR_QUESTION_KEY && finder.tutor?.questionCopy ? finder.tutor.questionCopy : question.title}
           current={answered + 1}
@@ -94,6 +101,8 @@ function Wizard({ finder }: { finder: SanityStudioFinder }) {
         />
       ) : (
         <Result
+          key="result"
+          dir={dir}
           finder={finder}
           answers={answers}
           readable={readableAnswers(visibleQuestions(questions, answers, opts), answers)}
@@ -137,7 +146,35 @@ function Shell({ onClose, children }: { onClose: (() => void) | null; children: 
       style={{ position: 'fixed', inset: 0, zIndex: 10001, background: BG, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
     >
       <style>{`
-        .sf-option:hover, .sf-option:focus-visible { border-color: ${BORDER_SM} !important; background: #1d1d1d !important; }
+        .sf-progress { max-width: 620px; height: 3px; margin: 8px auto 14px; background: ${BORDER}; border-radius: 2px; overflow: hidden; }
+        .sf-progress > div { height: 100%; background: #e8355a; transform-origin: left center; transition: transform 420ms var(--s8-ease); }
+        .sf-step { animation: sf-in 320ms var(--s8-ease) both; }
+        .sf-step[data-dir="-1"] { animation-name: sf-in-back; }
+        @keyframes sf-in { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+        @keyframes sf-in-back { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+        .sf-option { transition: transform 220ms var(--s8-ease), border-color 220ms ease, background-color 220ms ease; box-shadow: var(--mp-shadow); }
+        .sf-option:focus-visible { border-color: rgba(232,53,90,0.4) !important; background: #1d1d1d !important; }
+        @media (hover: hover) and (pointer: fine) {
+          .sf-option:hover { transform: translateY(-3px); border-color: rgba(232,53,90,0.4) !important; background: #1a1a1a !important; }
+        }
+        .sf-result-card { padding: 16px; }
+        .sf-result-card img { animation: sf-photo 900ms var(--s8-ease) both; }
+        @keyframes sf-photo { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+        .sf-submit { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 200px; min-height: 46px; transition: background-color 240ms ease, color 240ms ease, border-color 240ms ease; }
+        .sf-submit[data-state="sending"] { cursor: progress; }
+        .sf-submit[data-state="sent"] { background: #e8355a !important; border-color: #e8355a !important; color: #0d0d0d !important; }
+        .sf-spin { width: 18px; height: 18px; border-radius: 999px; border: 2px solid rgba(240,237,232,0.25); border-top-color: ${TEXT}; animation: sf-spin 700ms linear infinite; }
+        @keyframes sf-spin { to { transform: rotate(360deg); } }
+        .sf-tick path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: sf-tick 380ms var(--s8-ease) 60ms forwards; }
+        @keyframes sf-tick { to { stroke-dashoffset: 0; } }
+        .sf-done { animation: s8-rise 500ms var(--s8-ease) both; }
+        @media (prefers-reduced-motion: reduce) {
+          .sf-step, .sf-result-card img, .sf-done { animation: none; }
+          .sf-progress > div, .sf-option, .sf-submit { transition: none; }
+          .sf-option:hover { transform: none; }
+          .sf-spin { animation: none; border-top-color: rgba(240,237,232,0.25); }
+          .sf-tick path { animation: none; stroke-dashoffset: 0; }
+        }
         .sf-option:focus-visible, .sf-overlay a:focus-visible, .sf-overlay button:focus-visible, .sf-overlay input:focus-visible { outline: 2px solid ${TEXT}; outline-offset: 2px; }
         .sf-day input:focus-visible + span { outline: 2px solid ${TEXT}; outline-offset: 2px; }
         .sf-input { width: 100%; box-sizing: border-box; background: ${SURF}; color: ${TEXT}; border: 1px solid ${BORDER_SM}; border-radius: 10px; padding: 12px 14px; font-family: ${F_BODY}; font-size: 16px; }
@@ -165,7 +202,8 @@ function Shell({ onClose, children }: { onClose: (() => void) | null; children: 
 
 // ── One question ─────────────────────────────────────────────────────────────
 
-function QuestionStep({ question, title, current, total, onAnswer, onBack }: {
+function QuestionStep({ question, title, current, total, onAnswer, onBack, dir }: {
+  dir: 1 | -1
   question: FinderQuestion
   title: string
   current: number
@@ -191,11 +229,8 @@ function QuestionStep({ question, title, current, total, onAnswer, onBack }: {
   }
 
   return (
-    <div style={{ maxWidth: '620px', margin: '0 auto', paddingTop: '8px' }}>
-      <div aria-hidden="true" style={{ height: '3px', background: BORDER, borderRadius: '2px', overflow: 'hidden', marginBottom: '14px' }}>
-        <div style={{ width: `${Math.round(((current - 1) / Math.max(total, 1)) * 100)}%`, height: '100%', background: TEXT, transition: 'width 0.25s' }} />
-      </div>
-      <p style={{ fontFamily: F_BODY, fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED, margin: '0 0 18px' }}>
+    <div className="sf-step" data-dir={dir} style={{ maxWidth: '620px', margin: '0 auto' }}>
+      <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: 'rgba(240,237,232,0.72)', margin: '0 0 18px' }}>
         Question {current} of {total}
       </p>
       <h2
@@ -223,7 +258,7 @@ function QuestionStep({ question, title, current, total, onAnswer, onBack }: {
             }}
           >
             {o.label}
-            {o.helper && <span style={{ display: 'block', fontWeight: 400, fontSize: '14px', color: MUTED, marginTop: '4px' }}>{o.helper}</span>}
+            {o.helper && <span style={{ display: 'block', fontWeight: 400, fontSize: '14px', color: 'rgba(240,237,232,0.72)', marginTop: '4px' }}>{o.helper}</span>}
           </button>
         ))}
       </div>
@@ -238,7 +273,8 @@ function QuestionStep({ question, title, current, total, onAnswer, onBack }: {
 
 // ── Result ───────────────────────────────────────────────────────────────────
 
-function Result({ finder, answers, readable, onBack, onRestart }: {
+function Result({ finder, answers, readable, onBack, onRestart, dir }: {
+  dir: 1 | -1
   finder: SanityStudioFinder
   answers: Answers
   readable: { question: string; answer: string }[]
@@ -254,26 +290,29 @@ function Result({ finder, answers, readable, onBack, onRestart }: {
   const labels = finder.result ?? {}
 
   const image = studio ? (sanityImageUrl(studio.heroImage, 900) ?? STATIC_HERO[studio.sortOrder] ?? null) : null
-  // Studio names in Sanity are "Studio 1 \u2014 Performer"; the tagline is the tail.
-  const [name, nameTail] = (studio?.name ?? '').split(' \u2014 ')
+  // Studio names in Sanity are "Studio 1, dash, Performer": shown apart, never with the dash.
+  const { room: name, role } = splitStudioName(studio)
   const addOns = rule?.addOns ?? []
 
   return (
-    <div style={{ paddingTop: '8px' }}>
-      <p style={{ fontFamily: F_BODY, fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED, margin: '0 0 18px' }}>
+    <div className="sf-step" data-dir={dir}>
+      <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: 'rgba(240,237,232,0.72)', margin: '0 0 18px' }}>
         {labels.heading || 'Your studio'}
       </p>
 
       {studio ? (
-        <div className="sf-result">
+        <div className="sf-result s8-card s8-static sf-result-card">
           {image && (
-            <img src={image} alt={studio.name} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: '16px', display: 'block' }} />
+            <div style={{ overflow: 'hidden', borderRadius: '10px' }}>
+              <img src={image} alt={studioLabel(studio)} width="900" height="675" style={{ width: '100%', height: 'auto', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }} />
+            </div>
           )}
-          <div>
+          <div style={{ padding: '8px 4px' }}>
             <h2 ref={headingRef} tabIndex={-1} className="mh" style={{ fontSize: 'clamp(30px, 6vw, 48px)', color: TEXT, lineHeight: 1.05, letterSpacing: '-0.02em', margin: '0 0 8px', outline: 'none' }}>
-              {name} <em>{studio.tagline || nameTail}</em>
+              <span className="s8-seq" style={{ display: 'block', '--s': 0 } as CSSProperties}>{name}</span>
             </h2>
-            <p style={{ fontFamily: F_BODY, fontSize: '15px', color: ACCENT, fontWeight: 700, margin: '0 0 16px' }}>{formatPrice(studio)}</p>
+            {role && <p className="s8-subline s8-seq" style={{ fontSize: 'clamp(22px, 4vw, 30px)', margin: '0 0 12px', '--s': 1 } as CSSProperties}>{role}</p>}
+            <p className="s8-seq" style={{ fontFamily: F_BODY, fontSize: '15px', color: 'var(--s8-coral-text)', fontWeight: 700, margin: '0 0 16px', '--s': 2 } as CSSProperties}>{formatPrice(studio)}</p>
             {rule?.reason && <p style={{ fontFamily: F_BODY, fontSize: '17px', color: TEXT, lineHeight: 1.55, margin: '0 0 12px' }}>{rule.reason}</p>}
             {studio.shortDescription && <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.65, margin: '0 0 16px' }}>{studio.shortDescription}</p>}
             {addOns.length > 0 && (
@@ -286,7 +325,7 @@ function Result({ finder, answers, readable, onBack, onRestart }: {
             {rule?.memberLine && <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: '0 0 20px' }}>{rule.memberLine}</p>}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px', maxWidth: '360px' }}>
-              <a href={resultBookingUrl(studio)} style={{ ...accentButton, padding: '16px 28px', fontSize: '15px' }}>
+              <a href={resultBookingUrl(studio)} className="s8-btn s8-seq" style={{ padding: '16px 28px', fontSize: '15px', '--s': 3 } as CSSProperties}>
                 {labels.bookLabel || 'Book this studio'}
               </a>
               <Link to={studioPageHref(studio)} style={{ ...btnSecondary, textAlign: 'center' }}>
@@ -301,7 +340,7 @@ function Result({ finder, answers, readable, onBack, onRestart }: {
           <h2 ref={headingRef} tabIndex={-1} className="mh" style={{ fontSize: 'clamp(28px, 6vw, 44px)', color: TEXT, margin: '0 0 16px', outline: 'none' }}>
             Take a look at <em>our studios</em>
           </h2>
-          <a href={resultBookingUrl(null)} style={{ ...accentButton, padding: '16px 28px' }}>{labels.bookLabel || 'Book a studio'}</a>
+          <a href={resultBookingUrl(null)} className="s8-btn" style={{ padding: '16px 28px' }}>{labels.bookLabel || 'Book a studio'}</a>
         </div>
       )}
 
@@ -330,7 +369,13 @@ function TutorForm({ finder, studioName, readable }: {
   const [days, setDays] = useState<string[]>([])
   const [company, setCompany] = useState('') // honeypot
   const [errors, setErrors] = useState<TutorErrors>({})
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle')
+  // sent: the button shows its tick for a moment; done: the thank-you replaces the form.
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'done' | 'failed'>('idle')
+  useEffect(() => {
+    if (status !== 'sent') return
+    const t = window.setTimeout(() => setStatus('done'), 900)
+    return () => window.clearTimeout(t)
+  }, [status])
   const [serverError, setServerError] = useState<string | null>(null)
 
   const t = finder.tutor ?? {}
@@ -361,9 +406,9 @@ function TutorForm({ finder, studioName, readable }: {
 
   const box: React.CSSProperties = { marginTop: '48px', padding: '24px 20px', background: SURF, border: `1px solid ${BORDER}`, borderRadius: '16px', maxWidth: '620px' }
 
-  if (status === 'sent') {
+  if (status === 'done') {
     return (
-      <div style={box} role="status">
+      <div style={box} role="status" className="sf-done">
         <p style={{ fontFamily: F_BODY, fontSize: '16px', color: TEXT, margin: 0, lineHeight: 1.6 }}>
           {t.successMessage || "Thanks. We'll be in touch to arrange a session."}
         </p>
@@ -428,9 +473,21 @@ function TutorForm({ finder, studioName, readable }: {
 
       {serverError && <p role="alert" style={{ fontFamily: F_BODY, fontSize: '14px', color: ACCENT, margin: '16px 0 0' }}>{serverError}</p>}
 
-      <button type="submit" disabled={status === 'sending'} style={{ ...btnSecondary, marginTop: '20px', cursor: 'pointer', opacity: status === 'sending' ? 0.6 : 1 }}>
-        {status === 'sending' ? 'Sending...' : 'Send to the tutor'}
+      <button
+        type="submit"
+        className="sf-submit"
+        data-state={status}
+        disabled={status === 'sending' || status === 'sent'}
+        aria-busy={status === 'sending'}
+        style={{ ...btnSecondary, marginTop: '20px', cursor: 'pointer' }}
+      >
+        {status === 'sending' ? (
+          <><span className="sf-spin" aria-hidden="true" /><span className="s8-sr">Sending</span></>
+        ) : status === 'sent' ? (
+          <><svg className="sf-tick" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5 8.3 14 15.5 6.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg><span className="s8-sr">Sent</span></>
+        ) : 'Send to the tutor'}
       </button>
+      <span className="s8-sr" role="status">{status === 'sending' ? 'Sending your request' : status === 'sent' ? 'Sent' : ''}</span>
     </form>
   )
 }

@@ -75,6 +75,8 @@ export function mapCueTiers(body) {
       hoursPerMonth: Math.max(0, toNumber(t.hours_per_month) || 0),
       commitmentMonths: Math.max(0, toNumber(t.commitment_months) || 0),
       foundingPrice: null,
+      // Booking credit each month in pounds (Cue sends pence), null when none.
+      monthlyCredit: toNumber(t.monthly_credit_pence) > 0 ? toNumber(t.monthly_credit_pence) / 100 : null,
       included: cleanList(t.perks),
       roomId: typeof t.room_venue_id === 'string' && t.room_venue_id ? t.room_venue_id : null,
     })
@@ -137,6 +139,7 @@ export function mapSanityTiers(tiers) {
     const monthlyPrice = toNumber(t.monthlyPrice)
     if (!name || !(monthlyPrice > 0)) continue
     const founding = toNumber(t.foundingPrice)
+    const credit = toNumber(t.monthlyCredit)
     plans.push({
       key: t._key || `${t.track}-${nameKey(name)}`,
       track: t.track,
@@ -145,6 +148,7 @@ export function mapSanityTiers(tiers) {
       hoursPerMonth: Math.max(0, toNumber(t.hoursPerMonth) || 0),
       commitmentMonths: Math.max(0, toNumber(t.commitmentMonths) || 0),
       foundingPrice: founding > 0 ? founding : null,
+      monthlyCredit: credit > 0 ? credit : null,
       included: cleanList(t.included),
     })
   }
@@ -155,7 +159,8 @@ export function mapSanityTiers(tiers) {
  * The plans to show. Cue's plans win whenever Cue returned any: names,
  * prices, hours, terms and perks are Cue's, a tier with no perks gets its
  * type's defaults (config/membershipPerks.js), and each takes the founding
- * price of the Sanity tier with the same name. With nothing from Cue, the
+ * price of the Sanity tier with the same name (and its monthly credit when
+ * Cue sends none). With nothing from Cue, the
  * Sanity tiers are used as they are. `rooms` names {room} in the defaults.
  */
 export function mergePlans(cuePlans, sanityPlans, rooms = []) {
@@ -166,7 +171,7 @@ export function mergePlans(cuePlans, sanityPlans, rooms = []) {
   const roomName = id => (Array.isArray(rooms) ? rooms : []).find(r => r.id === id)?.name ?? ''
   const plans = cue.map(p => {
     const match = byName.get(`${p.track}:${nameKey(p.name)}`)
-    return withDefaultPerks({ ...p, foundingPrice: match?.foundingPrice ?? p.foundingPrice }, roomName(p.roomId))
+    return withDefaultPerks({ ...p, foundingPrice: match?.foundingPrice ?? p.foundingPrice, monthlyCredit: p.monthlyCredit ?? match?.monthlyCredit ?? null }, roomName(p.roomId))
   })
   return { plans, source: 'cue' }
 }
@@ -450,21 +455,26 @@ export function heroPlanKey(plans, track) {
 /**
  * The numbers under a card's price, the ones people compare. Producer plans:
  * the effective hourly rate and the monthly saving against the room's public
- * rate (`rate`, from Cue's rooms; no rate, no saving). DJ plans have no hours,
- * so their saving is the founding discount while it is on offer.
- * `vs` says which: 'public', 'founding' or null when there is no saving.
+ * rate (`rate`, from Cue's rooms; no rate, no saving). DJ plans have no
+ * hours: they show the booking credit that comes back every month
+ * (Cue's monthly_credit_pence, or the Sanity tier's), null when there is none.
  */
-export function planValue(plan, rate, founding) {
-  if (!plan) return { perHour: null, saving: null, vs: null }
+export function planValue(plan, rate) {
+  const none = { perHour: null, saving: null, credit: null }
+  if (!plan) return none
   if (plan.hoursPerMonth > 0) {
     const perHour = pence(plan.monthlyPrice / plan.hoursPerMonth)
     const saving = rate > 0 ? pence(plan.hoursPerMonth * rate - plan.monthlyPrice) : 0
-    return saving > 0 ? { perHour, saving, vs: 'public' } : { perHour, saving: null, vs: null }
+    return { ...none, perHour, saving: saving > 0 ? saving : null }
   }
-  const price = foundingPriceFor(plan, founding)
-  return price != null
-    ? { perHour: null, saving: pence(plan.monthlyPrice - price), vs: 'founding' }
-    : { perHour: null, saving: null, vs: null }
+  return plan.monthlyCredit > 0 ? { ...none, credit: plan.monthlyCredit } : none
+}
+
+/** The DJ card's credit line, "{credit}" filled: "£25 credit back every month, ...". Empty with no credit. */
+export const DEFAULT_CREDIT_BACK_LINE = '{credit} credit back every month, plus member rates and members-only hours'
+export function creditBackLine(template, credit) {
+  if (!(credit > 0)) return ''
+  return String(template || DEFAULT_CREDIT_BACK_LINE).replace(/\{credit\}/g, formatPounds(credit))
 }
 
 /**

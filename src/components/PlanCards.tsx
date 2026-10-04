@@ -12,13 +12,15 @@ import {
 } from '../lib/membershipPlans.js'
 import './PlanCards.css'
 
-export type PlanValue = { perHour: number | null; saving: number | null; vs: 'public' | 'founding' | null }
+export type PlanValue = { perHour: number | null; saving: number | null; credit: number | null }
 
-export function PlanCard({ plan, price, value, hero, heroLabel, joinHref, joinLabel, compare }: {
+export function PlanCard({ plan, price, value, creditLine, hero, heroLabel, joinHref, joinLabel, compare }: {
   plan: MembershipPlan
   /** The price shown: the founding price while it is on offer, else the standard one. */
   price: number
   value: PlanValue
+  /** The DJ card's line under the price, "£25 credit back every month, ...". */
+  creditLine?: string
   hero: boolean
   heroLabel: string
   joinHref: string
@@ -43,14 +45,11 @@ export function PlanCard({ plan, price, value, hero, heroLabel, joinHref, joinLa
         <span className="pc-per">/mo</span>
         {discounted && <span className="pc-was"><span className="pc-sr">Standard price </span>{formatPounds(plan.monthlyPrice)}</span>}
       </p>
-      {(value.perHour != null || value.saving != null) && (
+      {(value.perHour != null || value.saving != null || creditLine) && (
         <p className="pc-value">
           {value.perHour != null && <span className="pc-rate">{formatPounds(value.perHour)}/hr <span>effective</span></span>}
-          {value.saving != null && (
-            <span className="pc-save">
-              Save {formatPounds(value.saving)}/mo {value.vs === 'public' ? 'vs public' : 'with the founding price'}
-            </span>
-          )}
+          {value.saving != null && <span className="pc-save">Save {formatPounds(value.saving)}/mo vs public</span>}
+          {creditLine && <span className="pc-save">{creditLine}</span>}
         </p>
       )}
 

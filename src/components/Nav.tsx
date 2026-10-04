@@ -47,11 +47,32 @@ export default function Nav() {
   const finderOn = Boolean(useStudioFinder())
   const finderState = finderLinkState(backgroundOf(location) ?? location)
 
+  // The bar stays clear over a page's hero (any element marked data-nav-hero)
+  // and fades its background in once the hero has scrolled up under it, or
+  // its copy (data-nav-hero-content) has reached the bar.
+  // Pages without one switch after 60px, as before.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
+    let frame = 0
+    const check = () => {
+      frame = 0
+      const hero = document.querySelector('[data-nav-hero]')
+      // Also as soon as the hero's own copy reaches the bar, so its text and
+      // buttons never slide under a clear nav.
+      const copy = hero?.querySelector('[data-nav-hero-content]')
+      setScrolled(hero
+        ? hero.getBoundingClientRect().bottom <= 96 || (copy ? copy.getBoundingClientRect().top <= 80 : false)
+        : window.scrollY > 60)
+    }
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(check) }
+    check()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [location.pathname])
 
   useEffect(() => {
     getSiteSettings()
@@ -60,14 +81,22 @@ export default function Nav() {
   }, [])
 
   const navBg = scrolled || open
-    ? 'rgba(13,13,13,0.96)'
-    : 'transparent'
+    ? 'rgba(13,13,13,0.94)'
+    : 'rgba(13,13,13,0)'
 
   return (
     <>
       <style>{`
-        .nav-link { transition: color 0.15s; }
+        .nav-link { position: relative; transition: color 0.15s; }
         .nav-link:hover { color: ${TEXT} !important; }
+        /* Current page: a coral underline that draws in from the left. */
+        .nav-desktop .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -7px; height: 2px; border-radius: 2px; background: #e8355a; transform: scaleX(0); transform-origin: left center; transition: transform 320ms var(--s8-ease); }
+        .nav-desktop .nav-link.active::after { transform: scaleX(1); }
+        .nav-link:focus-visible, .nav-ham:focus-visible { outline: 2px solid ${TEXT}; outline-offset: 4px; border-radius: 4px; }
+        .s8-nav { transition: background-color 300ms ease, border-color 300ms ease, -webkit-backdrop-filter 300ms ease, backdrop-filter 300ms ease; }
+        @media (prefers-reduced-motion: reduce) {
+          .s8-nav, .nav-link, .nav-desktop .nav-link::after { transition: none; }
+        }
         /* A sixth link crowds the nav below 1200px, so the finder link shows
            only above that. The home section and the mobile menu still reach it. */
         @media(max-width:1199px){ .nav-finder { display:none !important; } }
@@ -81,13 +110,12 @@ export default function Nav() {
         }
       `}</style>
 
-      <header style={{
+      <header className="s8-nav" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         background: navBg,
         borderBottom: scrolled ? '1px solid rgba(240,237,232,0.07)' : '1px solid transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-        transition: 'background 0.3s, border-color 0.3s, backdrop-filter 0.3s',
       }}>
         {/* ── Desktop ── */}
         <div style={{
@@ -96,12 +124,12 @@ export default function Nav() {
           alignItems: 'center', height: '72px', padding: '0 32px',
         }}>
 
-          {/* Logo — left */}
+          {/* Logo, left */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="/images/logo.png" alt="Studio 808" style={{ height: '40px', width: 'auto', flexShrink: 0 }} />
           </Link>
 
-          {/* Nav links — centre */}
+          {/* Nav links, centre */}
           <nav className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
             {links.map(({ to, label, external }) => external ? (
               <a
@@ -148,7 +176,7 @@ export default function Nav() {
             )}
           </nav>
 
-          {/* CTAs — right */}
+          {/* CTAs, right */}
           <div className="nav-desktop" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
             <button
               onClick={() => setShowBookings(true)}
@@ -182,7 +210,7 @@ export default function Nav() {
             </a>
           </div>
 
-          {/* Hamburger — mobile only */}
+          {/* Hamburger, mobile only */}
           <button
             className="nav-ham"
             onClick={() => setOpen(o => !o)}
@@ -193,6 +221,7 @@ export default function Nav() {
               justifySelf: 'end',
             }}
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
             {[0,1,2].map(i => (
               <span key={i} style={{ display: 'block', width: '22px', height: '2px', background: TEXT, borderRadius: '2px', transition: 'opacity 0.15s' }} />

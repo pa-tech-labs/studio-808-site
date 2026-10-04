@@ -7,7 +7,7 @@ export default function Blog() {
   return (
     <>
       <SEO
-        title="Blog | Studio 808 Chelmsford — DJing, Production & Podcasting Tips"
+        title="Blog | Studio 808 Chelmsford | DJing, Production & Podcasting Tips"
         description="Articles on DJing, music production and podcasting from the team at Studio 808, Chelmsford's creative hub since 2014."
         canonical="/blog"
         image="/images/studios/studio3-prodj-1.jpg"
@@ -21,7 +21,7 @@ export default function Blog() {
             Articles &amp; <em>Guides.</em>
           </h1>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
-            Tips, guides and stories from Studio 808 — Chelmsford's home for DJs, producers and podcasters since 2014.
+            Tips, guides and stories from Studio 808, Chelmsford's home for DJs, producers and podcasters since 2014.
           </p>
         </div>
       </section>

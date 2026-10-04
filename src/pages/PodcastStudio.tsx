@@ -16,7 +16,7 @@ export default function PodcastStudio() {
   return (
     <>
       <SEO
-        title="Podcast Studio Chelmsford | PA Media — Professional Podcast Recording"
+        title="Podcast Studio Chelmsford | PA Media | Professional Podcast Recording"
         description="Podcast recording in Chelmsford via PA Media, Studio 808's sister company. Professional studio, editing, video podcasts and distribution support."
         canonical="/podcast-studio"
         image="/images/studios/studio4-production-1.jpg"
@@ -30,7 +30,7 @@ export default function PodcastStudio() {
             Podcast Recording <em>in Chelmsford.</em>
           </h1>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '540px' }}>
-            Studio 808 no longer offers podcast studio hire directly — but you're in good hands. Our sister company, PA Media, now handles all podcast and content creation bookings.
+            Studio 808 no longer offers podcast studio hire directly, but you're in good hands. Our sister company, PA Media, now handles all podcast and content creation bookings.
           </p>
         </div>
       </section>
@@ -50,7 +50,7 @@ export default function PodcastStudio() {
               PA Media is Studio 808's sister company, specialising in professional podcast recording, production and content creation. They offer the same Studio 808 standard of quality with a dedicated focus on spoken-word and video content.
             </p>
             <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.7, margin: '0 0 32px' }}>
-              Whether you're launching your first podcast, recording a series or producing branded content for your business — PA Media has you covered.
+              Whether you're launching your first podcast, recording a series or producing branded content for your business, PA Media has you covered.
             </p>
             <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>What's included</p>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 36px', display: 'flex', flexDirection: 'column', gap: '8px' }}>

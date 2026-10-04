@@ -13,6 +13,13 @@ export default defineType({
     defineField({ name: 'bookingUrl', title: 'Booking URL', type: 'url' }),
     defineField({ name: 'address', title: 'Address', type: 'text', rows: 3 }),
     defineField({
+      name: 'marqueeItems',
+      title: 'Home marquee',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: 'Equipment and genres that scroll slowly under the home page hero, e.g. CDJ-3000, Neve 1073, Drum & Bass. Leave empty to use the built-in list.',
+    }),
+    defineField({
       name: 'socialLinks',
       title: 'Social Links',
       type: 'array',

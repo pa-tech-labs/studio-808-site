@@ -126,7 +126,8 @@ export default function ChatWidget() {
 
   const panelStyle: React.CSSProperties = {
     position: 'fixed',
-    bottom: '88px',
+    // Lifted above the studio pages' sticky Book bar while it shows (StudioParts.tsx).
+    bottom: 'calc(88px + var(--s8-bottom-bar, 0px))',
     right: '24px',
     width: '360px',
     maxWidth: 'calc(100vw - 32px)',
@@ -143,14 +144,14 @@ export default function ChatWidget() {
     zIndex: 9999,
     opacity: visible ? 1 : 0,
     transform: visible ? 'translateY(0) scale(1)' : 'translateY(16px) scale(0.97)',
-    transition: 'opacity 0.2s ease, transform 0.2s ease',
+    transition: 'opacity 0.2s ease, transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
     pointerEvents: open ? 'auto' : 'none',
   }
 
   return (
     <>
       {/* Chat panel */}
-      <div style={panelStyle} aria-hidden={!open}>
+      <div className="s8-chat" style={panelStyle} aria-hidden={!open} inert={!open}>
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -230,7 +231,7 @@ export default function ChatWidget() {
                     textDecoration: 'none', transition: 'background 0.15s',
                   }}
                 >
-                  Email us →
+                  Email us
                 </a>
               )}
             </div>
@@ -296,11 +297,12 @@ export default function ChatWidget() {
 
       {/* Floating button */}
       <button
+        className="s8-chat"
         onClick={() => setOpen(o => !o)}
         aria-label={open ? 'Close chat' : 'Open chat'}
         style={{
           position: 'fixed',
-          bottom: '24px',
+          bottom: 'calc(24px + var(--s8-bottom-bar, 0px))',
           right: '24px',
           width: '56px',
           height: '56px',
@@ -338,6 +340,9 @@ export default function ChatWidget() {
         @keyframes chatDot {
           0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
           40%            { opacity: 1;    transform: scale(1);   }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .s8-chat, .s8-chat * { transition: none !important; animation: none !important; }
         }
       `}</style>
     </>

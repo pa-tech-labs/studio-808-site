@@ -1,6 +1,6 @@
-// Once-only scroll reveal for /membership: fades and lifts its children the
-// first time they scroll into view (hooks/useInView.ts). The .rv styles live
-// with the page's CSS.
+// Once-only scroll reveal, site-wide: fades and lifts its children the first
+// time they scroll into view (hooks/useInView.ts). The .rv styles live in
+// index.css.
 
 import type { CSSProperties, ElementType, ReactNode } from 'react'
 import { useInView } from '../hooks/useInView'

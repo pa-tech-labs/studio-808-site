@@ -28,6 +28,7 @@ export interface TrackCopy {
   foundingPriceNote?: string | null
   bestValueLabel?: string | null
   compareLabel?: string | null
+  creditBackLine?: string | null
   creditLine?: string | null
   foundingTerms?: string | null
   standardTerms?: string | null
