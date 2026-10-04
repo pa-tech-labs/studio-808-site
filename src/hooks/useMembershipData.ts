@@ -15,7 +15,13 @@ import { fetchCueMembership, mapSanityTiers, mergePlans, type MembershipPlan, ty
 // them (lib/membershipPlans.js). `rooms` is the tier rooms' public rate and
 // hours from the same Cue response, [] when Cue leaves them out.
 
-export type MembershipPlans = { plans: MembershipPlan[]; source: 'cue' | 'sanity'; rooms: MembershipRoom[] }
+export type MembershipPlans = {
+  plans: MembershipPlan[]
+  source: 'cue' | 'sanity'
+  rooms: MembershipRoom[]
+  /** Cue's min_booking_hours, the minimum checkout enforces; null when Cue gave none. */
+  minBookingHours: number | null
+}
 
 const SANITY_WAIT_MS = 3000
 
@@ -33,7 +39,7 @@ function load() {
       const stored = d?.tiers?.length ? d.tiers : membershipPageContent.tiers
       const merged = mergePlans(cue.plans, mapSanityTiers(stored), cue.rooms)
       if (import.meta.env.DEV && merged.source === 'sanity') console.info('[membership] Cue tiers unavailable, showing Sanity tiers')
-      return (settledPlans = { ...merged, rooms: cue.rooms })
+      return (settledPlans = { ...merged, rooms: cue.rooms, minBookingHours: cue.minBookingHours })
     })
   }
   return { contentPromise, plansPromise: plansPromise! }

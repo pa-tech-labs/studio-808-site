@@ -135,3 +135,13 @@ test('with no cards, the entry plan\'s included list fills the teaser', () => {
   assert.equal(m.perks[0].title, '8 hours a month in Studio 4')
   assert.equal(m.perksAreSteps, false)
 })
+
+test('the producer steps say the minimum session length, taken from Cue', () => {
+  const m = teaserModel({ track: 'producer', content: membershipPageContent, plans: CUE_PLANS, founding: LIVE, minBookingHours: 2 })
+  const book = m.perks.find(p => p.title === 'Book whenever')
+  assert.equal(book.body, 'Use your code at checkout for Studio 4. Book sessions of 2 hours or more, any combination, until your hours are used.')
+  const three = teaserModel({ track: 'producer', content: membershipPageContent, plans: CUE_PLANS, founding: LIVE, minBookingHours: 3 })
+  assert.ok(three.perks.find(p => p.title === 'Book whenever').body.includes('3 hours or more'))
+  const unknown = teaserModel({ track: 'producer', content: membershipPageContent, plans: CUE_PLANS, founding: LIVE })
+  assert.ok(!JSON.stringify(unknown.perks).includes('{minHours}'), 'never a raw placeholder')
+})

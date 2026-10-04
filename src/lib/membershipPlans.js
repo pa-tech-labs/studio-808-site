@@ -88,7 +88,7 @@ const HHMM = /^\d{2}:\d{2}/
 
 /**
  * Cue's `rooms` (beside `tiers`) as rooms: id, name, public rate, opening
- * hours and gated members-only rows. A room without a positive rate keeps
+ * hours, gated members-only rows and public price bands. A room without a positive rate keeps
  * rate null, which hides the savings block rather than showing £0. Returns
  * [] for any body without rooms, such as a Cue that predates them.
  */
@@ -108,6 +108,10 @@ export function mapCueRooms(body) {
       memberHours: (Array.isArray(r.member_hours) ? r.member_hours : [])
         .map(m => ({ day: day(m?.day_of_week), start: time(m?.start_time), end: time(m?.end_time), type: m?.min_membership_type ?? null, tierId: m?.min_tier_id ?? null }))
         .filter(m => m.day != null && m.start && m.end),
+      // Public price bands (access-hub #548): [] from a Cue that predates them.
+      bands: (Array.isArray(r.bands) ? r.bands : [])
+        .map(b => ({ day: day(b?.day_of_week), start: time(b?.start_time), end: time(b?.end_time), label: typeof b?.label === 'string' ? b.label.trim() : '', price: toNumber(b?.price_per_hour) }))
+        .filter(b => b.day != null && b.start && b.end && b.price > 0),
     }
   })
 }
@@ -187,14 +191,20 @@ export async function fetchCueMembership({ fetchImpl = globalThis.fetch, apiUrl 
   const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null
   try {
     const res = await fetchImpl(tiersUrl(apiUrl, tenantId), controller ? { signal: controller.signal } : undefined)
-    if (!res?.ok) return { plans: [], rooms: [] }
+    if (!res?.ok) return { plans: [], rooms: [], minBookingHours: null }
     const body = await res.json()
-    return { plans: mapCueTiers(body), rooms: mapCueRooms(body) }
+    return { plans: mapCueTiers(body), rooms: mapCueRooms(body), minBookingHours: minBookingHoursOf(body) }
   } catch {
-    return { plans: [], rooms: [] }
+    return { plans: [], rooms: [], minBookingHours: null }
   } finally {
     if (timer) clearTimeout(timer)
   }
+}
+
+/** Cue's minimum booking length in hours (the one checkout enforces), null when absent. */
+export function minBookingHoursOf(body) {
+  const n = toNumber(body?.min_booking_hours)
+  return n > 0 ? n : null
 }
 
 /** Cue's live plans only. Never throws. */

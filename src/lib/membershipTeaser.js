@@ -6,6 +6,7 @@
 
 import { membershipPageContent } from './membershipPageContent.js'
 import { formatPounds, foundingPriceFor, heroPlanKey, joinUrl, plansForTrack } from './membershipPlans.js'
+import { fillMinHours } from './roomPricing.js'
 
 const PERK_COUNT = 3
 
@@ -57,9 +58,9 @@ export function teaserPerksAreSteps(copy) {
 /**
  * Everything the teaser renders, for one track. `content` is the singleton
  * (null or undefined reads as the bundled copy); `plans` may be empty while
- * Cue is loading. An unknown track reads as DJ, like /membership's ?type=.
+ * Cue is loading. `minBookingHours` (Cue's) fills {minHours} in the perks. An unknown track reads as DJ, like /membership's ?type=.
  */
-export function teaserModel({ track, content, plans, founding }) {
+export function teaserModel({ track, content, plans, founding, minBookingHours = null }) {
   const t = track === 'producer' ? 'producer' : 'dj'
   const c = content ?? membershipPageContent
   const copy = c[t] ?? membershipPageContent[t]
@@ -71,7 +72,8 @@ export function teaserModel({ track, content, plans, founding }) {
     intro: firstSentence(copy.intro || membershipPageContent[t].intro),
     priceLine: teaserPriceLine(plans, t, founding),
     creditLine: copy.creditLine || '',
-    perks: teaserPerks(copy, plans, t),
+    // {minHours} in a perk is Cue's minimum booking length ("2 hours").
+    perks: teaserPerks(copy, plans, t).map(p => ({ title: fillMinHours(p.title, minBookingHours), body: fillMinHours(p.body, minBookingHours) })),
     perksAreSteps: teaserPerksAreSteps(copy),
     // The one founding line, as on /membership: the note, then the places left.
     founding: {

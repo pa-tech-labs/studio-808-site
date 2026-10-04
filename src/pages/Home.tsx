@@ -7,6 +7,8 @@ import Marquee from '../components/Marquee'
 import Reveal from '../components/Reveal'
 import StudioFinderSection from '../components/StudioFinderSection'
 import { prefersReducedMotion } from '../hooks/useInView'
+import { useMembershipData } from '../hooks/useMembershipData'
+import { fromPriceLine } from '../lib/roomPricing.js'
 import { getSiteSettings, getStudios, formatPrice, sanityImageUrl, type SanityStudio } from '../lib/sanity'
 import { roomBookingUrl } from '../lib/roomBookingUrl.js'
 import { splitStudioName, studioKey } from '../lib/studioName.js'
@@ -150,6 +152,14 @@ function useHashScroll() {
 
 export default function Home() {
   const [studios, setStudios] = useState<StudioCard[]>(DEFAULT_STUDIOS)
+  // A room Cue prices in bands (Studio 4) reads "From £37.50/hr · 2hr min"
+  // from Cue; every other card keeps its Sanity price.
+  const { plans } = useMembershipData()
+  const cuePrice = (room: string) => {
+    if (plans?.source !== 'cue') return ''
+    const r = plans.rooms.find(x => x.name.trim().toLowerCase() === room.trim().toLowerCase())
+    return r ? fromPriceLine(r.bands, plans.minBookingHours) : ''
+  }
   const [marquee, setMarquee] = useState<string[]>(DEFAULT_MARQUEE)
   // The hero film holds still on its first frame under reduced motion.
   const [reduceMotion] = useState(prefersReducedMotion)
@@ -285,7 +295,7 @@ export default function Home() {
                   <div style={{ padding: '22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', marginBottom: '4px' }}>
                       <h3 style={{ fontFamily: F_BODY, fontSize: '19px', fontWeight: 700, color: TEXT, margin: 0, lineHeight: 1.2 }}>{s.name}</h3>
-                      <span style={{ fontFamily: F_BODY, fontSize: '13px', color: 'var(--s8-coral-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>{s.price}</span>
+                      <span style={{ fontFamily: F_BODY, fontSize: '13px', color: 'var(--s8-coral-text)', fontWeight: 700, whiteSpace: 'nowrap' }}>{cuePrice(s.name) || s.price}</span>
                     </div>
                     <p className="s8-subline" style={{ fontSize: '19px', margin: '0 0 12px' }}>{s.sub}</p>
                     <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.68)', margin: '0 0 14px', lineHeight: 1.55, flex: 1 }}>{s.desc}</p>

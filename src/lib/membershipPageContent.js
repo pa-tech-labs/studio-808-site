@@ -82,7 +82,7 @@ export const membershipPageContent = {
     perks: [
       card('pick', 'Pick your plan', 'Choose 8 or 16 hours a month, on a 3 or 6 month commitment.'),
       card('code', 'Get your monthly code', 'A unique booking code lands via WhatsApp with each monthly payment, and covers you until your next renewal.'),
-      card('book', 'Book whenever', 'Use your code at checkout for Studio 4. Book any combination of sessions until your hours are used.'),
+      card('book', 'Book whenever', 'Use your code at checkout for Studio 4. Book sessions of {minHours} or more, any combination, until your hours are used.'),
     ],
     planLabel: 'Choose your plan',
     planIntro: '3-month plans offer flexibility. 6-month plans cost less - commit longer, save more.',

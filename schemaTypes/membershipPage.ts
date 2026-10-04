@@ -29,7 +29,7 @@ const perkCard = defineArrayMember({
   name: 'perkCard',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: r => r.required() }),
-    defineField({ name: 'body', title: 'Text', type: 'text', rows: 2 }),
+    defineField({ name: 'body', title: 'Text', type: 'text', rows: 2, description: '{minHours} is replaced by the minimum booking length set in Cue, e.g. "2 hours".' }),
     defineField({
       name: 'icon',
       title: 'Icon (optional)',

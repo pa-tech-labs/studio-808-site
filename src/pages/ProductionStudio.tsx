@@ -5,7 +5,10 @@ import StudioCarousel from '../components/StudioCarousel'
 import { BG, SURF, TEXT, BORDER, F_BODY, sectionLabel } from '../styles'
 import MembershipTeaser from '../components/MembershipTeaser'
 import Reveal from '../components/Reveal'
-import { SpecGrid, StickyBook, StudioHero } from '../components/StudioParts'
+import { RoomPrices, SpecGrid, StickyBook, StudioHero } from '../components/StudioParts'
+import { useRoomPricing } from '../hooks/useRoomPricing'
+import { formatPounds } from '../lib/membershipPlans.js'
+import { fromPrice, fromPriceLine, minimumText, priceRows, sharedDays } from '../lib/roomPricing.js'
 import { getStudios, formatPrice, sanityImageUrl, type SanityService } from '../lib/sanity'
 import { roomBookingUrl } from '../lib/roomBookingUrl.js'
 import { splitStudioName } from '../lib/studioName.js'
@@ -39,7 +42,10 @@ interface Studio4Data {
   room: string
   role: string
   images: string[]
+  /** Sanity's "£40/hr · 2hr min": shown only when Cue sends no price bands. */
   price: string
+  /** Sanity's minimum, the fallback for Cue's min_booking_hours. */
+  minimumHours: number
   capacity: string
   equipment: string[]
   services: SanityService[]
@@ -52,6 +58,7 @@ const DEFAULT_DATA: Studio4Data = {
   role: 'Producer',
   images: STUDIO4_IMAGES,
   price: '£55/hr · 2hr min',
+  minimumHours: 2,
   capacity: '5',
   equipment: DEFAULT_EQUIPMENT,
   services: DEFAULT_SERVICES,
@@ -79,6 +86,7 @@ export default function ProductionStudio() {
           role: role || DEFAULT_DATA.role,
           images: allSanityImgs.length > 0 ? allSanityImgs : STUDIO4_IMAGES,
           price: formatPrice(studio4),
+          minimumHours: Number(studio4.minimumHours) > 0 ? Number(studio4.minimumHours) : DEFAULT_DATA.minimumHours,
           capacity: studio4.capacity ?? DEFAULT_DATA.capacity,
           equipment: studio4.equipment?.length ? studio4.equipment : DEFAULT_EQUIPMENT,
           services: studio4.services?.length ? studio4.services : DEFAULT_SERVICES,
@@ -88,16 +96,28 @@ export default function ProductionStudio() {
       .catch(() => { /* use defaults */ })
   }, [])
 
+  // Prices from Cue's bands whenever Cue sends them; Sanity's only when it does not.
+  const pricing = useRoomPricing(data.room)
+  const rows = priceRows(pricing.bands)
+  const from = fromPrice(pricing.bands)
+  const minHours = pricing.minBookingHours ?? data.minimumHours
+  const priceLine = fromPriceLine(pricing.bands, minHours) || data.price
+  // The bundled services (Sanity has none) carry a dry-hire price; Cue's wins.
+  // The minimum is in the hero and the price list, so the card keeps to one line.
+  const services = from != null && data.services === DEFAULT_SERVICES
+    ? data.services.map(svc => (svc.name === 'Dry Hire' ? { ...svc, price: `From ${formatPounds(from)}/hr` } : svc))
+    : data.services
+
   const stickyRooms = useMemo(
-    () => [{ id: 'studio-4-details', room: data.room, price: data.price, href: roomBookingUrl(data.cueRoomSlug) }],
-    [data.room, data.price, data.cueRoomSlug],
+    () => [{ id: 'studio-4-details', room: data.room, price: priceLine, href: roomBookingUrl(data.cueRoomSlug) }],
+    [data.room, priceLine, data.cueRoomSlug],
   )
 
   return (
     <>
       <SEO
         title="Production Studio Chelmsford | Studio 808 | Neve 1073, Neumann U87"
-        description="Professional recording studio in Chelmsford. Focal SM9 monitors, Neve 1073, UA Apollo 8x, Neumann U87. Dry hire £55/hr (2hr min) or with engineer from £100/hr."
+        description={`Professional recording studio in Chelmsford. Focal SM9 monitors, Neve 1073, UA Apollo 8x, Neumann U87. Dry hire ${from != null ? `from ${formatPounds(from)}/hr` : data.price.split(' · ')[0]} (${minHours}hr min) or with engineer from £100/hr.`}
         canonical="/main-production-studio"
         image="/images/studios/studio4-production-1.jpg"
       />
@@ -112,7 +132,7 @@ export default function ProductionStudio() {
             '@type': 'OfferCatalog',
             name: 'Production Studio Services',
             itemListElement: [
-              { '@type': 'Offer', name: 'Dry Hire', price: '55', priceCurrency: 'GBP', unitText: 'per hour', description: 'Room only. Bring your own engineer or work independently. 2-hour minimum.' },
+              { '@type': 'Offer', name: 'Dry Hire', price: String(from ?? data.price.match(/£([\d.]+)/)?.[1] ?? ''), priceCurrency: 'GBP', unitText: 'per hour', description: `Room only. Bring your own engineer or work independently. ${minHours}-hour minimum.` },
               { '@type': 'Offer', name: 'With Engineer', price: '100', priceCurrency: 'GBP', unitText: 'per hour', description: 'Room and experienced house engineer for recording sessions and artist production.' },
               { '@type': 'Offer', name: 'Mixing & Mastering', price: '150', priceCurrency: 'GBP', unitText: 'per track', description: 'Professional mix and master from the in-house team.' },
               { '@type': 'Offer', name: 'Custom Track Production', price: '600', priceCurrency: 'GBP', description: 'Full custom track production from idea to finished master. £600–£1,000 depending on complexity.' },
@@ -130,7 +150,14 @@ export default function ProductionStudio() {
         eyebrow={<span style={sectionLabel}>Production Studio</span>}
         lede="Our flagship recording and production room. Acoustically treated, first floor, with an industry-standard signal chain from mic to monitor."
         meta={<>
-          <span className="sh-price">Dry hire {data.price}</span>
+          {from != null ? (
+            <>
+              <span className="sh-price">From {formatPounds(from)}/hr</span>
+              <span>{minimumText(minHours)}</span>
+            </>
+          ) : (
+            <span className="sh-price">Dry hire {data.price}</span>
+          )}
           <span>With engineer from £100/hr</span>
           {data.capacity && <span>Up to {data.capacity} people</span>}
         </>}
@@ -145,6 +172,15 @@ export default function ProductionStudio() {
             <StudioCarousel images={data.images.length > 1 ? data.images.slice(1) : data.images} alt={`${data.room} production studio at Studio 808 Chelmsford, Focal SM9 monitors and Neve 1073`} />
           </Reveal>
           <div>
+            {rows.length > 0 && from != null && (
+              <RoomPrices
+                rows={rows}
+                from={from}
+                days={sharedDays(rows)}
+                minimum={minimumText(minHours)}
+                membersOnly={pricing.membersOnlyWhen ? { when: pricing.membersOnlyWhen, href: '/membership?type=producer' } : null}
+              />
+            )}
             <SpecGrid items={data.equipment} level={2} />
 
             <div className="s8-card s8-static" style={{ padding: '18px 20px', marginBottom: '32px' }}>
@@ -171,7 +207,7 @@ export default function ProductionStudio() {
             </h2>
           </Reveal>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
-            {data.services.map((svc, i) => (
+            {services.map((svc, i) => (
               <Reveal key={svc.name} index={i} style={{ display: 'flex' }}>
                 <div className="s8-card" style={{ background: BG, padding: '28px', flex: 1 }}>
                   <h3 style={{ fontFamily: F_BODY, fontSize: '15px', fontWeight: 700, color: TEXT, margin: '0 0 10px' }}>{svc.name}</h3>

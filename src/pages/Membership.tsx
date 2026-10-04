@@ -28,6 +28,7 @@ import { prefersReducedMotion, useCountUp, useInView } from '../hooks/useInView'
 import { useMembershipData, type MembershipPlans } from '../hooks/useMembershipData'
 import { sanityImageUrl, type SanityImage } from '../lib/sanity'
 import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
+import { fillMinHours } from '../lib/roomPricing.js'
 import {
   clock, creditBackLine, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, joinUrl, memberHoursWeek, pickTerm, planSlug,
   planTerms, planValue, plansForTrack, priceFromLabel, producerRoom, producerSavings,
@@ -141,7 +142,7 @@ export default function Membership() {
                   <div className="mp-grid3">
                     {copy.perks!.map((p, i) => (
                       <Reveal key={p._key ?? p.title ?? i} index={i}>
-                        <PerkCardView index={i} icon={p.icon} title={p.title} body={p.body} />
+                        <PerkCardView index={i} icon={p.icon} title={p.title} body={fillMinHours(p.body, plans?.minBookingHours)} />
                       </Reveal>
                     ))}
                   </div>
@@ -449,7 +450,7 @@ function SavingsBlock({ plans, room }: { plans: MembershipPlan[]; room: Membersh
           </div>
         )}
         <Reveal as="p" className="mp-footnote">
-          Savings based on {room.name || 'the studio'}'s standard public rate of {money(rate)}/hr.
+          Savings based on {room.name || 'the studio'}'s peak public rate of {money(rate)}/hr.
         </Reveal>
       </div>
     </section>

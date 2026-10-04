@@ -271,11 +271,12 @@ test('mapCueRooms maps the rate, hours and gates, and reads no rooms as []', () 
   for (const body of [null, CUE_BODY, { rooms: 'nope' }]) assert.deepEqual(mapCueRooms(body), [])
 })
 
-test('fetchCueMembership returns plans and rooms, and empties on failure', async () => {
-  const ok = await fetchCueMembership({ fetchImpl: async () => okResponse(ROOM_BODY) })
+test('fetchCueMembership returns plans, rooms and the minimum, and empties on failure', async () => {
+  const ok = await fetchCueMembership({ fetchImpl: async () => okResponse({ ...ROOM_BODY, min_booking_hours: 2 }) })
   assert.equal(ok.plans.length, 4)
   assert.equal(ok.rooms[0].name, 'Studio 4')
-  assert.deepEqual(await fetchCueMembership({ fetchImpl: async () => { throw new Error('x') } }), { plans: [], rooms: [] })
+  assert.equal(ok.minBookingHours, 2)
+  assert.deepEqual(await fetchCueMembership({ fetchImpl: async () => { throw new Error('x') } }), { plans: [], rooms: [], minBookingHours: null })
 })
 
 test('producerSavings works each plan out from the room rate, with the 6-month 8-hour plan featured', () => {

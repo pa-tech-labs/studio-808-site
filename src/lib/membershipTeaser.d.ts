@@ -43,4 +43,5 @@ export declare function teaserModel(input: {
   content: MembershipPageContent | null | undefined
   plans: MembershipPlan[] | null | undefined
   founding: Partial<FoundingInfo> | null | undefined
+  minBookingHours?: number | null
 }): TeaserModel
