@@ -26,6 +26,8 @@ export interface TrackCopy {
   planIntro?: string | null
   foundingBadgeLabel?: string | null
   foundingPriceNote?: string | null
+  bestValueLabel?: string | null
+  compareLabel?: string | null
   creditLine?: string | null
   foundingTerms?: string | null
   standardTerms?: string | null

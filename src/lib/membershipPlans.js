@@ -258,7 +258,7 @@ export function parseFoundingStatus(body) {
 
 /**
  * The founding price to show on a DJ plan, or null for the standard price.
- * Follows FoundingBadge's rule: the offer shows unless the pool is KNOWN to
+ * Follows the founding line's rule: the offer shows unless the pool is KNOWN to
  * be full (remaining 0); unknown keeps it. Cue's live price wins over the
  * Sanity-stored one. Producer founding is recognition only, never a discount.
  */
@@ -385,4 +385,97 @@ export function memberHoursWeek(room, producerTierIds = []) {
     hasEvenings: days.some(d => !weekend(d) && d.public && d.members.some(r => r[0] >= d.public[1])),
     hasWeekends: days.some(d => weekend(d) && d.members.length > 0),
   }
+}
+
+// ── Plan cards ───────────────────────────────────────────────────────────────
+
+/**
+ * A plan's card title. Producer tiers carry their hours and term in Cue's
+ * name ("Producer Membership - 8hrs/mo (6 Month)"), so the title is built
+ * from the hours ("8 hours a month") and the term shows as a pill instead.
+ * Plans without hours keep their Cue name ("808 DJ").
+ */
+export function planDisplayName(plan) {
+  if (!plan) return ''
+  return plan.hoursPerMonth > 0 ? `${plan.hoursPerMonth} hours a month` : plan.name
+}
+
+/** The term pill: "6-month", or '' for a plan with no minimum term. */
+export function termLabel(months) {
+  return months > 0 ? `${months}-month` : ''
+}
+
+/** A stable anchor for a plan card, e.g. "plan-producer-8h-6m" or "plan-dj-808-resident". */
+export function planSlug(plan) {
+  if (!plan) return ''
+  const tail = plan.hoursPerMonth > 0
+    ? `${plan.hoursPerMonth}h-${plan.commitmentMonths}m`
+    : nameKey(plan.name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return `plan-${plan.track}-${tail}`
+}
+
+/** A track's minimum terms in months, shortest first: [3, 6] for producers, [0] for DJs. */
+export function planTerms(plans, track) {
+  return [...new Set(plansForTrack(plans, track).map(p => p.commitmentMonths))].sort((a, b) => a - b)
+}
+
+/**
+ * The term to show: the requested one when the track offers it, else the
+ * longest (the cheaper per hour, and where the hero plan sits).
+ */
+export function pickTerm(plans, track, requested) {
+  const terms = planTerms(plans, track)
+  if (terms.length === 0) return 0
+  const want = Number(requested)
+  return terms.includes(want) ? want : terms[terms.length - 1]
+}
+
+/**
+ * The one plan per track that gets the "Best value" treatment. Producer: the
+ * 6-month 8-hour plan when there is one, else the lowest hourly rate (longest
+ * term first). DJ: the entry plan, the cheapest.
+ */
+export function heroPlanKey(plans, track) {
+  const list = plansForTrack(plans, track)
+  if (list.length === 0) return null
+  if (track === 'producer') {
+    const pick = list.find(p => p.commitmentMonths === 6 && p.hoursPerMonth === 8)
+      ?? [...list].filter(p => p.hoursPerMonth > 0)
+        .sort((a, b) => a.monthlyPrice / a.hoursPerMonth - b.monthlyPrice / b.hoursPerMonth || b.commitmentMonths - a.commitmentMonths)[0]
+    return pick?.key ?? null
+  }
+  return list.reduce((a, b) => (b.monthlyPrice < a.monthlyPrice ? b : a)).key
+}
+
+/**
+ * The numbers under a card's price, the ones people compare. Producer plans:
+ * the effective hourly rate and the monthly saving against the room's public
+ * rate (`rate`, from Cue's rooms; no rate, no saving). DJ plans have no hours,
+ * so their saving is the founding discount while it is on offer.
+ * `vs` says which: 'public', 'founding' or null when there is no saving.
+ */
+export function planValue(plan, rate, founding) {
+  if (!plan) return { perHour: null, saving: null, vs: null }
+  if (plan.hoursPerMonth > 0) {
+    const perHour = pence(plan.monthlyPrice / plan.hoursPerMonth)
+    const saving = rate > 0 ? pence(plan.hoursPerMonth * rate - plan.monthlyPrice) : 0
+    return saving > 0 ? { perHour, saving, vs: 'public' } : { perHour, saving: null, vs: null }
+  }
+  const price = foundingPriceFor(plan, founding)
+  return price != null
+    ? { perHour: null, saving: pence(plan.monthlyPrice - price), vs: 'founding' }
+    : { perHour: null, saving: null, vs: null }
+}
+
+/**
+ * The one founding line above a track's plans. Hidden once the pool is known
+ * to be full. `remaining` null (count unknown) keeps the note and drops the
+ * count and the bar, never a made-up number.
+ */
+export function foundingSummary(note, remaining, cap) {
+  const label = String(note ?? '').trim()
+  if (remaining === 0 || !label) return { show: false, label: '', count: '', taken: null, cap }
+  if (remaining == null || !(cap > 0)) return { show: true, label, count: '', taken: null, cap }
+  const left = Math.min(remaining, cap)
+  return { show: true, label, count: `${left} of ${cap} places left`, taken: cap - left, cap }
 }

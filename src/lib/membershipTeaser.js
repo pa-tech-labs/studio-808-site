@@ -5,7 +5,7 @@
 // bundled copy), plans from Cue (or the singleton's tiers).
 
 import { membershipPageContent } from './membershipPageContent.js'
-import { formatPounds, foundingPriceFor, joinUrl, plansForTrack } from './membershipPlans.js'
+import { formatPounds, foundingPriceFor, heroPlanKey, joinUrl, plansForTrack } from './membershipPlans.js'
 
 const PERK_COUNT = 3
 
@@ -18,7 +18,7 @@ export function firstSentence(text) {
 
 /**
  * The teaser's price line. DJ plans show the founding price while it is on
- * offer (FoundingBadge's rule: unknown keeps it, known-full drops it) next to
+ * offer (the founding rule: unknown keeps it, known-full drops it) next to
  * the standard price. Producer founding is recognition only, so producer
  * plans show the standard price. Empty until there are plans.
  */
@@ -35,17 +35,23 @@ export function teaserPriceLine(plans, track, founding) {
 }
 
 /**
- * Three perks for the track. The track's cards are used when they are perks
- * (the DJ cards carry icons); numbered cards are steps (the producer's "How
- * it works"), so the entry plan's "What's included" is used instead.
+ * Three points for the track, beside the plan card. The track's cards as
+ * they are: perks when they carry icons (DJ), or numbered steps (the
+ * producer's "How it works"), which the teaser shows as a numbered list. The
+ * entry plan's "What's included" is the fallback with no cards; with the
+ * plan card now listing it, it is never the first choice.
  */
 export function teaserPerks(copy, plans, track) {
   const cards = (copy?.perks ?? []).filter(p => p?.title)
-  if (cards.some(p => p.icon)) {
-    return cards.slice(0, PERK_COUNT).map(p => ({ title: p.title, body: p.body ?? '' }))
-  }
+  if (cards.length > 0) return cards.slice(0, PERK_COUNT).map(p => ({ title: p.title, body: p.body ?? '' }))
   const entry = plansForTrack(plans, track)[0]
   return (entry?.included ?? []).slice(0, PERK_COUNT).map(title => ({ title, body: '' }))
+}
+
+/** True when the track's cards are steps (no icons), so the teaser numbers them. */
+export function teaserPerksAreSteps(copy) {
+  const cards = (copy?.perks ?? []).filter(p => p?.title)
+  return cards.length > 0 && !cards.some(p => p.icon)
 }
 
 /**
@@ -66,12 +72,21 @@ export function teaserModel({ track, content, plans, founding }) {
     priceLine: teaserPriceLine(plans, t, founding),
     creditLine: copy.creditLine || '',
     perks: teaserPerks(copy, plans, t),
+    perksAreSteps: teaserPerksAreSteps(copy),
+    // The one founding line, as on /membership: the note, then the places left.
     founding: {
-      show: remaining !== 0 && Boolean(copy.foundingBadgeLabel),
-      label: copy.foundingBadgeLabel || '',
+      show: remaining !== 0 && Boolean(copy.foundingPriceNote),
+      note: copy.foundingPriceNote || '',
       remaining,
       cap: t === 'dj' ? founding?.djCap ?? 15 : founding?.producerCap ?? 3,
     },
+    /** The plan the teaser shows as a card: /membership's "Best value" plan. */
+    heroKey: heroPlanKey(plans, t),
+    bestValueLabel: copy.bestValueLabel || membershipPageContent[t].bestValueLabel,
+    compareLabel: copy.compareLabel || membershipPageContent[t].compareLabel,
+    terms: copy.standardTerms || '',
+    foundingTerms: copy.foundingTerms || '',
+    planJoinLabel: copy.joinLabel || 'Join Now',
     seeHref: `/membership?type=${t}`,
     joinHref: joinUrl(t),
     joinLabel: copy.cta?.buttonLabel || (t === 'dj' ? 'Join the DJ Membership' : 'Join the Producer Membership'),

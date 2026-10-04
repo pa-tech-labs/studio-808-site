@@ -16,20 +16,21 @@
 // IntersectionObserver in hooks/useInView.ts, and none of it runs under
 // prefers-reduced-motion.
 
-import { useEffect, type CSSProperties, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
 import Headline from '../components/Headline'
-import { FoundingBadge, FoundingCounter, useFoundingStatus, type FoundingStatus } from '../components/FoundingBadge'
+import { FoundingLine, PlanCard, PlanFootnote, TermToggle } from '../components/PlanCards'
+import { useFoundingStatus, type FoundingStatus } from '../hooks/useFoundingStatus'
 import { ACCENT, BG, BORDER, BORDER_SM, F_BODY, F_HEAD, MUTED, MUTED_LT, SURF, TEXT, sectionLabel } from '../styles'
 import Reveal from '../components/Reveal'
-import { useCountUp, useInView } from '../hooks/useInView'
+import { prefersReducedMotion, useCountUp, useInView } from '../hooks/useInView'
 import { useMembershipData, type MembershipPlans } from '../hooks/useMembershipData'
 import { sanityImageUrl, type SanityImage } from '../lib/sanity'
 import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
 import {
-  clock, fillTerms, formatPounds, foundingPriceFor, joinUrl, memberHoursWeek, perHourLabel, plansForTrack,
-  priceFromLabel, producerRoom, producerSavings,
+  clock, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, joinUrl, memberHoursWeek, pickTerm, planSlug,
+  planTerms, planValue, plansForTrack, priceFromLabel, producerRoom, producerSavings,
   type MembershipPlan, type MembershipRoom, type SavingsRow, type Span, type Track,
 } from '../lib/membershipPlans.js'
 
@@ -56,17 +57,39 @@ export default function Membership() {
   const founding = useFoundingStatus()
   const [params, setParams] = useSearchParams()
   const track = trackFrom(params.get('type'))
+  // Producer plans show one minimum term at a time; ?term=3 or ?term=6 deep-links either.
+  const term = pickTerm(plans?.plans, track, params.get('term'))
+  const { hash } = useLocation()
 
   // Linked from deep in the studio pages' teasers; start at the top, as the
-  // other long pages do. Mount only, so switching tracks does not jump.
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  // other long pages do, unless the link names a spot (#savings, #plan-...).
+  // Mount only, so switching tracks does not jump.
+  useEffect(() => {
+    if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [])
 
-  const selectTrack = (t: Track) =>
+  const setParam = (key: string, value: string) =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
-      next.set('type', t)
+      next.set(key, value)
       return next
     }, { replace: true, preventScrollReset: true })
+  const selectTrack = (t: Track) => setParam('type', t)
+  const selectTerm = (m: number) => setParam('term', String(m))
+
+  // A #plan-... or #savings link lands once the plans have loaded, on arrival
+  // or when the hash changes in place. A plan card on the other term switches
+  // the toggle to it first.
+  const landed = useRef('')
+  useEffect(() => {
+    if (!plans || !content || !hash || landed.current === hash) return
+    landed.current = hash
+    const id = decodeURIComponent(hash.slice(1))
+    const plan = plansForTrack(plans.plans, track).find(p => planSlug(p) === id)
+    if (plan && plan.commitmentMonths !== term) selectTerm(plan.commitmentMonths)
+    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plans, content, hash])
 
   const c = content ?? membershipPageContent
   const copy: TrackCopy = (track === 'dj' ? c.dj : c.producer) ?? {}
@@ -130,13 +153,13 @@ export default function Membership() {
           {track === 'producer' && plans && <ProducerBlocks plans={plans} />}
 
           {/* Plans */}
-          <section id="plans" className="mp-section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
+          <section id="plans" className="mp-section" style={{ borderBottom: `1px solid ${BORDER}` }}>
             <div style={{ maxWidth: '920px', margin: '0 auto' }}>
               <Reveal style={{ textAlign: 'center', marginBottom: '28px' }}>
                 {copy.planLabel && <span style={sectionLabel}>{copy.planLabel}</span>}
                 {copy.planIntro && <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.6, margin: '0 auto', maxWidth: '520px' }}>{copy.planIntro}</p>}
               </Reveal>
-              <PlanList track={track} plans={plans} copy={copy} founding={founding} />
+              <PlanList track={track} term={term} onTerm={selectTerm} plans={plans} copy={copy} founding={founding} />
             </div>
           </section>
 
@@ -291,11 +314,18 @@ function PerkCardView({ index, icon, title, body }: { index: number; icon?: stri
   )
 }
 
-function PlanList({ track, plans, copy, founding }: { track: Track; plans: Plans | undefined; copy: TrackCopy; founding: FoundingStatus }) {
+function PlanList({ track, term, onTerm, plans, copy, founding }: {
+  track: Track
+  term: number
+  onTerm: (m: number) => void
+  plans: Plans | undefined
+  copy: TrackCopy
+  founding: FoundingStatus
+}) {
   if (!plans) {
     return (
-      <div className="mp-grid2" aria-busy="true" aria-label="Loading plans">
-        {[0, 1].map(i => <div key={i} className="mp-card mp-card-static" style={{ background: BG, minHeight: '360px' }} />)}
+      <div className="pc-scope pc-grid" aria-busy="true" aria-label="Loading plans">
+        {[0, 1].map(i => <div key={i} className="pc-card" style={{ minHeight: '420px', pointerEvents: 'none' }} />)}
       </div>
     )
   }
@@ -303,63 +333,62 @@ function PlanList({ track, plans, copy, founding }: { track: Track; plans: Plans
   if (list.length === 0) {
     return <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, textAlign: 'center' }}>No plans are open right now. Check back soon.</p>
   }
-  // Producer plans group by minimum term, as on Cue: a 3-month column and a 6-month column.
-  if (track === 'producer') {
-    const terms = [...new Set(list.map(p => p.commitmentMonths))]
+
+  // The room rate behind "Save £X/mo vs public": the same Cue data as "What
+  // members save", so the two always agree, and absent whenever that block is.
+  const rate = plans.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
+  const heroKey = heroPlanKey(plans.plans, track)
+  const terms = planTerms(plans.plans, track)
+  const remaining = track === 'dj' ? founding.dj : founding.producer
+  const cap = track === 'dj' ? founding.djCap : founding.producerCap
+  // DJ founding is a locked discount; producer founding is recognition at the standard price.
+  const isFounding = track === 'dj' ? list.some(p => foundingPriceFor(p, founding) != null) : remaining !== 0
+
+  const compareClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    const target = document.getElementById('savings')
+    if (!target) return
+    e.preventDefault()
+    target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
+    history.replaceState(history.state, '', '#savings')
+  }
+  const card = (p: MembershipPlan) => {
+    const value = planValue(p, rate, founding)
     return (
-      <div className="mp-grid2">
-        {terms.map(m => (
-          <div key={m} style={{ display: 'grid', gap: '16px', alignContent: 'start' }}>
-            {m > 0 && <p style={{ fontFamily: F_BODY, fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED, margin: '0 0 -4px' }}>{m}-month commitment</p>}
-            {list.filter(p => p.commitmentMonths === m).map((p, i) => <Reveal key={p.key} index={i}><PlanCard plan={p} copy={copy} founding={founding} /></Reveal>)}
-          </div>
-        ))}
-      </div>
+      <PlanCard
+        plan={p}
+        price={foundingPriceFor(p, founding) ?? p.monthlyPrice}
+        value={value}
+        hero={p.key === heroKey}
+        heroLabel={copy.bestValueLabel || 'Best value'}
+        joinHref={joinUrl(p.track)}
+        joinLabel={copy.joinLabel || 'Join Now'}
+        compare={value.vs === 'public' ? { href: '#savings', label: copy.compareLabel || 'Compare plans', onClick: compareClick } : null}
+      />
     )
   }
-  return <div className="mp-grid2">{list.map((p, i) => <Reveal key={p.key} index={i}><PlanCard plan={p} copy={copy} founding={founding} /></Reveal>)}</div>
-}
-
-function PlanCard({ plan, copy, founding }: { plan: MembershipPlan; copy: TrackCopy; founding: FoundingStatus }) {
-  const remaining = plan.track === 'dj' ? founding.dj : founding.producer
-  const cap = plan.track === 'dj' ? founding.djCap : founding.producerCap
-  // DJ founding is a locked discount; producer founding is recognition at the standard price.
-  const foundingPrice = foundingPriceFor(plan, founding)
-  const isFounding = plan.track === 'dj' ? foundingPrice != null : remaining !== 0
-  const terms = fillTerms(isFounding ? copy.foundingTerms : copy.standardTerms, plan)
-  const perHour = perHourLabel(plan)
+  const grid = (items: MembershipPlan[]) => (
+    <div className="pc-grid">
+      {items.map((p, i) => <Reveal key={p.key} index={i}>{card(p)}</Reveal>)}
+    </div>
+  )
 
   return (
-    <div className={`mp-card${isFounding ? ' mp-card-founding' : ''}`} style={{ background: BG, padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
-      {isFounding && copy.foundingBadgeLabel && <div><FoundingBadge remaining={remaining} label={copy.foundingBadgeLabel} /></div>}
-      <h3 style={{ fontFamily: F_BODY, fontSize: '18px', fontWeight: 700, color: TEXT, margin: '0 0 8px', lineHeight: 1.3 }}>{plan.name}</h3>
-      <p style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: '40px', color: TEXT, margin: '0 0 4px', lineHeight: 1 }}>
-        {formatPounds(foundingPrice ?? plan.monthlyPrice)}
-        <span style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED }}>/mo</span>
-        {foundingPrice != null && (
-          <span style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, textDecoration: 'line-through', marginLeft: '8px' }}>
-            <span className="mp-sr">Standard price </span>{formatPounds(plan.monthlyPrice)}
-          </span>
-        )}
-      </p>
-      {isFounding && copy.foundingPriceNote && <p style={{ fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, margin: '6px 0 2px' }}>{copy.foundingPriceNote}</p>}
-      {isFounding && <FoundingCounter remaining={remaining} cap={cap} />}
-      {perHour && <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '4px 0 0' }}>{perHour}</p>}
-      {plan.included.length > 0 && (
-        <ul style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED_LT, margin: '16px 0 14px', padding: 0, listStyle: 'none', display: 'grid', gap: '8px' }}>
-          {plan.included.map(item => (
-            <li key={item} style={{ display: 'flex', gap: '10px', lineHeight: 1.5 }}>
-              <span aria-hidden="true" style={{ color: TEXT, flexShrink: 0 }}>✓</span>{item}
-            </li>
-          ))}
-        </ul>
-      )}
-      {copy.creditLine && <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 6px', lineHeight: 1.6 }}>{copy.creditLine}</p>}
-      {terms && <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 22px', lineHeight: 1.6 }}>{terms}</p>}
-      <a href={joinUrl(plan.track)} className="mp-btn" style={{ marginTop: 'auto', display: 'block' }}>
-        {copy.joinLabel || 'Join Now'}
-        <span className="mp-sr">: {plan.name}</span>
-      </a>
+    <div key={track} className="pc-scope pc-fade">
+      <FoundingLine note={isFounding ? copy.foundingPriceNote : null} remaining={remaining} cap={cap} />
+      {terms.length > 1 ? (
+        <>
+          <TermToggle terms={terms} value={term} onChange={onTerm} label="Minimum term" />
+          {/* Every term stays in the page, so each card is linkable; the one on show crossfades in. */}
+          <div className="pc-stack">
+            {terms.map(m => (
+              <div key={m} className={`pc-pane${m === term ? ' pc-pane-on' : ''}`} inert={m !== term}>
+                {grid(list.filter(p => p.commitmentMonths === m))}
+              </div>
+            ))}
+          </div>
+        </>
+      ) : grid(list)}
+      <PlanFootnote lines={[fillTerms(isFounding ? copy.foundingTerms : copy.standardTerms, { commitmentMonths: term }), copy.creditLine]} />
     </div>
   )
 }
@@ -402,7 +431,7 @@ function SavingsBlock({ plans, room }: { plans: MembershipPlan[]; room: Membersh
   const featured = rows.find(r => r.key === featuredKey) ?? rows[0]
   const rest = rows.filter(r => r !== featured)
   return (
-    <section className="mp-section" aria-labelledby="mp-save-h" style={{ borderBottom: `1px solid ${BORDER}` }}>
+    <section id="savings" className="mp-section" aria-labelledby="mp-save-h" style={{ borderBottom: `1px solid ${BORDER}` }}>
       <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
         <Reveal style={{ marginBottom: '32px', maxWidth: '640px' }}>
           <h2 id="mp-save-h" className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
@@ -497,7 +526,7 @@ function MemberHoursBlock({ room, producerTierIds }: { room: MembershipRoom; pro
           <h2 id="mp-hours-h" className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
             {heading}
           </h2>
-          <p className="mp-subline">The public cannot book the coral slots in {room.name || 'the studio'}. Only producer members can.</p>
+          <p className="mp-subline">Members get more access to {room.name || 'the studio'}.</p>
         </Reveal>
 
         <Reveal className="mp-card mp-card-static mp-week">
@@ -578,6 +607,7 @@ const CSS = `
   @keyframes mp-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
   .mp-section { padding: 56px 16px; }
+  #savings, #plans, .pc-card { scroll-margin-top: 136px; }
   .mp-cta { padding: 72px 16px 88px; }
   .mp-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 480px; margin: 32px auto 0; }
   .mp-choice { cursor: pointer; font-family: ${F_BODY}; color: ${TEXT}; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1px solid; border-radius: 12px; padding: 18px 12px; backdrop-filter: blur(6px); transition: border-color 200ms ease, background-color 200ms ease; }
@@ -597,7 +627,6 @@ const CSS = `
 
   /* Cards, media, pills, buttons */
   .mp-card { background: ${SURF}; border: 1px solid ${BORDER}; border-radius: 12px; box-shadow: var(--mp-shadow); transition: transform 220ms ${EASE_OUT}, border-color 220ms ease; }
-  .mp-card-founding { border-color: rgba(232,53,90,0.35); }
   .mp-media { display: block; width: 100%; object-fit: cover; border-radius: 12px; border: 1px solid ${BORDER}; box-shadow: var(--mp-shadow); }
   .mp-btn { position: relative; isolation: isolate; overflow: hidden; display: inline-block; background: ${ACCENT}; color: ${BG}; border: none; border-radius: 999px; padding: 13px 28px; font-family: ${F_BODY}; font-size: 14px; font-weight: 700; line-height: 1; text-align: center; text-decoration: none; white-space: nowrap; cursor: pointer; }
   .mp-btn::before { content: ''; position: absolute; inset: 0; z-index: -1; background: ${TEXT}; transform: scaleX(0); transform-origin: left center; transition: transform 300ms ${EASE_OUT}; }

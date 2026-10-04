@@ -207,7 +207,7 @@ test('foundingPriceFor: live price while places remain, stored price while unkno
   const [dj] = mergePlans(mapCueTiers(CUE_BODY), mapSanityTiers(membershipPageContent.tiers)).plans
   assert.equal(dj.name, '808 DJ')
   assert.equal(foundingPriceFor(dj, parseFoundingStatus({ ...LIVE_STATUS, prices: { '808 DJ': 1800 } })), 18)
-  assert.equal(foundingPriceFor(dj, parseFoundingStatus(null)), 20, 'unknown keeps the offer, as FoundingBadge does')
+  assert.equal(foundingPriceFor(dj, parseFoundingStatus(null)), 20, 'unknown keeps the offer, as the founding line does')
   assert.equal(foundingPriceFor(dj, parseFoundingStatus({ ...LIVE_STATUS, remaining: 0 })), null)
 })
 

@@ -1,61 +1,101 @@
-// Short membership section for a studio page: heading, one-line intro, price
-// line, three perks, and buttons to /membership and to Cue's join page. Copy
-// and plans come from the same sources as /membership (useMembershipData);
-// the choices live in lib/membershipTeaser.js.
+// Short membership section for a studio page: heading, one-line intro, three
+// perks and a link to /membership on one side; the founding line and the
+// track's "Best value" plan card (the same card as /membership) on the other.
+// Copy and plans come from the same sources as /membership
+// (useMembershipData); the choices live in lib/membershipTeaser.js.
 
-import type { CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
+import type { MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Headline from './Headline'
-import { FoundingBadge, FoundingCounter, useFoundingStatus } from './FoundingBadge'
+import { FoundingLine, PlanCard, PlanFootnote } from './PlanCards'
+import { useFoundingStatus } from '../hooks/useFoundingStatus'
 import { useMembershipData } from '../hooks/useMembershipData'
 import { teaserModel } from '../lib/membershipTeaser.js'
-import type { Track } from '../lib/membershipPlans.js'
-import { ACCENT, BG, BORDER, F_BODY, MUTED, MUTED_LT, SURF, TEXT, btnPrimary, btnSecondary, sectionLabel } from '../styles'
-
-const joinButton: CSSProperties = { ...btnPrimary, background: ACCENT, color: '#fff', fontWeight: 700, textAlign: 'center' }
+import { fillTerms, foundingPriceFor, planValue, producerRoom, type Track } from '../lib/membershipPlans.js'
+import { BG, BORDER, F_BODY, MUTED, MUTED_LT, TEXT, btnSecondary, sectionLabel } from '../styles'
 
 export default function MembershipTeaser({ track }: { track: Track }) {
   const { content, plans } = useMembershipData()
   const founding = useFoundingStatus()
+  const navigate = useNavigate()
 
   // Holds its space while the copy loads so the page does not jump.
   if (!content) return <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}`, minHeight: '480px' }} aria-busy="true" />
 
   const m = teaserModel({ track, content, plans: plans?.plans, founding })
+  const plan = plans?.plans.find(p => p.key === m.heroKey)
+  // The same room rate as /membership's "What members save", so the numbers match.
+  const rate = plans?.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
+  const value = plan ? planValue(plan, rate, founding) : null
+  const foundingPrice = plan ? foundingPriceFor(plan, founding) : null
+  const isFounding = m.track === 'dj' ? foundingPrice != null : m.founding.remaining !== 0
+  const compareHref = `${m.seeHref}#savings`
+  const goCompare = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    navigate(compareHref)
+  }
 
   return (
     <section id="membership" className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}>
       <style>{`
-        .mt-perks { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 28px 0 32px; padding: 0; list-style: none; }
-        .mt-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-        @media (min-width: 760px) { .mt-perks { grid-template-columns: repeat(3, 1fr); } }
+        .mt-wrap { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+        .mt-perks { display: grid; gap: 14px; margin: 28px 0 32px; padding: 0; list-style: none; }
+        .mt-perks li { display: flex; gap: 12px; align-items: flex-start; }
+        .mt-perks .mt-mark { margin-top: 1px; width: 22px; height: 22px; font-family: var(--pc-body); font-size: 12px; font-weight: 700; }
+        .mt-plan { width: 100%; max-width: 440px; justify-self: center; }
+        @media (min-width: 900px) { .mt-wrap { grid-template-columns: 1.1fr 1fr; gap: 64px; } .mt-plan { justify-self: end; } }
       `}</style>
-      <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
-        {m.eyebrow && <span style={sectionLabel}>{m.eyebrow}</span>}
-        <h2 className="mh" style={{ fontSize: 'clamp(30px, 5vw, 48px)', color: TEXT, margin: '0 0 14px', letterSpacing: '-0.02em', lineHeight: 1.08 }}>
-          <Headline text={m.heading} />
-        </h2>
-        {m.intro && <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED_LT, margin: '0 0 22px', lineHeight: 1.6, maxWidth: '640px' }}>{m.intro}</p>}
+      <div className="mt-wrap pc-scope">
+        <div>
+          {m.eyebrow && <span style={sectionLabel}>{m.eyebrow}</span>}
+          <h2 className="mh" style={{ fontSize: 'clamp(30px, 5vw, 48px)', color: TEXT, margin: '0 0 14px', letterSpacing: '-0.02em', lineHeight: 1.08 }}>
+            <Headline text={m.heading} />
+          </h2>
+          {m.intro && <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED_LT, margin: 0, lineHeight: 1.6, maxWidth: '560px' }}>{m.intro}</p>}
 
-        {m.founding.show && <div><FoundingBadge remaining={m.founding.remaining} label={m.founding.label} /></div>}
-        <p style={{ fontFamily: F_BODY, fontSize: '18px', fontWeight: 700, color: TEXT, margin: '0 0 4px', minHeight: '1.4em' }}>{m.priceLine}</p>
-        {m.founding.show && <FoundingCounter remaining={m.founding.remaining} cap={m.founding.cap} />}
-        {m.creditLine && <p style={{ fontFamily: F_BODY, fontSize: '13px', color: MUTED, margin: '4px 0 0', lineHeight: 1.6, maxWidth: '640px' }}>{m.creditLine}</p>}
+          {m.perks.length > 0 && (() => {
+            const List = m.perksAreSteps ? 'ol' : 'ul'
+            return (
+              <List className="mt-perks">
+                {m.perks.map((p, i) => (
+                  <li key={p.title}>
+                    <span className="pc-check mt-mark" aria-hidden="true">
+                      {m.perksAreSteps ? i + 1 : (
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.2 5 8.6l4.5-5" /></svg>
+                      )}
+                    </span>
+                    <span style={{ fontFamily: F_BODY, fontSize: '15px', lineHeight: 1.4 }}>
+                      <span style={{ display: 'block', fontWeight: 700, color: TEXT }}>{p.title}</span>
+                      {p.body && <span style={{ display: 'block', marginTop: '3px', color: MUTED, fontSize: '14px', lineHeight: 1.55 }}>{p.body}</span>}
+                    </span>
+                  </li>
+                ))}
+              </List>
+            )
+          })()}
 
-        {m.perks.length > 0 && (
-          <ul className="mt-perks">
-            {m.perks.map(p => (
-              <li key={p.title} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '18px 20px' }}>
-                <p style={{ fontFamily: F_BODY, fontSize: '15px', fontWeight: 700, color: TEXT, margin: p.body ? '0 0 6px' : 0, lineHeight: 1.4 }}>{p.title}</p>
-                {p.body && <p style={{ fontFamily: F_BODY, fontSize: '13.5px', color: MUTED, margin: 0, lineHeight: 1.6 }}>{p.body}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
+          <Link to={m.seeHref} style={btnSecondary}>See all plans</Link>
+        </div>
 
-        <div className="mt-actions">
-          <a href={m.joinHref} style={joinButton}>{m.joinLabel}</a>
-          <Link to={m.seeHref} style={btnSecondary}>See membership</Link>
+        <div className="mt-plan">
+          {m.founding.show && <FoundingLine note={m.founding.note} remaining={m.founding.remaining} cap={m.founding.cap} />}
+          {plan && value ? (
+            <div className="pc-fade">
+              <PlanCard
+                plan={plan}
+                price={foundingPrice ?? plan.monthlyPrice}
+                value={value}
+                hero
+                heroLabel={m.bestValueLabel}
+                joinHref={m.joinHref}
+                joinLabel={m.planJoinLabel}
+                compare={value.vs === 'public' ? { href: compareHref, label: m.compareLabel, onClick: goCompare } : null}
+              />
+              <PlanFootnote lines={[fillTerms(isFounding ? m.foundingTerms : m.terms, plan), m.creditLine]} />
+            </div>
+          ) : (
+            <div className="pc-card" style={{ minHeight: '420px', pointerEvents: 'none' }} aria-busy="true" aria-label="Loading plans" />
+          )}
         </div>
       </div>
     </section>
