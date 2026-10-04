@@ -24,7 +24,12 @@ export interface MembershipRoom {
   rate: number | null
   availability: { day: number; isOpen: boolean; open: string; close: string }[]
   memberHours: { day: number; start: string; end: string; type: string | null; tierId: string | null }[]
+  /** Public price bands from Cue; [] when Cue sends none. */
+  bands: PriceBand[]
 }
+
+/** One public price band: a day, a window and its £/hr. */
+export interface PriceBand { day: number; start: string; end: string; label: string; price: number }
 
 export interface SavingsRow {
   key: string
@@ -94,7 +99,8 @@ export interface CueFetchOptions {
   tenantId?: string
   timeoutMs?: number
 }
-export declare function fetchCueMembership(opts?: CueFetchOptions): Promise<{ plans: MembershipPlan[]; rooms: MembershipRoom[] }>
+export declare function fetchCueMembership(opts?: CueFetchOptions): Promise<{ plans: MembershipPlan[]; rooms: MembershipRoom[]; minBookingHours: number | null }>
+export declare function minBookingHoursOf(body: unknown): number | null
 export declare function fetchCueTiers(opts?: CueFetchOptions): Promise<MembershipPlan[]>
 export declare function loadPlans(opts?: CueFetchOptions & { sanityTiers?: StoredTier[] | null }): Promise<{ plans: MembershipPlan[]; source: 'cue' | 'sanity' }>
 export declare function plansForTrack(plans: MembershipPlan[] | null | undefined, track: Track): MembershipPlan[]

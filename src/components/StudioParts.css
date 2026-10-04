@@ -55,3 +55,29 @@
 @media (prefers-reduced-motion: reduce) {
   .sb-bar { transition: none; }
 }
+
+/* ── Room prices (Cue's bands) ───────────────────────────────────────── */
+
+.rp-card { padding: 26px 22px; margin: 0 0 32px; }
+.rp-head { margin: 0 0 6px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: rgba(240,237,232,0.72); }
+.rp-from { margin: 0; font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(40px, 6vw, 52px); line-height: 1; color: #f0ede8; }
+.rp-from small { font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; color: rgba(240,237,232,0.72); margin-left: 6px; }
+.rp-sub { margin: 10px 0 0; font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; color: rgba(240,237,232,0.78); }
+.rp-rows { list-style: none; margin: 22px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(240,237,232,0.08); display: grid; gap: 16px; }
+.rp-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: baseline; font-family: 'DM Sans', system-ui, sans-serif; }
+.rp-label { font-size: 15px; font-weight: 700; color: #f0ede8; }
+.rp-time { display: block; font-size: 14px; color: rgba(240,237,232,0.72); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.rp-price { font-size: 17px; font-weight: 700; color: #f0ede8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rp-cheapest .rp-price { color: var(--s8-coral-text); }
+.rp-bar { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: rgba(240,237,232,0.06); overflow: hidden; margin-top: 6px; }
+.rp-bar > span { display: block; height: 100%; width: calc(var(--share) * 100%); border-radius: 999px; background: rgba(240,237,232,0.32); transform-origin: left center; transform: scaleX(0); transition: transform 700ms var(--s8-ease); transition-delay: calc(var(--rv-i, 0) * 70ms + 120ms); }
+.rp-cheapest .rp-bar > span { background: #e8355a; }
+.rv-in .rp-bar > span { transform: scaleX(1); }
+.rp-members { margin: 20px 0 0; padding: 16px 0 0; border-top: 1px solid rgba(240,237,232,0.08); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; font-family: 'DM Sans', system-ui, sans-serif; }
+.rp-members strong { display: block; font-size: 15px; color: #f0ede8; }
+.rp-members span { font-size: 14px; color: rgba(240,237,232,0.72); }
+.rp-members a { font-size: 14px; font-weight: 700; color: var(--s8-coral-text); text-decoration: underline; text-underline-offset: 4px; }
+.rp-members a:focus-visible { outline: 2px solid #f0ede8; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .rp-bar > span { transition: none; transform: none; }
+}

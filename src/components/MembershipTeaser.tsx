@@ -22,7 +22,7 @@ export default function MembershipTeaser({ track }: { track: Track }) {
   // Holds its space while the copy loads so the page does not jump.
   if (!content) return <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}`, minHeight: '480px' }} aria-busy="true" />
 
-  const m = teaserModel({ track, content, plans: plans?.plans, founding })
+  const m = teaserModel({ track, content, plans: plans?.plans, founding, minBookingHours: plans?.minBookingHours })
   const plan = plans?.plans.find(p => p.key === m.heroKey)
   // The same room rate as /membership's "What members save", so the numbers match.
   const rate = plans?.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null

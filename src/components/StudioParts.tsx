@@ -4,7 +4,10 @@
 // (.s8-zoom, .s8-seq, .rv via Reveal) and is off under reduced motion.
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
+import { formatPounds } from '../lib/membershipPlans.js'
+import type { PriceRow } from '../lib/roomPricing.js'
 import './StudioParts.css'
 
 /**
@@ -111,5 +114,48 @@ export function StickyBook({ rooms }: { rooms: StickyRoom[] }) {
         <a href={shown.href} className="s8-btn">Book this studio<span className="s8-sr">: {shown.room}</span></a>
       </div>
     </>
+  )
+}
+
+/**
+ * A room's price list from Cue's bands: "From £37.50/hr", the shared days and
+ * the minimum, one row per band (cheapest first, a bar for its share of the
+ * day), and the members-only hours when there are any. Rendered only when Cue
+ * sent bands; the page falls back to the Sanity price otherwise.
+ */
+export function RoomPrices({ rows, from, days, minimum, membersOnly }: {
+  rows: PriceRow[]
+  from: number
+  days: string
+  minimum: string
+  membersOnly: { when: string; href: string } | null
+}) {
+  const sub = [days, minimum].filter(Boolean).join(' · ')
+  return (
+    <section className="s8-card s8-static rp-card" aria-labelledby="rp-title">
+      <h2 id="rp-title" className="rp-head">Prices</h2>
+      <p className="rp-from">From {formatPounds(from)}<small>/hr</small></p>
+      {sub && <p className="rp-sub">{sub}</p>}
+      <ul className="rp-rows">
+        {rows.map((r, i) => (
+          <Reveal key={`${r.label}-${r.price}`} as="li" index={i} className={`rp-row${i === 0 ? ' rp-cheapest' : ''}`}>
+            <span>
+              <span className="rp-label">{r.label}</span>
+              <span className="rp-time">
+                {r.start} to {r.end}{r.notes.length > 0 ? ` (${r.notes.join(', ')})` : ''}{days ? '' : `, ${r.days}`}
+              </span>
+            </span>
+            <span className="rp-price">{formatPounds(r.price)}/hr</span>
+            <span className="rp-bar" aria-hidden="true"><span style={{ '--share': r.share } as CSSProperties} /></span>
+          </Reveal>
+        ))}
+      </ul>
+      {membersOnly && (
+        <div className="rp-members">
+          <span><strong>{membersOnly.when}</strong>Producer members only</span>
+          <Link to={membersOnly.href}>See membership</Link>
+        </div>
+      )}
+    </section>
   )
 }
