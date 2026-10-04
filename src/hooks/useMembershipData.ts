@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getMembershipPage } from '../lib/sanity'
 import { membershipPageContent, type MembershipPageContent } from '../lib/membershipPageContent.js'
-import { fetchCueTiers, mapSanityTiers, mergePlans, type MembershipPlan } from '../lib/membershipPlans.js'
+import { fetchCueMembership, mapSanityTiers, mergePlans, type MembershipPlan, type MembershipRoom } from '../lib/membershipPlans.js'
 
 // Membership copy and plans, shared by /membership and the studio pages'
 // membership teasers. One Sanity read and one Cue read per page load.
@@ -12,9 +12,10 @@ import { fetchCueTiers, mapSanityTiers, mergePlans, type MembershipPlan } from '
 // cap the bundled copy is used and a late answer is ignored.
 //
 // Plans: Cue's live tiers merged with the singleton's tiers, falling back to
-// them (lib/membershipPlans.js).
+// them (lib/membershipPlans.js). `rooms` is the tier rooms' public rate and
+// hours from the same Cue response, [] when Cue leaves them out.
 
-export type MembershipPlans = { plans: MembershipPlan[]; source: 'cue' | 'sanity' }
+export type MembershipPlans = { plans: MembershipPlan[]; source: 'cue' | 'sanity'; rooms: MembershipRoom[] }
 
 const SANITY_WAIT_MS = 3000
 
@@ -28,11 +29,11 @@ function load() {
     const cap = new Promise<null>(resolve => setTimeout(() => resolve(null), SANITY_WAIT_MS))
     const doc = Promise.race([getMembershipPage().catch(() => null), cap])
     contentPromise = doc.then(d => (settledContent = d ?? membershipPageContent))
-    plansPromise = Promise.all([doc, fetchCueTiers()]).then(([d, cue]) => {
+    plansPromise = Promise.all([doc, fetchCueMembership()]).then(([d, cue]) => {
       const stored = d?.tiers?.length ? d.tiers : membershipPageContent.tiers
-      const merged = mergePlans(cue, mapSanityTiers(stored))
+      const merged = mergePlans(cue.plans, mapSanityTiers(stored), cue.rooms)
       if (import.meta.env.DEV && merged.source === 'sanity') console.info('[membership] Cue tiers unavailable, showing Sanity tiers')
-      return (settledPlans = merged)
+      return (settledPlans = { ...merged, rooms: cue.rooms })
     })
   }
   return { contentPromise, plansPromise: plansPromise! }
