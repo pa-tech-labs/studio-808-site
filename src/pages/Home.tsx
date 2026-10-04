@@ -212,7 +212,7 @@ export default function Home() {
           >
             Chelmsford's Creative<br />Powerhouse for <em>DJs &amp; Producers</em>
           </h1>
-          <p className="s8-subline s8-seq" style={{ fontSize: 'clamp(19px, 2.4vw, 24px)', margin: '0 auto 40px', maxWidth: '560px', '--s': 2 } as CSSProperties}>
+          <p className="s8-seq" style={{ fontFamily: F_BODY, fontWeight: 400, fontSize: 'clamp(16px, 2vw, 19px)', color: 'rgba(240,237,232,0.78)', lineHeight: 1.65, margin: '0 auto 40px', maxWidth: '540px', '--s': 2 } as CSSProperties}>
             Four professional studios. Club-standard gear. City centre location. Book online in minutes.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
