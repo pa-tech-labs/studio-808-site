@@ -29,7 +29,7 @@ import { useMembershipData, type MembershipPlans } from '../hooks/useMembershipD
 import { sanityImageUrl, type SanityImage } from '../lib/sanity'
 import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
 import {
-  clock, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, joinUrl, memberHoursWeek, pickTerm, planSlug,
+  clock, creditBackLine, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, joinUrl, memberHoursWeek, pickTerm, planSlug,
   planTerms, planValue, plansForTrack, priceFromLabel, producerRoom, producerSavings,
   type MembershipPlan, type MembershipRoom, type SavingsRow, type Span, type Track,
 } from '../lib/membershipPlans.js'
@@ -109,11 +109,11 @@ export default function Membership() {
       ) : (
         <main style={{ background: BG }}>
           {/* Hero */}
-          <section className="mp-hero" style={{ borderBottom: `1px solid ${BORDER}` }}>
+          <section className="mp-hero" data-nav-hero style={{ borderBottom: `1px solid ${BORDER}` }}>
             <div className="mp-hero-media" aria-hidden="true">
               <img key={track} className="mp-hero-bg" src={HERO_IMAGES[track]} alt="" />
             </div>
-            <div style={{ position: 'relative', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+            <div data-nav-hero-content style={{ position: 'relative', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
               {c.eyebrow && <span className="mp-seq" style={{ ...sectionLabel, '--s': 0 } as CSSProperties}>{c.eyebrow}</span>}
               {c.heading && (
                 <h1 className="mh" style={{ fontSize: 'clamp(36px, 7vw, 60px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
@@ -352,17 +352,18 @@ function PlanList({ track, term, onTerm, plans, copy, founding }: {
     history.replaceState(history.state, '', '#savings')
   }
   const card = (p: MembershipPlan) => {
-    const value = planValue(p, rate, founding)
+    const value = planValue(p, rate)
     return (
       <PlanCard
         plan={p}
         price={foundingPriceFor(p, founding) ?? p.monthlyPrice}
         value={value}
+        creditLine={creditBackLine(copy.creditBackLine, value.credit)}
         hero={p.key === heroKey}
         heroLabel={copy.bestValueLabel || 'Best value'}
         joinHref={joinUrl(p.track)}
         joinLabel={copy.joinLabel || 'Join Now'}
-        compare={value.vs === 'public' ? { href: '#savings', label: copy.compareLabel || 'Compare plans', onClick: compareClick } : null}
+        compare={value.saving != null ? { href: '#savings', label: copy.compareLabel || 'Compare plans', onClick: compareClick } : null}
       />
     )
   }
@@ -592,10 +593,10 @@ function Icon({ name, size = 22, color }: { name: string; size?: number; color: 
 }
 
 // Mobile first: one column and a 16px gutter by default, widening from 640px and 900px.
-// One card radius (12px), one pill radius (999px), one shadow (--mp-shadow).
+// One card radius (12px), one pill radius (999px), one shadow (--mp-shadow,
+// with the reveal styles in index.css).
 const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)'
 const CSS = `
-  main { --mp-shadow: inset 0 1px 0 rgba(240,237,232,0.04), 0 18px 40px -24px rgba(0,0,0,0.85); }
   .mp-hero { position: relative; overflow: hidden; padding: 120px 16px 48px; }
   .mp-hero-media { position: absolute; inset: 0; }
   .mp-hero-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,13,13,0.8) 0%, rgba(13,13,13,0.86) 55%, ${BG} 100%); }
@@ -620,8 +621,6 @@ const CSS = `
   .mp-footnote { font-family: ${F_BODY}; font-size: 13px; color: ${MUTED}; margin: 20px 0 0; line-height: 1.6; }
 
   /* Reveal: fade and rise once, siblings 70ms apart */
-  .rv { opacity: 0; transform: translateY(18px); transition: opacity 600ms ${EASE_OUT}, transform 700ms ${EASE_OUT}; transition-delay: calc(var(--rv-i, 0) * 70ms); }
-  .rv.rv-in { opacity: 1; transform: none; }
   .mp-grid2 > .rv, .mp-grid3 > .rv { display: flex; flex-direction: column; }
   .mp-grid2 > .rv > .mp-card, .mp-grid3 > .rv > .mp-card { flex: 1; }
 
@@ -702,7 +701,6 @@ const CSS = `
 
   @media (prefers-reduced-motion: reduce) {
     .mp-hero-bg, .mp-seq { animation: none; }
-    .rv { opacity: 1; transform: none; transition: none; }
     .mp-card, .mp-btn::before, .mp-choice { transition: none; }
     .mp-card:not(.mp-card-static):hover { transform: none; }
     .mp-bar-fill, .mp-seg { transition: none; }

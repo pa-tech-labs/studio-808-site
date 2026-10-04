@@ -84,6 +84,7 @@ export function teaserModel({ track, content, plans, founding }) {
     heroKey: heroPlanKey(plans, t),
     bestValueLabel: copy.bestValueLabel || membershipPageContent[t].bestValueLabel,
     compareLabel: copy.compareLabel || membershipPageContent[t].compareLabel,
+    creditBackLine: copy.creditBackLine || membershipPageContent[t].creditBackLine || '',
     terms: copy.standardTerms || '',
     foundingTerms: copy.foundingTerms || '',
     planJoinLabel: copy.joinLabel || 'Join Now',

@@ -9,6 +9,8 @@ export interface MembershipPlan {
   commitmentMonths: number
   /** Founding price in pounds (DJ tiers only), null when there is none. */
   foundingPrice: number | null
+  /** Booking credit each month in pounds (DJ tiers), null when there is none. */
+  monthlyCredit?: number | null
   included: string[]
   /** The room a producer plan books into (Cue's room_venue_id), null otherwise. */
   roomId?: string | null
@@ -55,6 +57,7 @@ export interface StoredTier {
   name?: string | null
   monthlyPrice?: number | null
   foundingPrice?: number | null
+  monthlyCredit?: number | null
   hoursPerMonth?: number | null
   commitmentMonths?: number | null
   included?: string[] | null
@@ -120,8 +123,9 @@ export declare function heroPlanKey(plans: MembershipPlan[] | null | undefined, 
 export declare function planValue(
   plan: MembershipPlan | null | undefined,
   rate: number | null | undefined,
-  founding: Partial<FoundingInfo> | null | undefined,
-): { perHour: number | null; saving: number | null; vs: 'public' | 'founding' | null }
+): { perHour: number | null; saving: number | null; credit: number | null }
+export declare const DEFAULT_CREDIT_BACK_LINE: string
+export declare function creditBackLine(template: string | null | undefined, credit: number | null | undefined): string
 export declare function foundingSummary(
   note: string | null | undefined,
   remaining: number | null,

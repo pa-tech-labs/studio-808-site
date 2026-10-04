@@ -11,7 +11,7 @@ import { FoundingLine, PlanCard, PlanFootnote } from './PlanCards'
 import { useFoundingStatus } from '../hooks/useFoundingStatus'
 import { useMembershipData } from '../hooks/useMembershipData'
 import { teaserModel } from '../lib/membershipTeaser.js'
-import { fillTerms, foundingPriceFor, planValue, producerRoom, type Track } from '../lib/membershipPlans.js'
+import { creditBackLine, fillTerms, foundingPriceFor, planValue, producerRoom, type Track } from '../lib/membershipPlans.js'
 import { BG, BORDER, F_BODY, MUTED, MUTED_LT, TEXT, btnSecondary, sectionLabel } from '../styles'
 
 export default function MembershipTeaser({ track }: { track: Track }) {
@@ -26,7 +26,7 @@ export default function MembershipTeaser({ track }: { track: Track }) {
   const plan = plans?.plans.find(p => p.key === m.heroKey)
   // The same room rate as /membership's "What members save", so the numbers match.
   const rate = plans?.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
-  const value = plan ? planValue(plan, rate, founding) : null
+  const value = plan ? planValue(plan, rate) : null
   const foundingPrice = plan ? foundingPriceFor(plan, founding) : null
   const isFounding = m.track === 'dj' ? foundingPrice != null : m.founding.remaining !== 0
   const compareHref = `${m.seeHref}#savings`
@@ -85,11 +85,12 @@ export default function MembershipTeaser({ track }: { track: Track }) {
                 plan={plan}
                 price={foundingPrice ?? plan.monthlyPrice}
                 value={value}
+                creditLine={creditBackLine(m.creditBackLine, value.credit)}
                 hero
                 heroLabel={m.bestValueLabel}
                 joinHref={m.joinHref}
                 joinLabel={m.planJoinLabel}
-                compare={value.vs === 'public' ? { href: compareHref, label: m.compareLabel, onClick: goCompare } : null}
+                compare={value.saving != null ? { href: compareHref, label: m.compareLabel, onClick: goCompare } : null}
               />
               <PlanFootnote lines={[fillTerms(isFounding ? m.foundingTerms : m.terms, plan), m.creditLine]} />
             </div>

@@ -48,7 +48,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    fontFamily: F_BODY, fontSize: '12px', color: MUTED,
+                    fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.72)',
                     textDecoration: 'none',
                     border: '1px solid rgba(240,237,232,0.14)',
                     borderRadius: '999px', padding: '6px 14px',
@@ -63,19 +63,19 @@ export default function Footer() {
 
           {/* Studios links */}
           <div>
-            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Studios</p>
+            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.68)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Studios</p>
             {[
               { to: '/dj-studio',              label: 'DJ Studios' },
               { to: '/main-production-studio', label: 'Production Studio' },
               { to: '/podcast-studio',         label: 'Podcast Studio' },
             ].map(({ to, label }) => (
-              <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.15s' }}>{label}</Link>
+              <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.15s' }}>{label}</Link>
             ))}
           </div>
 
           {/* Company links */}
           <div>
-            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Company</p>
+            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.68)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Company</p>
             {[
               { to: '/about-us', label: 'About Us' },
               { to: '/blog',     label: 'Blog' },
@@ -84,20 +84,20 @@ export default function Footer() {
               { to: '/membership-terms', label: 'Membership Terms' },
               { to: MEMBERSHIP_PATH,     label: 'Membership' },
             ].map(({ to, label }) => (
-              <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', textDecoration: 'none', marginBottom: '12px' }}>{label}</Link>
+              <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', textDecoration: 'none', marginBottom: '12px' }}>{label}</Link>
             ))}
             <a
               href={settings.bookingUrl}
               style={{ display: 'inline-block', fontFamily: F_BODY, fontSize: '13px', fontWeight: 600, color: TEXT, textDecoration: 'none', background: 'rgba(240,237,232,0.08)', border: '1px solid rgba(240,237,232,0.12)', borderRadius: '999px', padding: '8px 16px', marginTop: '4px' }}
             >
-              Book Online →
+              Book Online
             </a>
           </div>
 
           {/* Contact */}
           <div>
-            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Contact</p>
-            <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.55)', margin: '0 0 12px', lineHeight: 1.6 }}>
+            <p style={{ fontFamily: F_BODY, fontSize: '11px', fontWeight: 600, color: 'rgba(240,237,232,0.68)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px' }}>Contact</p>
+            <p style={{ fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', margin: '0 0 12px', lineHeight: 1.6 }}>
               {addressLines.map((line, i) => (
                 <span key={i}>{line}{i < addressLines.length - 1 ? <br /> : null}</span>
               ))}
@@ -107,10 +107,10 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.25)', margin: 0 }}>
+          <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.62)', margin: 0 }}>
             © {new Date().getFullYear()} Studio 808 Ltd. All rights reserved.
           </p>
-          <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.25)', margin: 0 }}>
+          <p style={{ fontFamily: F_BODY, fontSize: '13px', color: 'rgba(240,237,232,0.62)', margin: 0 }}>
             Navigation Road, Chelmsford CM2 6ND
           </p>
         </div>

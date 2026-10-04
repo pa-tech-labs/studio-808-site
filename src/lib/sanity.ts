@@ -7,7 +7,7 @@ const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID ?? ''
 const DATASET    = import.meta.env.VITE_SANITY_DATASET ?? 'production'
 
 // Debug: confirm env vars are inlined at build time
-console.log('[sanity] projectId:', PROJECT_ID || '(not set — check VITE_SANITY_PROJECT_ID env var)')
+console.log('[sanity] projectId:', PROJECT_ID || '(not set, check VITE_SANITY_PROJECT_ID env var)')
 
 export const sanityClient = createClient({
   projectId: PROJECT_ID,
@@ -69,6 +69,8 @@ export interface SanitySettings {
   bookingUrl: string
   address: string
   socialLinks: Array<{ platform: string; url: string }>
+  /** The home marquee: equipment and genres. Missing or empty uses the bundled list. */
+  marqueeItems?: string[] | null
 }
 
 /** The studio fields the finder's result screen shows. */
@@ -148,7 +150,7 @@ export async function getSiteSettings(): Promise<SanitySettings | null> {
   if (!isConfigured()) return null
   return sanityClient.fetch<SanitySettings | null>(
     `*[_type == "siteSettings"][0] {
-      siteName, contactEmail, phone, bookingUrl, address, socialLinks
+      siteName, contactEmail, phone, bookingUrl, address, socialLinks, marqueeItems
     }`,
   )
 }

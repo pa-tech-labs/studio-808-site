@@ -50,6 +50,7 @@ export const membershipPageContent = {
     foundingPriceNote: 'Founding price, locked for life',
     bestValueLabel: 'Best value',
     compareLabel: 'Compare plans',
+    creditBackLine: '{credit} credit back every month, plus member rates and members-only hours',
     creditLine: 'Your credit renews with your monthly payment and lasts until your next renewal. It never rolls over.',
     foundingTerms: 'Founding memberships: 3-month initial term, then monthly rolling. Standard memberships: monthly rolling, cancel anytime.',
     standardTerms: 'Monthly rolling - cancel anytime.',
@@ -122,7 +123,7 @@ export const membershipPageContent = {
   // Prices mirror Cue's membership_tiers rows as of 2026-09-28.
   tiers: [
     tier('808-dj', {
-      track: 'dj', name: '808 DJ', monthlyPrice: 25, foundingPrice: 20, hoursPerMonth: 0, commitmentMonths: 0,
+      track: 'dj', name: '808 DJ', monthlyPrice: 25, foundingPrice: 20, monthlyCredit: 25, hoursPerMonth: 0, commitmentMonths: 0,
       included: [
         '£25.00 booking credit, renewed by every monthly payment, spent at member rates',
         'Member pricing on all rooms',
@@ -132,7 +133,7 @@ export const membershipPageContent = {
       ],
     }),
     tier('808-resident', {
-      track: 'dj', name: '808 Resident', monthlyPrice: 50, foundingPrice: 45, hoursPerMonth: 0, commitmentMonths: 0,
+      track: 'dj', name: '808 Resident', monthlyPrice: 50, foundingPrice: 45, monthlyCredit: 50, hoursPerMonth: 0, commitmentMonths: 0,
       included: [
         '£50.00 booking credit, renewed by every monthly payment, spent at member rates',
         'Everything in 808 DJ',

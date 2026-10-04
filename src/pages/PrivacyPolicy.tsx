@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
             <ul>
               <li>Your name, email address, phone number, and date of birth</li>
               <li>Booking history and session preferences</li>
-              <li>Payment information (processed securely by Stripe — we do not store card details)</li>
+              <li>Payment information (processed securely by Stripe; we do not store card details)</li>
               <li>Messages sent via our contact form, WhatsApp, email, or in-app chat</li>
               <li>Device information and IP address when you use our website or booking platform</li>
               <li>Push notification tokens if you use our mobile app</li>
@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
             <p>We process your data under the following lawful bases (UK GDPR):</p>
             <ul>
               <li><strong>Contract:</strong> to fulfil your booking and provide our services</li>
-              <li><strong>Consent:</strong> for marketing communications — you can withdraw consent at any time</li>
+              <li><strong>Consent:</strong> for marketing communications. You can withdraw consent at any time</li>
               <li><strong>Legitimate interest:</strong> to improve our services, prevent fraud, and ensure security</li>
             </ul>
 

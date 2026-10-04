@@ -39,7 +39,7 @@ test('mapCueTiers maps fields and coerces numeric strings', () => {
   const p = mapCueTiers(CUE_BODY).find(x => x.key === 'p8-6')
   assert.deepEqual(p, {
     key: 'p8-6', track: 'producer', name: 'Producer Membership - 8hrs/mo (6 Month)',
-    monthlyPrice: 100, hoursPerMonth: 8, commitmentMonths: 6, foundingPrice: null, included: [], roomId: null,
+    monthlyPrice: 100, hoursPerMonth: 8, commitmentMonths: 6, foundingPrice: null, monthlyCredit: null, included: [], roomId: null,
   })
   assert.deepEqual(mapCueTiers(CUE_BODY).find(x => x.key === 'dj').included, ['Cue perk for 808 DJ'])
 })

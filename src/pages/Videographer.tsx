@@ -154,7 +154,7 @@ export default function Videographer() {
     <>
       <SEO
         title="Assistant Videographer (Volunteer) | Studio 808"
-        description="Volunteer as an Assistant Videographer at Studio 808 — help film DJ sets and interviews for our new YouTube series. Real set experience and credits. Chelmsford area."
+        description="Volunteer as an Assistant Videographer at Studio 808. Help film DJ sets and interviews for our new YouTube series. Real set experience and credits. Chelmsford area."
         canonical="/videographer"
         image="/images/studios/studio1-performer-1.jpg"
       />
@@ -167,7 +167,7 @@ export default function Videographer() {
             Assistant <em>Videographer.</em>
           </h1>
           <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED, margin: 0, lineHeight: 1.65, maxWidth: '600px' }}>
-            Help us film DJ sets and interviews for our new YouTube series. Real set experience, real credits, and a genuine foot in the door of the industry. Cameras and drones provided — you'll need to be within 10 miles of Chelmsford and have your own car.
+            Help us film DJ sets and interviews for our new YouTube series. Real set experience, real credits, and a genuine foot in the door of the industry. Cameras and drones provided. You'll need to be within 10 miles of Chelmsford and have your own car.
           </p>
         </div>
       </section>
@@ -235,7 +235,7 @@ export default function Videographer() {
                   <div>
                     <label htmlFor="showreel_url" style={labelStyle}>Showreel or portfolio <span style={{ color: MUTED }}>(optional)</span></label>
                     <input id="showreel_url" type="text" placeholder="@yourhandle or https://…" value={form.showreel_url} onChange={set('showreel_url')} style={inputStyle} />
-                    <p style={hintStyle}>A link to your best work — reel, Instagram, YouTube, Vimeo, anything.</p>
+                    <p style={hintStyle}>A link to your best work: reel, Instagram, YouTube, Vimeo, anything.</p>
                   </div>
 
                   <div>
@@ -289,7 +289,7 @@ export default function Videographer() {
                       )}
                     </label>
                     <p style={{ ...hintStyle, color: cvError ? '#ef4444' : MUTED }}>
-                      {cvError || 'Max 4MB. Optional — a showreel link is just as good.'}
+                      {cvError || 'Max 4MB. Optional: a showreel link is just as good.'}
                     </p>
                   </div>
 

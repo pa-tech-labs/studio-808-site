@@ -17,6 +17,7 @@ export interface TeaserModel {
   heroKey: string | null
   bestValueLabel: string
   compareLabel: string
+  creditBackLine: string
   terms: string
   foundingTerms: string
   planJoinLabel: string
