@@ -3,7 +3,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { firstSentence, teaserModel, teaserPerks, teaserPriceLine } from './membershipTeaser.js'
-import { mapCueTiers, mapSanityTiers, mergePlans, parseFoundingStatus } from './membershipPlans.js'
+import { mapCueRooms, mapCueTiers, mapSanityTiers, mergePlans, parseFoundingStatus } from './membershipPlans.js'
+import { DEFAULT_PERKS } from '../config/membershipPerks.js'
 import { membershipPageContent } from './membershipPageContent.js'
 
 const CUE_BODY = {
@@ -11,12 +12,13 @@ const CUE_BODY = {
     { id: 'creators', name: '808 Creators', monthly_price: 0, membership_type: 'custom', perks: [] },
     { id: 'dj', name: '808 DJ', monthly_price: 25, commitment_months: 0, membership_type: 'dj', perks: [] },
     { id: 'resident', name: '808 Resident', monthly_price: 50, commitment_months: 0, membership_type: 'dj', perks: [] },
-    { id: 'p8-3', name: 'Producer Membership - 8hrs/mo (3 Month)', monthly_price: 160, hours_per_month: 8, commitment_months: 3, membership_type: 'producer', perks: [] },
-    { id: 'p8-6', name: 'Producer Membership - 8hrs/mo (6 Month)', monthly_price: 100, hours_per_month: 8, commitment_months: 6, membership_type: 'producer', perks: [] },
+    { id: 'p8-3', name: 'Producer Membership - 8hrs/mo (3 Month)', monthly_price: 160, hours_per_month: 8, commitment_months: 3, membership_type: 'producer', room_venue_id: 's4', perks: [] },
+    { id: 'p8-6', name: 'Producer Membership - 8hrs/mo (6 Month)', monthly_price: 100, hours_per_month: 8, commitment_months: 6, membership_type: 'producer', room_venue_id: 's4', perks: [] },
   ],
+  rooms: [{ id: 's4', name: 'Studio 4', price_per_hour: 55, availability: [], member_hours: [] }],
 }
 const STORED = mapSanityTiers(membershipPageContent.tiers)
-const CUE_PLANS = mergePlans(mapCueTiers(CUE_BODY), STORED).plans
+const CUE_PLANS = mergePlans(mapCueTiers(CUE_BODY), STORED, mapCueRooms(CUE_BODY)).plans
 const SANITY_PLANS = mergePlans([], STORED).plans
 const LIVE = parseFoundingStatus({ cap: 15, remaining: 8, prices: { '808 DJ': 2000, '808 Resident': 4500 }, producer: { cap: 3, remaining: 2 } })
 const UNKNOWN = parseFoundingStatus(null)
@@ -44,7 +46,10 @@ test('the producer teaser takes the producer copy, plan perks, plans and join li
   assert.equal(m.priceLine, 'From £100/mo', 'producer founding is never a discount')
   assert.equal(m.creditLine, '')
   assert.equal(m.perks.length, 3)
-  assert.equal(m.perks[0].title, '8 hours a month in Studio 4 - the pro room', 'steps are not perks; the entry plan\'s included list is used')
+  // Steps are not perks, so the entry plan's included list is used: its Cue
+  // perks, or with none, the producer defaults filled from the plan and room.
+  assert.equal(m.perks[0].title, '8 hours a month in Studio 4', 'steps are not perks; the entry plan\'s included list is used')
+  assert.equal(m.perks.length, DEFAULT_PERKS.producer.length)
   assert.equal(m.joinHref, 'https://book.studio-808.com/membership?type=producer')
   assert.equal(m.seeHref, '/membership?type=producer')
   assert.deepEqual(m.founding, { show: true, label: 'Founding producers - first 3 only', remaining: 2, cap: 3 })

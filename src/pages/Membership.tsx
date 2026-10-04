@@ -5,21 +5,32 @@
 //
 // Copy comes from the Sanity "membershipPage" singleton, falling back to the
 // bundled copy in lib/membershipPageContent.js when it is missing or
-// unreachable. Plan names and prices come from Cue's public tiers endpoint,
-// falling back to the tiers stored on the singleton (lib/membershipPlans.js).
+// unreachable. Plan names, prices and perks come from Cue's public tiers
+// endpoint, falling back to the tiers stored on the singleton
+// (lib/membershipPlans.js). The same endpoint returns the producer room's
+// public rate and hours, which drive "What members save" and the
+// members-only hours strip; both stay hidden when Cue leaves them out.
+//
+// Motion: one hero sequence on load, a once-only scroll reveal on sections
+// and cards, count-ups on the savings figures. All of it is CSS plus the
+// IntersectionObserver in hooks/useInView.ts, and none of it runs under
+// prefers-reduced-motion.
 
 import { useEffect, type CSSProperties, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
 import Headline from '../components/Headline'
 import { FoundingBadge, FoundingCounter, useFoundingStatus, type FoundingStatus } from '../components/FoundingBadge'
-import { ACCENT, BG, BORDER, BORDER_SM, F_BODY, MUTED, MUTED_LT, SURF, TEXT, btnPrimary, sectionLabel } from '../styles'
-import { sanityImageUrl, type SanityImage } from '../lib/sanity'
+import { ACCENT, BG, BORDER, BORDER_SM, F_BODY, F_HEAD, MUTED, MUTED_LT, SURF, TEXT, sectionLabel } from '../styles'
+import Reveal from '../components/Reveal'
+import { useCountUp, useInView } from '../hooks/useInView'
 import { useMembershipData, type MembershipPlans } from '../hooks/useMembershipData'
+import { sanityImageUrl, type SanityImage } from '../lib/sanity'
 import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
 import {
-  fillTerms, formatPounds, foundingPriceFor, joinUrl, perHourLabel,
-  plansForTrack, priceFromLabel, type MembershipPlan, type Track,
+  clock, fillTerms, formatPounds, foundingPriceFor, joinUrl, memberHoursWeek, perHourLabel, plansForTrack,
+  priceFromLabel, producerRoom, producerSavings,
+  type MembershipPlan, type MembershipRoom, type SavingsRow, type Span, type Track,
 } from '../lib/membershipPlans.js'
 
 const FALLBACK_IMAGES = {
@@ -27,8 +38,11 @@ const FALLBACK_IMAGES = {
   socials: '/images/studios/studio3-prodj-1.jpg',
 }
 
-/** The one red button on the page: every Join. */
-const joinButton: CSSProperties = { ...btnPrimary, background: ACCENT, color: '#fff', fontWeight: 700, textAlign: 'center' }
+/** The hero's background, one per track. */
+const HERO_IMAGES: Record<Track, string> = {
+  dj: '/images/studios/studio3-prodj-2.jpg',
+  producer: '/images/studios/studio4-production-1.jpg',
+}
 
 const imageUrl = (image: MembershipImage | null | undefined, width: number) =>
   sanityImageUrl(image as SanityImage | undefined, width)
@@ -73,14 +87,17 @@ export default function Membership() {
         <main style={{ background: BG }}>
           {/* Hero */}
           <section className="mp-hero" style={{ borderBottom: `1px solid ${BORDER}` }}>
-            <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
-              {c.eyebrow && <span style={sectionLabel}>{c.eyebrow}</span>}
+            <div className="mp-hero-media" aria-hidden="true">
+              <img key={track} className="mp-hero-bg" src={HERO_IMAGES[track]} alt="" />
+            </div>
+            <div style={{ position: 'relative', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+              {c.eyebrow && <span className="mp-seq" style={{ ...sectionLabel, '--s': 0 } as CSSProperties}>{c.eyebrow}</span>}
               {c.heading && (
                 <h1 className="mh" style={{ fontSize: 'clamp(36px, 7vw, 60px)', color: TEXT, margin: '0 0 18px', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
-                  <Headline text={c.heading} />
+                  <HeroHeading text={c.heading} />
                 </h1>
               )}
-              {c.intro && <p style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED_LT, lineHeight: 1.6, margin: '0 auto', maxWidth: '560px' }}>{c.intro}</p>}
+              {c.intro && <p className="mp-seq" style={{ fontFamily: F_BODY, fontSize: '17px', color: MUTED_LT, lineHeight: 1.6, margin: '0 auto', maxWidth: '560px', '--s': 3 } as CSSProperties}>{c.intro}</p>}
 
               <Selector
                 track={track}
@@ -97,22 +114,28 @@ export default function Membership() {
               <TrackIntro copy={copy} image={track === 'producer' ? imageUrl(copy.image, 1200) ?? FALLBACK_IMAGES.producer : imageUrl(copy.image, 1200)} />
               {(copy.perks?.length ?? 0) > 0 && (
                 <div style={{ marginTop: '48px' }}>
-                  {copy.perksLabel && <div style={{ textAlign: 'center' }}><span style={sectionLabel}>{copy.perksLabel}</span></div>}
+                  {copy.perksLabel && <Reveal style={{ textAlign: 'center' }}><span style={sectionLabel}>{copy.perksLabel}</span></Reveal>}
                   <div className="mp-grid3">
-                    {copy.perks!.map((p, i) => <PerkCardView key={p._key ?? p.title ?? i} index={i} icon={p.icon} title={p.title} body={p.body} />)}
+                    {copy.perks!.map((p, i) => (
+                      <Reveal key={p._key ?? p.title ?? i} index={i}>
+                        <PerkCardView index={i} icon={p.icon} title={p.title} body={p.body} />
+                      </Reveal>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           </section>
 
+          {track === 'producer' && plans && <ProducerBlocks plans={plans} />}
+
           {/* Plans */}
           <section id="plans" className="mp-section" style={{ background: SURF, borderBottom: `1px solid ${BORDER}` }}>
             <div style={{ maxWidth: '920px', margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <Reveal style={{ textAlign: 'center', marginBottom: '28px' }}>
                 {copy.planLabel && <span style={sectionLabel}>{copy.planLabel}</span>}
                 {copy.planIntro && <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.6, margin: '0 auto', maxWidth: '520px' }}>{copy.planIntro}</p>}
-              </div>
+              </Reveal>
               <PlanList track={track} plans={plans} copy={copy} founding={founding} />
             </div>
           </section>
@@ -120,7 +143,7 @@ export default function Membership() {
           {/* Your set, on our socials */}
           {showSocials && c.socials && (
             <section className="mp-section" style={{ borderBottom: `1px solid ${BORDER}` }}>
-              <div className="mp-split" style={{ maxWidth: '1040px', margin: '0 auto' }}>
+              <Reveal className="mp-split" style={{ maxWidth: '1040px', margin: '0 auto' }}>
                 <div>
                   {c.socials.eyebrow && <span style={sectionLabel}>{c.socials.eyebrow}</span>}
                   {c.socials.heading && (
@@ -134,9 +157,10 @@ export default function Membership() {
                   src={imageUrl(c.socials.image, 1200) ?? FALLBACK_IMAGES.socials}
                   alt={c.socials.imageAlt || 'A DJ on the decks at Studio 808'}
                   loading="lazy"
-                  style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', objectPosition: 'center 45%', borderRadius: '12px', border: `1px solid ${BORDER}` }}
+                  className="mp-media"
+                  style={{ aspectRatio: '16 / 9', objectPosition: 'center 45%' }}
                 />
-              </div>
+              </Reveal>
             </section>
           )}
 
@@ -144,20 +168,22 @@ export default function Membership() {
           {(copy.faq?.length ?? 0) > 0 && (
             <section className="mp-section" style={{ borderBottom: `1px solid ${BORDER}` }}>
               <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '32px' }}>
+                <Reveal style={{ marginBottom: '32px' }}>
                   {copy.faqLabel && <span style={sectionLabel}>{copy.faqLabel}</span>}
                   {copy.faqHeading && (
                     <h2 className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                       <Headline text={copy.faqHeading} />
                     </h2>
                   )}
-                </div>
+                </Reveal>
                 <div className="mp-grid2">
                   {copy.faq!.map((f, i) => (
-                    <div key={f._key ?? f.q ?? i} style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '24px' }}>
-                      <h3 style={{ fontFamily: F_BODY, fontSize: '16px', fontWeight: 700, color: TEXT, margin: '0 0 8px', lineHeight: 1.4 }}>{f.q}</h3>
-                      <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.65 }}>{f.a}</p>
-                    </div>
+                    <Reveal key={f._key ?? f.q ?? i} index={i % 2}>
+                      <div className="mp-card" style={{ padding: '24px' }}>
+                        <h3 style={{ fontFamily: F_BODY, fontSize: '16px', fontWeight: 700, color: TEXT, margin: '0 0 8px', lineHeight: 1.4 }}>{f.q}</h3>
+                        <p style={{ fontFamily: F_BODY, fontSize: '14px', color: MUTED, margin: 0, lineHeight: 1.65 }}>{f.a}</p>
+                      </div>
+                    </Reveal>
                   ))}
                 </div>
               </div>
@@ -167,17 +193,17 @@ export default function Membership() {
           {/* Join */}
           {copy.cta && (
             <section className="mp-cta" style={{ textAlign: 'center' }}>
-              <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+              <Reveal style={{ maxWidth: '640px', margin: '0 auto' }}>
                 {copy.cta.heading && (
                   <h2 className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: '0 0 16px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
                     <Headline text={copy.cta.heading} />
                   </h2>
                 )}
                 {copy.cta.body && <p style={{ fontFamily: F_BODY, fontSize: '16px', color: MUTED, margin: '0 0 28px', lineHeight: 1.65 }}>{copy.cta.body}</p>}
-                <a href={joinUrl(track)} style={{ ...joinButton, fontSize: '15px', padding: '16px 32px' }}>
+                <a href={joinUrl(track)} className="mp-btn" style={{ fontSize: '15px', padding: '16px 32px' }}>
                   {copy.cta.buttonLabel || 'Join now'}
                 </a>
-              </div>
+              </Reveal>
             </section>
           )}
         </main>
@@ -193,7 +219,7 @@ function Selector({ track, onSelect, labels, prices }: {
   prices: Record<Track, string> | null
 }) {
   return (
-    <div className="mp-selector" role="group" aria-label="Choose a membership">
+    <div className="mp-selector mp-seq" role="group" aria-label="Choose a membership" style={{ '--s': 4 } as CSSProperties}>
       {(['dj', 'producer'] as const).map(t => {
         const active = track === t
         return (
@@ -202,12 +228,10 @@ function Selector({ track, onSelect, labels, prices }: {
             type="button"
             onClick={() => onSelect(t)}
             aria-pressed={active}
+            className="mp-choice"
             style={{
-              cursor: 'pointer', fontFamily: F_BODY, color: TEXT, textAlign: 'center',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-              background: active ? 'rgba(240,237,232,0.08)' : 'transparent',
-              border: `1px solid ${active ? 'rgba(240,237,232,0.6)' : BORDER_SM}`,
-              borderRadius: '14px', padding: '18px 12px', transition: 'border-color 0.15s, background 0.15s',
+              background: active ? 'rgba(240,237,232,0.1)' : 'rgba(13,13,13,0.55)',
+              borderColor: active ? 'rgba(240,237,232,0.6)' : BORDER_SM,
             }}
           >
             <Icon name={t === 'dj' ? 'disc' : 'sliders'} color={active ? TEXT : MUTED} />
@@ -237,12 +261,12 @@ function TrackIntro({ copy, image }: { copy: TrackCopy; image: string | null }) 
       )}
     </div>
   )
-  if (!image) return text
+  if (!image) return <Reveal>{text}</Reveal>
   return (
-    <div className="mp-split">
+    <Reveal className="mp-split">
       {text}
-      <img src={image} alt={copy.imageAlt || ''} style={{ display: 'block', width: '100%', aspectRatio: '3 / 2', objectFit: 'cover', borderRadius: '12px', border: `1px solid ${BORDER}` }} />
-    </div>
+      <img src={image} alt={copy.imageAlt || ''} className="mp-media" style={{ aspectRatio: '3 / 2' }} />
+    </Reveal>
   )
 }
 
@@ -257,7 +281,7 @@ function Pill({ icon, children }: { icon?: string; children: ReactNode }) {
 
 function PerkCardView({ index, icon, title, body }: { index: number; icon?: string | null; title?: string | null; body?: string | null }) {
   return (
-    <div style={{ background: SURF, border: `1px solid ${BORDER}`, borderRadius: '12px', padding: '24px' }}>
+    <div className="mp-card" style={{ padding: '24px' }}>
       <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(240,237,232,0.06)', border: `1px solid ${BORDER_SM}`, marginBottom: '16px', fontFamily: F_BODY, fontWeight: 700, color: TEXT }}>
         {icon ? <Icon name={icon} color={TEXT} /> : index + 1}
       </div>
@@ -271,7 +295,7 @@ function PlanList({ track, plans, copy, founding }: { track: Track; plans: Plans
   if (!plans) {
     return (
       <div className="mp-grid2" aria-busy="true" aria-label="Loading plans">
-        {[0, 1].map(i => <div key={i} style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: '12px', minHeight: '360px' }} />)}
+        {[0, 1].map(i => <div key={i} className="mp-card mp-card-static" style={{ background: BG, minHeight: '360px' }} />)}
       </div>
     )
   }
@@ -287,13 +311,13 @@ function PlanList({ track, plans, copy, founding }: { track: Track; plans: Plans
         {terms.map(m => (
           <div key={m} style={{ display: 'grid', gap: '16px', alignContent: 'start' }}>
             {m > 0 && <p style={{ fontFamily: F_BODY, fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTED, margin: '0 0 -4px' }}>{m}-month commitment</p>}
-            {list.filter(p => p.commitmentMonths === m).map(p => <PlanCard key={p.key} plan={p} copy={copy} founding={founding} />)}
+            {list.filter(p => p.commitmentMonths === m).map((p, i) => <Reveal key={p.key} index={i}><PlanCard plan={p} copy={copy} founding={founding} /></Reveal>)}
           </div>
         ))}
       </div>
     )
   }
-  return <div className="mp-grid2">{list.map(p => <PlanCard key={p.key} plan={p} copy={copy} founding={founding} />)}</div>
+  return <div className="mp-grid2">{list.map((p, i) => <Reveal key={p.key} index={i}><PlanCard plan={p} copy={copy} founding={founding} /></Reveal>)}</div>
 }
 
 function PlanCard({ plan, copy, founding }: { plan: MembershipPlan; copy: TrackCopy; founding: FoundingStatus }) {
@@ -306,7 +330,7 @@ function PlanCard({ plan, copy, founding }: { plan: MembershipPlan; copy: TrackC
   const perHour = perHourLabel(plan)
 
   return (
-    <div style={{ background: BG, border: `1px solid ${isFounding ? 'rgba(232,53,90,0.35)' : BORDER}`, borderRadius: '12px', padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
+    <div className={`mp-card${isFounding ? ' mp-card-founding' : ''}`} style={{ background: BG, padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
       {isFounding && copy.foundingBadgeLabel && <div><FoundingBadge remaining={remaining} label={copy.foundingBadgeLabel} /></div>}
       <h3 style={{ fontFamily: F_BODY, fontSize: '18px', fontWeight: 700, color: TEXT, margin: '0 0 8px', lineHeight: 1.3 }}>{plan.name}</h3>
       <p style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: '40px', color: TEXT, margin: '0 0 4px', lineHeight: 1 }}>
@@ -332,11 +356,191 @@ function PlanCard({ plan, copy, founding }: { plan: MembershipPlan; copy: TrackC
       )}
       {copy.creditLine && <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 6px', lineHeight: 1.6 }}>{copy.creditLine}</p>}
       {terms && <p style={{ fontFamily: F_BODY, fontSize: '12.5px', color: MUTED, margin: '0 0 22px', lineHeight: 1.6 }}>{terms}</p>}
-      <a href={joinUrl(plan.track)} style={{ ...joinButton, marginTop: 'auto', display: 'block' }}>
+      <a href={joinUrl(plan.track)} className="mp-btn" style={{ marginTop: 'auto', display: 'block' }}>
         {copy.joinLabel || 'Join Now'}
         <span className="mp-sr">: {plan.name}</span>
       </a>
     </div>
+  )
+}
+
+/** The hero heading, revealed in two beats: the lead, then the serif tail. */
+function HeroHeading({ text }: { text: string }) {
+  const m = text.match(/^(.*?)\*(.+)\*\s*$/)
+  if (!m) return <span className="mp-seq" style={{ '--s': 1 } as CSSProperties}>{text}</span>
+  return (
+    <>
+      <span className="mp-seq" style={{ '--s': 1 } as CSSProperties}>{m[1].trimEnd()}</span>
+      {m[1].endsWith(' ') ? ' ' : null}
+      <em className="mp-seq" style={{ '--s': 2 } as CSSProperties}>{m[2]}</em>
+    </>
+  )
+}
+
+/** The producer page's two data blocks, each hidden when Cue gave no room data. */
+function ProducerBlocks({ plans }: { plans: Plans }) {
+  if (plans.source !== 'cue') return null
+  const room = producerRoom(plans.plans, plans.rooms)
+  if (!room) return null
+  const producerTierIds = plansForTrack(plans.plans, 'producer').map(p => p.key)
+  return (
+    <>
+      <SavingsBlock plans={plans.plans} room={room} />
+      <MemberHoursBlock room={room} producerTierIds={producerTierIds} />
+    </>
+  )
+}
+
+const money = (n: number) => formatPounds(Math.round(n * 100) / 100)
+/** A counting figure in the shape of its final value: whole pounds stay whole, pence keep two places. */
+const countMoney = (value: number, final: number) => formatPounds(Number.isInteger(final) ? Math.round(value) : Math.round(value * 100) / 100).replace(/^£(\d+)\.(\d)$/, '£$1.$20')
+const termLabel = (r: SavingsRow) => `${r.hoursPerMonth} hours a month${r.commitmentMonths > 0 ? `, ${r.commitmentMonths}-month plan` : ''}`
+
+function SavingsBlock({ plans, room }: { plans: MembershipPlan[]; room: MembershipRoom }) {
+  const { rate, rows, featuredKey } = producerSavings(plans, room.rate)
+  if (!rate || rows.length === 0) return null
+  const featured = rows.find(r => r.key === featuredKey) ?? rows[0]
+  const rest = rows.filter(r => r !== featured)
+  return (
+    <section className="mp-section" aria-labelledby="mp-save-h" style={{ borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+        <Reveal style={{ marginBottom: '32px', maxWidth: '640px' }}>
+          <h2 id="mp-save-h" className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            What members save
+          </h2>
+          <p className="mp-subline">Every plan, priced against what the same hours cost the public in {room.name || 'the studio'}.</p>
+        </Reveal>
+        <Reveal>
+          <SavingsCard row={featured} rate={rate} featured />
+        </Reveal>
+        {rest.length > 0 && (
+          <div className="mp-grid3" style={{ marginTop: '16px' }}>
+            {rest.map((r, i) => <Reveal key={r.key} index={i}><SavingsCard row={r} rate={rate} /></Reveal>)}
+          </div>
+        )}
+        <Reveal as="p" className="mp-footnote">
+          Savings based on {room.name || 'the studio'}'s standard public rate of {money(rate)}/hr.
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function SavingsCard({ row, rate, featured = false }: { row: SavingsRow; rate: number; featured?: boolean }) {
+  const { ref, inView } = useInView<HTMLDivElement>()
+  const month = useCountUp(row.savingPerMonth, inView)
+  const hour = useCountUp(row.savingPerHour, inView)
+  const pct = useCountUp(row.percent, inView)
+  const memberShare = Math.max(0.02, Math.min(1, row.memberPrice / row.publicCost))
+  return (
+    <div ref={ref} className={`mp-card mp-save${featured ? ' mp-save-hero' : ''}${inView ? ' mp-save-in' : ''}`}>
+      <div className="mp-save-head">
+        {featured && <span className="mp-pick">Our pick</span>}
+        <h3 style={{ fontFamily: F_BODY, fontSize: featured ? '17px' : '15px', fontWeight: 700, color: TEXT, margin: 0, lineHeight: 1.35 }}>{termLabel(row)}</h3>
+        <p className="mp-save-big">
+          <span aria-hidden="true">{countMoney(month, row.savingPerMonth)}</span>
+          <span className="mp-sr">{money(row.savingPerMonth)}</span>
+          <span className="mp-save-unit"> saved a month</span>
+        </p>
+      </div>
+
+      <div className="mp-save-body">
+        <dl className="mp-bars">
+          <div>
+            <dt>{row.hoursPerMonth} hours at the public rate</dt>
+            <dd>{money(row.publicCost)}</dd>
+            <span className="mp-bar" aria-hidden="true"><span className="mp-bar-fill mp-bar-public" /></span>
+          </div>
+          <div>
+            <dt>Member price</dt>
+            <dd>{money(row.memberPrice)}</dd>
+            <span className="mp-bar" aria-hidden="true"><span className="mp-bar-fill mp-bar-member" style={{ '--w': memberShare } as CSSProperties} /></span>
+          </div>
+        </dl>
+        <dl className="mp-stats">
+          <div>
+            <dt>Your rate</dt>
+            <dd>{money(row.perHour)}/hr</dd>
+          </div>
+          <div>
+            <dt>Saved per hour</dt>
+            <dd><span aria-hidden="true">{countMoney(hour, row.savingPerHour)}</span><span className="mp-sr">{money(row.savingPerHour)}</span></dd>
+          </div>
+          <div>
+            <dt>Saving</dt>
+            <dd><span aria-hidden="true">{Math.round(pct)}%</span><span className="mp-sr">{row.percent}%</span></dd>
+          </div>
+        </dl>
+      </div>
+      <span className="mp-sr">Public rate {money(rate)} an hour.</span>
+    </div>
+  )
+}
+
+function MemberHoursBlock({ room, producerTierIds }: { room: MembershipRoom; producerTierIds: string[] }) {
+  const week = memberHoursWeek(room, producerTierIds)
+  if (!week.axis || (!week.hasEvenings && !week.hasWeekends)) return null
+  const [from, to] = [Math.floor(week.axis[0] / 60) * 60, Math.ceil(week.axis[1] / 60) * 60]
+  const pos = (m: number) => ((m - from) / (to - from)) * 100
+  const ticks: number[] = []
+  for (let m = from; m <= to; m += 60) ticks.push(m)
+  const heading = week.hasEvenings && week.hasWeekends
+    ? 'Evenings and weekends are members only'
+    : week.hasWeekends ? 'Weekends are members only' : 'Evenings are members only'
+  const range = ([a, b]: Span) => `${clock(a)} to ${clock(b)}`
+  const segLabel = ([a, b]: Span) => `${clock(a)}-${clock(b)}`
+
+  return (
+    <section className="mp-section" aria-labelledby="mp-hours-h" style={{ borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+        <Reveal style={{ marginBottom: '28px', maxWidth: '640px' }}>
+          <h2 id="mp-hours-h" className="mh" style={{ fontSize: 'clamp(28px, 5vw, 44px)', color: TEXT, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            {heading}
+          </h2>
+          <p className="mp-subline">The public cannot book the coral slots in {room.name || 'the studio'}. Only producer members can.</p>
+        </Reveal>
+
+        <Reveal className="mp-card mp-card-static mp-week">
+          <div className="mp-key" aria-hidden="true">
+            <span><i className="mp-swatch mp-swatch-public" />Public hours</span>
+            <span><i className="mp-swatch mp-swatch-member" />Members only</span>
+          </div>
+          <div className="mp-week-grid">
+            <div className="mp-week-row mp-ticks" aria-hidden="true">
+              <span />
+              <span className="mp-track">
+                {ticks.map((m, i) => (
+                  <span key={m} className={`mp-tick${i % 2 === 0 ? ' mp-tick-2' : ''}${i % 4 === 0 ? ' mp-tick-4' : ''}`} style={{ left: `${pos(m)}%` }}>{clock(m)}</span>
+                ))}
+              </span>
+            </div>
+            <ul className="mp-week-list">
+              {week.days.map((d, i) => (
+                <Reveal as="li" key={d.day} index={i} className="mp-week-row">
+                  <span className="mp-day" aria-hidden="true">{d.short}</span>
+                  <span className="mp-track" aria-hidden="true">
+                    {d.public && (
+                      <span className="mp-seg mp-seg-public" style={{ left: `${pos(d.public[0])}%`, width: `${pos(d.public[1]) - pos(d.public[0])}%` }}>
+                        {pos(d.public[1]) - pos(d.public[0]) > 30 && <span>{segLabel(d.public)}</span>}
+                      </span>
+                    )}
+                    {d.members.map(r => (
+                      <span key={r[0]} className="mp-seg mp-seg-member" style={{ left: `${pos(r[0])}%`, width: `${pos(r[1]) - pos(r[0])}%` }}>
+                        {pos(r[1]) - pos(r[0]) > 30 && <span>{segLabel(r)}</span>}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="mp-sr">
+                    {d.long}: {d.public ? `public ${range(d.public)}` : 'closed to the public'}
+                    {d.members.length > 0 ? `. Members only ${d.members.map(range).join(' and ')}.` : '.'}
+                  </span>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      </div>
+    </section>
   )
 }
 
@@ -359,25 +563,119 @@ function Icon({ name, size = 22, color }: { name: string; size?: number; color: 
 }
 
 // Mobile first: one column and a 16px gutter by default, widening from 640px and 900px.
+// One card radius (12px), one pill radius (999px), one shadow (--mp-shadow).
+const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)'
 const CSS = `
-  .mp-hero { padding: 120px 16px 48px; }
+  main { --mp-shadow: inset 0 1px 0 rgba(240,237,232,0.04), 0 18px 40px -24px rgba(0,0,0,0.85); }
+  .mp-hero { position: relative; overflow: hidden; padding: 120px 16px 48px; }
+  .mp-hero-media { position: absolute; inset: 0; }
+  .mp-hero-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,13,13,0.8) 0%, rgba(13,13,13,0.86) 55%, ${BG} 100%); }
+  .mp-hero-bg { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: 50% 40%; animation: mp-zoom 18s ${EASE_OUT} both; }
+  @keyframes mp-zoom { from { transform: scale(1.12); } to { transform: scale(1); } }
+  .mp-seq { display: inline-block; animation: mp-rise 700ms ${EASE_OUT} both; animation-delay: calc(var(--s, 0) * 110ms + 120ms); }
+  p.mp-seq, .mp-selector.mp-seq { display: block; }
+  .mp-selector.mp-seq { display: grid; }
+  @keyframes mp-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
   .mp-section { padding: 56px 16px; }
   .mp-cta { padding: 72px 16px 88px; }
   .mp-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 480px; margin: 32px auto 0; }
+  .mp-choice { cursor: pointer; font-family: ${F_BODY}; color: ${TEXT}; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1px solid; border-radius: 12px; padding: 18px 12px; backdrop-filter: blur(6px); transition: border-color 200ms ease, background-color 200ms ease; }
   .mp-grid2, .mp-grid3 { display: grid; grid-template-columns: 1fr; gap: 16px; }
   .mp-grid3 { margin-top: 4px; }
   .mp-split { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; }
   .mp-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .mp-selector button:focus-visible, main a:focus-visible { outline: 2px solid ${TEXT}; outline-offset: 3px; }
+  .mp-subline { font-family: ${F_HEAD}; font-style: italic; font-size: clamp(18px, 2.4vw, 22px); line-height: 1.45; color: ${MUTED_LT}; margin: 0; max-width: 60ch; }
+  .mp-footnote { font-family: ${F_BODY}; font-size: 13px; color: ${MUTED}; margin: 20px 0 0; line-height: 1.6; }
+
+  /* Reveal: fade and rise once, siblings 70ms apart */
+  .rv { opacity: 0; transform: translateY(18px); transition: opacity 600ms ${EASE_OUT}, transform 700ms ${EASE_OUT}; transition-delay: calc(var(--rv-i, 0) * 70ms); }
+  .rv.rv-in { opacity: 1; transform: none; }
+  .mp-grid2 > .rv, .mp-grid3 > .rv { display: flex; flex-direction: column; }
+  .mp-grid2 > .rv > .mp-card, .mp-grid3 > .rv > .mp-card { flex: 1; }
+
+  /* Cards, media, pills, buttons */
+  .mp-card { background: ${SURF}; border: 1px solid ${BORDER}; border-radius: 12px; box-shadow: var(--mp-shadow); transition: transform 220ms ${EASE_OUT}, border-color 220ms ease; }
+  .mp-card-founding { border-color: rgba(232,53,90,0.35); }
+  .mp-media { display: block; width: 100%; object-fit: cover; border-radius: 12px; border: 1px solid ${BORDER}; box-shadow: var(--mp-shadow); }
+  .mp-btn { position: relative; isolation: isolate; overflow: hidden; display: inline-block; background: ${ACCENT}; color: ${BG}; border: none; border-radius: 999px; padding: 13px 28px; font-family: ${F_BODY}; font-size: 14px; font-weight: 700; line-height: 1; text-align: center; text-decoration: none; white-space: nowrap; cursor: pointer; }
+  .mp-btn::before { content: ''; position: absolute; inset: 0; z-index: -1; background: ${TEXT}; transform: scaleX(0); transform-origin: left center; transition: transform 300ms ${EASE_OUT}; }
+  .mp-pick { display: inline-block; align-self: flex-start; font-family: ${F_BODY}; font-size: 12px; font-weight: 700; color: ${BG}; background: ${ACCENT}; border-radius: 999px; padding: 5px 12px; margin-bottom: 12px; }
+  @media (hover: hover) and (pointer: fine) {
+    .mp-card:not(.mp-card-static):hover { transform: translateY(-4px); border-color: rgba(232,53,90,0.7); }
+    .mp-btn:hover::before { transform: scaleX(1); }
+    .mp-choice:hover { border-color: rgba(240,237,232,0.45) !important; }
+  }
+  .mp-btn:focus-visible::before { transform: scaleX(1); }
+
+  /* What members save */
+  .mp-save { padding: 24px; display: grid; gap: 20px; }
+  .mp-save-head { display: flex; flex-direction: column; }
+  .mp-save-big { margin: 10px 0 0; font-family: ${F_BODY}; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.02em; color: ${TEXT}; font-variant-numeric: tabular-nums; }
+  .mp-save-hero .mp-save-big { font-size: clamp(52px, 11vw, 88px); }
+  .mp-save-unit { font-family: ${F_HEAD}; font-style: italic; font-weight: 400; font-size: 18px; letter-spacing: 0; color: ${MUTED_LT}; }
+  .mp-save-hero { border-color: rgba(232,53,90,0.45); background: linear-gradient(180deg, rgba(232,53,90,0.07), rgba(232,53,90,0) 60%), ${SURF}; }
+  .mp-bars { margin: 0; display: grid; gap: 14px; }
+  .mp-bars > div { display: grid; grid-template-columns: 1fr auto; row-gap: 6px; font-family: ${F_BODY}; font-size: 13px; }
+  .mp-bars dt { color: ${MUTED_LT}; }
+  .mp-bars dd { margin: 0; color: ${TEXT}; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mp-bar { grid-column: 1 / -1; height: 10px; border-radius: 999px; background: rgba(240,237,232,0.06); overflow: hidden; }
+  .mp-bar-fill { display: block; height: 100%; border-radius: 999px; transform-origin: left center; transform: scaleX(0); transition: transform 900ms ${EASE_OUT}; }
+  .mp-bar-public { background: rgba(240,237,232,0.32); }
+  .mp-bar-member { background: ${ACCENT}; transition-delay: 150ms; }
+  .mp-save-in .mp-bar-public { transform: scaleX(1); }
+  .mp-save-in .mp-bar-member { transform: scaleX(var(--w)); }
+  .mp-stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid ${BORDER}; padding-top: 16px; }
+  .mp-stats dt { font-family: ${F_BODY}; font-size: 12px; color: ${MUTED}; margin-bottom: 4px; }
+  .mp-stats dd { margin: 0; font-family: ${F_BODY}; font-size: 17px; font-weight: 700; color: ${TEXT}; font-variant-numeric: tabular-nums; }
+
+  /* Members-only hours */
+  .mp-week { padding: 20px 16px; }
+  .mp-key { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: ${F_BODY}; font-size: 13px; color: ${MUTED_LT}; margin-bottom: 18px; }
+  .mp-key span { display: inline-flex; align-items: center; gap: 8px; }
+  .mp-swatch { display: inline-block; width: 22px; height: 10px; border-radius: 999px; }
+  .mp-swatch-public, .mp-seg-public { background: rgba(240,237,232,0.2); }
+  .mp-swatch-member, .mp-seg-member { background: ${ACCENT}; }
+  .mp-week-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .mp-week-row { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: center; }
+  .mp-day { font-family: ${F_BODY}; font-size: 13px; font-weight: 700; color: ${TEXT}; }
+  .mp-track { position: relative; display: block; height: 30px; border-radius: 8px; background: rgba(240,237,232,0.03); }
+  .mp-ticks .mp-track { height: 18px; background: none; margin-bottom: 4px; }
+  .mp-tick { position: absolute; top: 0; transform: translateX(-50%); font-family: ${F_BODY}; font-size: 11px; color: ${MUTED_LT}; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* Ticks: every 4 hours on phones, every 2 from 640px */
+  .mp-tick { display: none; }
+  .mp-tick-4 { display: block; }
+  .mp-tick:first-child { transform: none; }
+  .mp-tick:last-child { transform: translateX(-100%); }
+  .mp-seg { position: absolute; top: 0; bottom: 0; border-radius: 8px; display: flex; align-items: center; padding: 0 10px; overflow: hidden; transform-origin: left center; transform: scaleX(0); transition: transform 700ms ${EASE_OUT}; transition-delay: calc(var(--rv-i, 0) * 70ms + 120ms); }
+  .rv-in .mp-seg { transform: scaleX(1); }
+  .mp-seg > span { font-family: ${F_BODY}; font-size: 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .mp-seg-public > span { color: ${TEXT}; }
+  .mp-seg-member > span { color: ${BG}; }
+
   @media (max-width: 359px) { .mp-selector { grid-template-columns: 1fr; } }
   @media (min-width: 640px) {
     .mp-hero { padding: 152px 24px 64px; }
     .mp-section { padding: 80px 24px; }
     .mp-cta { padding: 100px 24px; }
     .mp-grid2 { grid-template-columns: 1fr 1fr; }
+    .mp-tick-2 { display: block; }
+    .mp-week { padding: 28px; }
+    .mp-week-row { grid-template-columns: 48px 1fr; gap: 14px; }
   }
   @media (min-width: 900px) {
     .mp-grid3 { grid-template-columns: repeat(3, 1fr); }
     .mp-split { grid-template-columns: 1fr 1fr; gap: 48px; }
+    .mp-save { padding: 28px; }
+    .mp-save-hero { grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; padding: 36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mp-hero-bg, .mp-seq { animation: none; }
+    .rv { opacity: 1; transform: none; transition: none; }
+    .mp-card, .mp-btn::before, .mp-choice { transition: none; }
+    .mp-card:not(.mp-card-static):hover { transform: none; }
+    .mp-bar-fill, .mp-seg { transition: none; }
   }
 `
