@@ -62,13 +62,6 @@ export default function Membership() {
   const term = pickTerm(plans?.plans, track, params.get('term'))
   const { hash } = useLocation()
 
-  // Linked from deep in the studio pages' teasers; start at the top, as the
-  // other long pages do, unless the link names a spot (#savings, #plan-...).
-  // Mount only, so switching tracks does not jump.
-  useEffect(() => {
-    if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [])
-
   const setParam = (key: string, value: string) =>
     setParams(prev => {
       const next = new URLSearchParams(prev)

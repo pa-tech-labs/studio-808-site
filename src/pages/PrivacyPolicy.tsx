@@ -1,12 +1,9 @@
-import { useEffect } from 'react'
 import SEO from '../components/SEO'
 import { BG, TEXT, MUTED, BORDER, F_HEAD, F_BODY, ACCENT, sectionLabel } from '../styles'
 
 const EMAIL = 'admin@studio-808.com'
 
 export default function PrivacyPolicy() {
-  useEffect(() => { window.scrollTo(0, 0) }, [])
-
   return (
     <>
       <SEO
