@@ -24,3 +24,6 @@ export function validateAudioEnquiry(
 export function oneLine(s: unknown): string
 export function enquirySubject(v: AudioEnquiryValue): string
 export function enquiryText(v: AudioEnquiryValue): string
+export const ENQUIRY_ORIGINS: string[]
+export function requestOrigin(headers: Record<string, unknown> | null | undefined): string
+export function isAllowedEnquiryOrigin(origin: string | null | undefined, env?: { VERCEL_ENV?: string; VERCEL_URL?: string }): boolean

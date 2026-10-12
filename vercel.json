@@ -1,11 +1,39 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/((?!api/.*).*)", "destination": "/index.html" }
-  ],
-  "redirects": [
-    { "source": "/production-studio", "destination": "/main-production-studio", "permanent": true }
+  "routes": [
+    { "src": "^/production-studio$", "status": 308, "headers": { "Location": "/main-production-studio" } },
+
+    { "src": "^/audio/?$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/" } },
+    { "src": "^/audio/(.*)$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/$1" } },
+    { "src": "^/audio/?$", "has": [{ "type": "host", "value": "studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/" } },
+    { "src": "^/audio/(.*)$", "has": [{ "type": "host", "value": "studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/$1" } },
+
+    {
+      "src": "^/(.*)$",
+      "has": [{ "type": "host", "value": "audio.studio-808.com" }],
+      "headers": {
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "autoplay=(self), fullscreen=(self), camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+        "Cross-Origin-Opener-Policy": "same-origin"
+      },
+      "continue": true
+    },
+    { "src": "^/$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "dest": "/audio/index.html" },
+    { "src": "^/terms/?$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "dest": "/audio/terms/index.html" },
+    { "src": "^/sitemap\\.xml$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "dest": "/audio/sitemap.xml" },
+    { "src": "^/robots\\.txt$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "dest": "/audio/robots.txt" },
+    { "src": "^/api/audio-enquiry(?:\\.js)?/?$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "dest": "/api/audio-enquiry" },
+    { "src": "^/(?:api|audio)(?:/.*)?$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "status": 404, "dest": "/audio/404.html" },
+
+    { "handle": "filesystem" },
+
+    { "src": "^/(.*)$", "has": [{ "type": "host", "value": "audio.studio-808.com" }], "status": 404, "dest": "/audio/404.html" },
+    { "src": "^/(?!api/).*$", "dest": "/index.html" }
   ]
 }

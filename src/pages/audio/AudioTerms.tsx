@@ -1,10 +1,12 @@
-// /audio/terms: the 808 Audio service terms from audioPage.terms, inside the
-// AudioLayout shell. No terms in Sanity, no page: back to /audio.
+// The service terms (/terms on audio.studio-808.com, /audio/terms elsewhere)
+// from audioPage.terms, inside the AudioLayout shell. No terms in Sanity, no
+// page: back to the audio home page.
 
 import { Navigate, useOutletContext } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import AudioHead from './AudioHead'
 import BlockContent from './sections/Blocks'
+import { audioPath, currentHost } from '../../lib/audioHost.js'
 import { hasTerms } from './sections/has'
 
 function formatDate(iso: string | null | undefined): string | null {
@@ -16,7 +18,7 @@ function formatDate(iso: string | null | undefined): string | null {
 export default function AudioTerms() {
   const data = useOutletContext<AudioPageData>()
   const page = data.page
-  if (!hasTerms(page)) return <Navigate to="/audio" replace />
+  if (!hasTerms(page)) return <Navigate to={audioPath(currentHost())} replace />
   const updated = formatDate(page?.termsUpdated)
 
   return (

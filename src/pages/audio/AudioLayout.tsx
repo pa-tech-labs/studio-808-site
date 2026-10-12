@@ -1,12 +1,15 @@
-// The /audio shell: its own header and footer, never the main site's Nav or
-// Footer, and no links into the DJ side of the site. App.tsx leaves the main
-// chrome off for every /audio path; this renders inside it via AudioRoute.
+// The 808 Audio shell: its own header and footer, never the main site's Nav
+// or Footer, and no links into the DJ side of the site. App.tsx leaves the
+// main chrome off for the audio tree; this renders inside it via AudioRoute.
+// Paths come from lib/audioHost.js: / and /terms on audio.studio-808.com,
+// /audio and /audio/terms elsewhere.
 
 import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import { AUDIO_ANCHORS, scrollToAnchor } from './anchors'
 import { forwardAudioAnalytics } from './analytics'
+import { audioPageOf, audioPath, currentHost } from '../../lib/audioHost.js'
 import { hasEnquiry, hasFaqs, hasRates, hasRoom, hasShowreel, hasTerms } from './sections/has'
 import './audio.css'
 import './sections/sections.css'
@@ -22,7 +25,8 @@ const NAV = [
 export default function AudioLayout({ data }: { data: AudioPageData }) {
   useEffect(() => forwardAudioAnalytics(), [])
   const { pathname } = useLocation()
-  const onHome = pathname === '/audio' || pathname === '/audio/'
+  const host = currentHost()
+  const onHome = audioPageOf(host, pathname) === 'home'
   const nav = NAV.filter(n => n.has(data))
   const quote = hasEnquiry(data.page)
 
@@ -49,11 +53,11 @@ export default function AudioLayout({ data }: { data: AudioPageData }) {
   )
 }
 
-/** On /audio a link is "#id"; elsewhere in the shell (terms) it goes back to /audio#id. */
+/** On the home page a link is "#id"; elsewhere in the shell (terms) it goes back to home#id. */
 function AnchorLink({ id, onHome, className, children }: { id: string; onHome: boolean; className?: string; children: string }) {
   return onHome
     ? <a className={className} href={`#${id}`}>{children}</a>
-    : <Link className={className} to={{ pathname: '/audio', hash: `#${id}` }}>{children}</Link>
+    : <Link className={className} to={{ pathname: audioPath(currentHost()), hash: `#${id}` }}>{children}</Link>
 }
 
 function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; onHome: boolean }) {
@@ -68,7 +72,7 @@ function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; 
   return (
     <header className="a8-header" data-scrolled={scrolled}>
       <div className="a8-wrap a8-header-in">
-        <Link to="/audio" className="a8-mark" aria-label="808 Audio, back to the top">
+        <Link to={audioPath(currentHost())} className="a8-mark" aria-label="808 Audio, back to the top">
           <span>808 Audio</span>
           <span className="a8-mark-tally" aria-hidden="true" />
         </Link>
@@ -104,7 +108,7 @@ function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['pag
         {(links.length > 0 || terms) && (
           <nav aria-label="Footer">
             <ul>
-              {terms && <li><Link to="/audio/terms">Service terms</Link></li>}
+              {terms && <li><Link to={audioPath(currentHost(), 'terms')}>Service terms</Link></li>}
               {links.map((l, i) => (
                 <li key={l._key ?? i}><a href={l.href!}>{l.label}</a></li>
               ))}

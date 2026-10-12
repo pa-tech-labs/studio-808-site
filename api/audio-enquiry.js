@@ -7,13 +7,18 @@
 // Nothing is stored: the email IS the enquiry, so a failed send fails the
 // request and the visitor is offered retry and a mailto fallback.
 //
+// Only the 808 Audio sites may post: https://audio.studio-808.com and
+// https://www.studio-808.com (plus a preview deployment's own URL, and
+// localhost under vercel dev). The form posts same-origin, so no CORS headers
+// are sent and other sites' browsers cannot read the response anyway.
+//
 // Set in Vercel env vars for studio-808-site:
 //   RESEND_API_KEY       (already set for the other forms)
 //   AUDIO_ENQUIRY_TO     where enquiries go (required)
 //   AUDIO_ENQUIRY_CC     optional CC, comma-separated for several
 //   AUDIO_ENQUIRY_FROM   optional, default 808 Audio <audio@send.studio-808.com>
 
-import { enquirySubject, enquiryText, isHoneypot, validateAudioEnquiry } from '../src/lib/audioEnquiry.js'
+import { enquirySubject, enquiryText, isAllowedEnquiryOrigin, isHoneypot, requestOrigin, validateAudioEnquiry } from '../src/lib/audioEnquiry.js'
 
 // Per-IP limit, per warm instance: stops one client hammering the endpoint,
 // not a distributed flood (the honeypot and Vercel's protection cover more).
@@ -39,6 +44,10 @@ function clientIp(req) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  if (!isAllowedEnquiryOrigin(requestOrigin(req.headers), process.env)) {
+    return res.status(403).json({ error: 'Enquiries can only be sent from the 808 Audio website.' })
+  }
 
   const body = req.body && typeof req.body === 'object' ? req.body : {}
 

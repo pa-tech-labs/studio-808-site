@@ -1,25 +1,12 @@
-// Adds the /audio entries to the main site's sitemap. Pure functions, tested
-// in tests/sitemap.test.js; scripts/buildSitemap.js runs them after the build.
+// Main-site sitemap helpers. The /audio pages moved to audio.studio-808.com,
+// which has its own sitemap (scripts/audioPrerender.js); scripts/buildAudio.js
+// uses addSitemapEntries(xml, []) to make sure the main sitemap lists none.
 
 export const SITE = 'https://www.studio-808.com'
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-/**
- * The /audio URLs to list, from what Sanity says about the page.
- * `page` is { _updatedAt, enabled, noindex, hasTerms }, or null when Sanity
- * could not be reached: then both routes are listed without a lastmod rather
- * than dropped. A page that is switched off or set to noindex is not listed.
- */
-export function audioSitemapEntries(page, site = SITE) {
-  if (page && (page.enabled !== true || page.noindex === true)) return []
-  const lastmod = page?._updatedAt ? String(page._updatedAt).slice(0, 10) : undefined
-  const entries = [{ loc: `${site}/audio`, lastmod, changefreq: 'monthly', priority: '0.8' }]
-  if (!page || page.hasTerms) entries.push({ loc: `${site}/audio/terms`, lastmod, changefreq: 'yearly', priority: '0.3' })
-  return entries
-}
-
-/** The sitemap XML with the entries added before </urlset>, replacing any earlier /audio entries. */
+/** The sitemap XML with the entries added before </urlset>, dropping any /audio entries. */
 export function addSitemapEntries(xml, entries) {
   const withoutOld = xml.replace(/\s*<url><loc>[^<]*\/audio(?:\/[^<]*)?<\/loc>.*?<\/url>/g, '')
   const lines = entries.map(e =>

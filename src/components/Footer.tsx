@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { AUDIO_ORIGIN } from '../lib/audioHost.js'
 import { BG, TEXT, MUTED, BORDER, F_BODY } from '../styles'
 import { getSiteSettings, type SanitySettings } from '../lib/sanity'
 import { MEMBERSHIP_PATH } from '../lib/links'
@@ -68,10 +69,11 @@ export default function Footer() {
               { to: '/dj-studio',              label: 'DJ Studios' },
               { to: '/main-production-studio', label: 'Production Studio' },
               { to: '/podcast-studio',         label: 'Podcast Studio' },
-              { to: '/audio',                  label: 'Voiceover and audiobook recording' },
             ].map(({ to, label }) => (
               <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.15s' }}>{label}</Link>
             ))}
+            {/* 808 Audio lives on its own subdomain. */}
+            <a href={AUDIO_ORIGIN + '/'} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.15s' }}>Voiceover and audiobook recording</a>
           </div>
 
           {/* Company links */}

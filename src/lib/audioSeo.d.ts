@@ -32,6 +32,7 @@ export const OG_WIDTH: number
 export const OG_HEIGHT: number
 export const AREA_SERVED: string[]
 
+export function audioOgImageSource(page: AudioPage | null | undefined): unknown
 export function audioEngineers(page: AudioPage | null | undefined): (AudioEngineer & { _key?: string })[]
 export function audioBaseUrl(page: AudioPage | null | undefined, origin: string): string
 export function audioCanonical(page: AudioPage | null | undefined, route: AudioRoute, origin: string): string

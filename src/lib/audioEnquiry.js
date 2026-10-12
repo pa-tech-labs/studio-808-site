@@ -121,3 +121,30 @@ export function enquiryText(v) {
     `Reply to this email to reach ${v.name} directly.`,
   ].join('\n')
 }
+
+// ── Who may post an enquiry ─────────────────────────────────────────────────
+
+/** The production sites the enquiry form is served from. */
+export const ENQUIRY_ORIGINS = ['https://audio.studio-808.com', 'https://www.studio-808.com']
+
+/** The request's origin: the Origin header, else the Referer's origin, else ''. */
+export function requestOrigin(headers) {
+  const h = headers ?? {}
+  const origin = String(h.origin ?? '').trim()
+  if (origin && origin !== 'null') return origin.replace(/\/+$/, '').toLowerCase()
+  try { return new URL(String(h.referer ?? '')).origin.toLowerCase() } catch { return '' }
+}
+
+/**
+ * Whether an enquiry may come from this origin. Production accepts exactly
+ * ENQUIRY_ORIGINS. A preview deployment also accepts its own URL (VERCEL_URL),
+ * and `vercel dev` accepts localhost, so the form can be tested there.
+ */
+export function isAllowedEnquiryOrigin(origin, env = {}) {
+  const o = String(origin ?? '').toLowerCase()
+  if (!o) return false
+  if (ENQUIRY_ORIGINS.includes(o)) return true
+  if (env.VERCEL_ENV === 'preview' && env.VERCEL_URL && o === `https://${String(env.VERCEL_URL).toLowerCase()}`) return true
+  if (env.VERCEL_ENV === 'development' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)) return true
+  return false
+}
