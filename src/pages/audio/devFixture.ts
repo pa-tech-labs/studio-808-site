@@ -3,6 +3,13 @@
 // none of it is a real credit. Never imported by a production build.
 
 import type { AudioPageData, AudioCredit } from '../../lib/audioPage'
+// Generated with ffmpeg (tones shaped like speech, a gradient test video).
+// Imported as URLs from here, so they only ever exist in dev builds.
+import narrationUrl from './fixture/tone-narration.mp3?url'
+import narrationPeaksUrl from './fixture/tone-narration.peaks.json?url'
+import spotUrl from './fixture/tone-spot.mp3?url'
+import videoUrl from './fixture/clip.mp4?url'
+import posterUrl from './fixture/poster.jpg?url'
 
 const svg = (body: string, w: number, h: number) =>
   `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">${body}</svg>`)}`
@@ -38,9 +45,51 @@ const credits: FixtureCredit[] = [
   { _id: 'v5', name: 'Hidden Voice', talent: 'Not cleared', talentPhoto: { url: portrait(0) }, creditType: 'audiobook', cleared: false, order: 14 },
 ]
 
+const clips = [
+  {
+    _id: 'k1', title: 'Chapter one, opening', clipType: 'audiobook', mediaType: 'audio', featured: true, order: 2,
+    client: 'Northfield Press', production: 'The Long Road North', talent: 'Placeholder Narrator', engineer: 'Heetan',
+    description: 'Unabridged narration recorded over four days, edited and mastered to ACX spec.',
+    audioUrl: narrationUrl, peaksUrl: narrationPeaksUrl, durationSeconds: 24,
+    coverImage: { url: portrait(30) },
+    transcript: 'This is placeholder text standing in for the transcript of the clip.\n\nA real transcript gives every clip crawlable, accessible copy.',
+    cleared: true,
+  },
+  {
+    _id: 'k2', title: 'Character voices', clipType: 'audiobook', order: 1,
+    client: 'Ashdown Books', production: 'Field Notes', talent: 'Placeholder Voice', engineer: 'Heetan',
+    description: 'A dialogue-heavy chapter with four character voices from one narrator.',
+    audioUrl: spotUrl, durationSeconds: 16, cleared: true,
+  },
+  {
+    _id: 'k3', title: 'Thirty second spot', clipType: 'commercial', mediaType: 'video', order: 1,
+    client: 'Lowmoor Studios', production: 'Winter campaign', talent: 'Placeholder Presenter', engineer: 'Heetan',
+    description: 'Voiceover recorded to picture and delivered as broadcast stems.',
+    videoUrl, posterImage: { url: posterUrl }, durationSeconds: 12, cleared: true,
+  },
+  {
+    _id: 'k4', title: 'Radio read', clipType: 'commercial', order: 2,
+    client: 'Harbour FM', production: 'Morning Brief sponsor', talent: 'Placeholder Presenter', engineer: 'Heetan',
+    audioUrl: spotUrl, durationSeconds: 16, cleared: true,
+  },
+  {
+    _id: 'k5', title: 'Module 3 narration', clipType: 'elearning', order: 1,
+    client: 'Kestrel Learning', production: 'Safety Induction 2026', talent: 'Placeholder Host', engineer: 'Heetan',
+    description: 'Course narration recorded from a script with on-screen timings.',
+    audioUrl: narrationUrl, durationSeconds: 24, cleared: true,
+  },
+  {
+    _id: 'k6', title: 'Not cleared yet', clipType: 'broadcast', audioUrl: spotUrl, durationSeconds: 16, cleared: false,
+  },
+]
+
 export const AUDIO_FIXTURE = {
   page: {
     enabled: true,
+    showreelIntro: {
+      heading: 'Selected work',
+      body: 'Narration, commercials and course audio recorded and finished in the booth. Pick a clip, or play straight through.',
+    },
     hero: {
       eyebrow: 'Voiceover and audiobook recording, Chelmsford',
       headline: 'Voice recorded below the ACX noise floor.',
@@ -59,6 +108,6 @@ export const AUDIO_FIXTURE = {
       links: [{ _key: 'l1', label: 'Privacy', href: '/privacy' }],
     },
   },
-  clips: [],
+  clips,
   credits,
 } as unknown as AudioPageData

@@ -1,0 +1,160 @@
+/*
+ * Showreel (#work). Scoped under .a8 and built from the /audio tokens in
+ * audio.css (.tastemaker/style-lock.md): 4px corners, hairlines, no shadows,
+ * steel-blue accent for progress and state only.
+ *
+ * Motion: the panel fades in on clip change (320ms easeOutQuart, opacity plus
+ * a 6px rise); the mini-player slides up (280ms); the playing indicator bars
+ * move. Under reduced motion only opacity changes, and the bars stand still.
+ */
+
+.a8 .a8-reel { padding: var(--a8-s24) 0 var(--a8-s32); border-top: 1px solid var(--a8-line); scroll-margin-top: var(--a8-header-h); }
+.a8-reel-head { max-width: var(--a8-max-text); margin-bottom: var(--a8-s8); }
+.a8-reel-head h2 { margin: 0; font-size: clamp(30px, 4.2vw, 48px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.08; }
+.a8-reel-head p { margin: var(--a8-s4) 0 0; color: var(--a8-muted); font-size: 17px; line-height: 1.6; }
+
+/* ── Group filter ──────────────────────────────────────────────────────── */
+
+.a8-tabs { display: flex; gap: var(--a8-s2); margin: 0 calc(var(--a8-gutter) * -1) var(--a8-s8); padding: 0 var(--a8-gutter) 2px; overflow-x: auto; scrollbar-width: none; }
+.a8-tabs::-webkit-scrollbar { display: none; }
+.a8-tab { flex: none; min-height: 40px; padding: 0 14px; border: 1px solid var(--a8-line); border-radius: var(--a8-radius); background: transparent; color: var(--a8-muted); font: 500 14px/1 var(--a8-sans); cursor: pointer; transition: color var(--a8-dur-ui) ease, border-color var(--a8-dur-ui) ease, background-color var(--a8-dur-ui) ease; }
+.a8-tab[aria-pressed='true'] { color: var(--a8-text); border-color: rgba(240, 237, 232, 0.4); background: var(--a8-surface); }
+@media (hover: hover) and (pointer: fine) {
+  .a8-tab:hover { color: var(--a8-text); }
+}
+
+/* ── Layout ────────────────────────────────────────────────────────────── */
+
+.a8-reel-grid { display: grid; gap: var(--a8-s12); }
+@media (min-width: 1024px) {
+  .a8-reel-grid { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: var(--a8-s12); align-items: start; }
+  .a8-now { position: sticky; top: calc(var(--a8-header-h) + var(--a8-s6)); }
+}
+
+/* ── Now playing ───────────────────────────────────────────────────────── */
+
+.a8-now { scroll-margin-top: calc(var(--a8-header-h) + var(--a8-s4)); }
+.a8-now-in { animation: a8-now-in 320ms var(--a8-ease) both; }
+@keyframes a8-now-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.a8-wavebox { position: relative; height: 112px; padding: var(--a8-s4); background: var(--a8-surface); border-radius: var(--a8-radius); }
+@media (min-width: 768px) { .a8-wavebox { height: 148px; padding: var(--a8-s6); } }
+.a8-wavebox-wave { position: absolute; inset: var(--a8-s4); }
+@media (min-width: 768px) { .a8-wavebox-wave { inset: var(--a8-s6); } }
+/* Before the peaks arrive: a faint flat bed of bars, same pitch as the real ones. */
+.a8-wavebox[data-ready='false'] .a8-wavebox-wave { background: repeating-linear-gradient(90deg, rgba(240, 237, 232, 0.14) 0 2px, transparent 2px 4px) center / 100% 2px no-repeat; }
+.a8-wavebox:has(.a8-scrub:focus-visible) { outline: 2px solid var(--a8-accent); outline-offset: 3px; }
+
+/* Scrub: a native range input. Over the waveform it is invisible and takes
+   the pointer; under video it is a thin line with a played portion. */
+.a8-scrub { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 20px; margin: var(--a8-s3) 0 0; padding: 0; background: transparent; cursor: pointer; }
+.a8-scrub:disabled { cursor: default; }
+.a8-scrub::-webkit-slider-runnable-track { height: 2px; border-radius: 1px; background: linear-gradient(90deg, var(--a8-accent) var(--a8-pct, 0%), rgba(240, 237, 232, 0.18) var(--a8-pct, 0%)); }
+.a8-scrub::-moz-range-track { height: 2px; border-radius: 1px; background: linear-gradient(90deg, var(--a8-accent) var(--a8-pct, 0%), rgba(240, 237, 232, 0.18) var(--a8-pct, 0%)); }
+.a8-scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 3px; height: 14px; margin-top: -6px; border: 0; border-radius: 1px; background: var(--a8-text); }
+.a8-scrub::-moz-range-thumb { width: 3px; height: 14px; border: 0; border-radius: 1px; background: var(--a8-text); }
+.a8-scrub:focus-visible { outline: 2px solid var(--a8-accent); outline-offset: 2px; }
+.a8-scrub-overlay { position: absolute; inset: 0; height: 100%; margin: 0; opacity: 0; }
+
+.a8-video { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: var(--a8-radius); overflow: hidden; }
+.a8-video video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; cursor: pointer; }
+.a8-video:fullscreen { border-radius: 0; }
+.a8-video-big { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: var(--a8-radius); background: rgba(240, 237, 232, 0.92); color: var(--a8-bg); cursor: pointer; transition: background-color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-video-big:hover { background: var(--a8-accent); }
+}
+
+.a8-transport { display: flex; align-items: center; gap: var(--a8-s4); margin-top: var(--a8-s4); }
+.a8-play { flex: none; width: 52px; height: 52px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: var(--a8-radius); background: var(--a8-text); color: var(--a8-bg); cursor: pointer; transition: background-color var(--a8-dur-ui) ease; }
+.a8-play-sm { width: 40px; height: 40px; }
+.a8-play:active, .a8-icon-btn:active, .a8-video-big:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .a8-play:hover { background: var(--a8-accent); }
+}
+.a8-clock { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--a8-text); }
+.a8-clock-sep { margin: 0 6px; color: var(--a8-line); }
+.a8-clock-total { color: var(--a8-muted); }
+.a8-transport-extra { margin-left: auto; display: inline-flex; gap: var(--a8-s2); }
+.a8-icon-btn { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--a8-line); border-radius: var(--a8-radius); background: transparent; color: var(--a8-muted); cursor: pointer; transition: color var(--a8-dur-ui) ease, border-color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-icon-btn:hover { color: var(--a8-text); border-color: rgba(240, 237, 232, 0.35); }
+}
+
+.a8-details { margin-top: var(--a8-s8); padding-top: var(--a8-s6); border-top: 1px solid var(--a8-line); }
+.a8-details-title { margin: 0; font-size: clamp(22px, 2.6vw, 30px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+.a8-details-prod { margin: var(--a8-s1) 0 0; font-family: var(--a8-serif); font-style: italic; font-size: 20px; line-height: 1.35; color: var(--a8-muted); }
+.a8-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--a8-s4) var(--a8-s6); margin: var(--a8-s6) 0 0; }
+.a8-facts dt { font-size: 13px; color: var(--a8-muted); }
+.a8-facts dd { margin: 2px 0 0; font-size: 15px; font-weight: 500; }
+.a8-details-desc { margin: var(--a8-s6) 0 0; max-width: 60ch; color: rgba(240, 237, 232, 0.86); }
+.a8-transcript { margin-top: var(--a8-s6); border-top: 1px solid var(--a8-line); }
+.a8-transcript summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; font-size: 14px; font-weight: 500; cursor: pointer; list-style: none; }
+.a8-transcript summary::-webkit-details-marker { display: none; }
+.a8-transcript summary::after { content: '+'; color: var(--a8-muted); font-size: 18px; font-weight: 400; }
+.a8-transcript[open] summary::after { content: '-'; }
+.a8-transcript p { margin: 0 0 var(--a8-s4); max-height: 280px; overflow: auto; color: var(--a8-muted); font-size: 15px; white-space: pre-line; }
+
+/* ── Playlist ──────────────────────────────────────────────────────────── */
+
+.a8-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--a8-line); }
+.a8-list li { border-bottom: 1px solid var(--a8-line); }
+.a8-row { position: relative; width: 100%; display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: var(--a8-s4); padding: var(--a8-s3) var(--a8-s3) var(--a8-s3) var(--a8-s4); border: 0; background: transparent; color: var(--a8-text); font: inherit; text-align: left; cursor: pointer; transition: background-color var(--a8-dur-ui) ease; }
+.a8-row[aria-current='true'] { background: var(--a8-surface); }
+.a8-row[aria-current='true']::before { content: ''; position: absolute; left: 0; top: var(--a8-s3); bottom: var(--a8-s3); width: 2px; background: var(--a8-accent); }
+@media (hover: hover) and (pointer: fine) {
+  .a8-row:not([aria-current='true']):hover { background: rgba(240, 237, 232, 0.03); }
+}
+.a8-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.a8-row-title { font-size: 15px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+.a8-row-kind { display: inline-flex; vertical-align: -2px; margin-right: 6px; color: var(--a8-muted); }
+.a8-row-by { font-family: var(--a8-serif); font-style: italic; font-size: 15px; line-height: 1.3; color: rgba(240, 237, 232, 0.78); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-row-talent { font-size: 13px; color: var(--a8-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-row-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.a8-row-time { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--a8-muted); }
+.a8-row-played { display: inline-flex; color: var(--a8-accent); }
+.a8-tag { padding: 3px 6px; border: 1px solid var(--a8-line); border-radius: var(--a8-radius); font-size: 11px; font-weight: 500; line-height: 1; color: var(--a8-muted); white-space: nowrap; }
+
+.a8-thumb { position: relative; display: block; width: 52px; height: 52px; flex: none; border-radius: var(--a8-radius); overflow: hidden; background: var(--a8-surface); }
+.a8-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Playing indicator: three bars over the thumbnail. */
+.a8-eq { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 3px; background: rgba(15, 15, 14, 0.55); }
+.a8-eq i { display: block; width: 3px; height: 16px; background: var(--a8-accent); transform-origin: 50% 100%; animation: a8-eq 900ms ease-in-out infinite alternate; }
+.a8-eq i:nth-child(2) { animation-delay: -300ms; animation-duration: 760ms; }
+.a8-eq i:nth-child(3) { animation-delay: -600ms; animation-duration: 1040ms; }
+@keyframes a8-eq { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+
+/* ── Mini-player ───────────────────────────────────────────────────────── */
+
+.a8-mini { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; padding-bottom: env(safe-area-inset-bottom, 0px); background: rgba(23, 23, 21, 0.96); border-top: 1px solid var(--a8-line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  transform: translateY(calc(100% + 2px)); opacity: 0; visibility: hidden;
+  transition: transform 280ms var(--a8-ease), opacity 200ms ease, visibility 0s linear 280ms; }
+.a8-mini[data-visible='true'] { transform: none; opacity: 1; visibility: visible; transition: transform 280ms var(--a8-ease), opacity 200ms ease, visibility 0s; }
+.a8-mini-progress { position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--a8-accent); transform: scaleX(var(--a8-progress, 0)); transform-origin: 0 50%; transition: transform 250ms linear; }
+.a8-mini-in { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--a8-s4); min-height: 64px; padding-left: max(var(--a8-gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--a8-gutter), env(safe-area-inset-right, 0px)); }
+.a8-mini-show { display: flex; align-items: center; gap: var(--a8-s3); min-width: 0; padding: var(--a8-s2) 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.a8-mini .a8-thumb { width: 40px; height: 40px; }
+.a8-mini .a8-eq { gap: 2px; }
+.a8-mini .a8-eq i { width: 2px; height: 12px; }
+.a8-mini-text { display: flex; flex-direction: column; min-width: 0; }
+.a8-mini-title { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-mini-client { font-size: 13px; color: var(--a8-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-mini-back { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 500; color: var(--a8-muted); text-decoration: underline; text-decoration-color: var(--a8-line); text-underline-offset: 3px; white-space: nowrap; transition: color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-mini-back:hover { color: var(--a8-text); }
+}
+/* Keep the page footer clear of the bar while it is up. */
+.a8:has(.a8-mini[data-visible='true']) .a8-footer { padding-bottom: calc(var(--a8-s12) + 72px); }
+
+/* ── Reduced motion: opacity only, bars still. ─────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .a8-now-in { animation-name: a8-now-fade; }
+  @keyframes a8-now-fade { from { opacity: 0; } to { opacity: 1; } }
+  .a8-mini, .a8-mini[data-visible='true'] { transform: none; transition: opacity 200ms ease, visibility 0s linear 200ms; }
+  .a8-mini[data-visible='true'] { transition: opacity 200ms ease, visibility 0s; }
+  .a8-mini-progress { transition: none; }
+  .a8-eq i { animation: none; }
+  .a8-eq i:nth-child(1) { transform: scaleY(0.55); }
+  .a8-eq i:nth-child(3) { transform: scaleY(0.75); }
+  .a8-play:active, .a8-icon-btn:active, .a8-video-big:active { transform: none; }
+}

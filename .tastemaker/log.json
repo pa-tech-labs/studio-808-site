@@ -9,5 +9,14 @@
     "footer": "address block left, links right",
     "mood": "premium",
     "accent": "#9fb4c6"
+  },
+  {
+    "id": "studio-808-audio-player-2026-10-12",
+    "date": "2026-10-12",
+    "page": "/audio showreel",
+    "macrostructure": "Long-Scroll Narrative (sections fixed by brief)",
+    "component": "now-playing panel left, playlist right; sticky mini-player",
+    "mood": "premium",
+    "accent": "#9fb4c6"
   }
 ]

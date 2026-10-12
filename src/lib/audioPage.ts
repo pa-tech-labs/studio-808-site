@@ -13,10 +13,13 @@ export const AUDIO_PAGE_QUERY = `{
   },
   "clips": *[_type == "audioClip"] | order(order asc) {
     _id, title, clipType, client, production, talent, engineer, description,
+    "mediaType": coalesce(mediaType, "audio"),
     "audioUrl": audioFile.asset->url,
     "audioMimeType": audioFile.asset->mimeType,
     "peaksUrl": peaks.asset->url,
-    durationSeconds, transcript, coverImage, cleared, featured, order
+    "videoUrl": videoFile.asset->url,
+    "videoMimeType": videoFile.asset->mimeType,
+    posterImage, durationSeconds, transcript, coverImage, cleared, featured, order
   },
   "credits": *[_type == "audioCredit"] | order(order asc) {
     _id, name, logo, talent, talentPhoto, creditType, url, cleared, order
@@ -32,6 +35,8 @@ export type PortableText = any[]
 
 export type AudioClipType = 'audiobook' | 'broadcast' | 'commercial' | 'elearning' | 'podcast' | 'other'
 export type AudioCreditType = Exclude<AudioClipType, 'other'>
+/** Missing (clips saved before the field existed) means audio. */
+export type AudioMediaType = 'audio' | 'video'
 
 export interface AudioLink { _key?: string; label?: string | null; href?: string | null }
 
@@ -129,9 +134,14 @@ export interface AudioClip {
   talent?: string | null
   engineer?: string | null
   description?: string | null
+  /** The query coalesces a missing value to "audio"; still treat null as audio. */
+  mediaType?: AudioMediaType | null
   audioUrl?: string | null
   audioMimeType?: string | null
   peaksUrl?: string | null
+  videoUrl?: string | null
+  videoMimeType?: string | null
+  posterImage?: SanityImage | null
   durationSeconds?: number | null
   transcript?: string | null
   coverImage?: SanityImage | null
