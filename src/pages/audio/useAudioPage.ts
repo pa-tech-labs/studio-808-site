@@ -8,9 +8,17 @@ let audioPage: Promise<AudioPageData | null> | null = null
 
 function load(): Promise<AudioPageData | null> {
   // Dev only: /audio?fixture shows placeholder content, for working on the
-  // page before Sanity has any. Vite drops this branch from production builds.
-  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('fixture')) {
-    return import('./devFixture').then(m => m.AUDIO_FIXTURE)
+  // page before Sanity has any; &logos=N keeps only the first N logos.
+  // Vite drops this branch from production builds.
+  const params = new URLSearchParams(window.location.search)
+  if (import.meta.env.DEV && params.has('fixture')) {
+    return import('./devFixture').then(m => {
+      const n = Number(params.get('logos'))
+      if (!params.has('logos') || !Number.isFinite(n)) return m.AUDIO_FIXTURE
+      let kept = 0
+      const credits = m.AUDIO_FIXTURE.credits.filter(c => !c.logo || kept++ < n)
+      return { ...m.AUDIO_FIXTURE, credits }
+    })
   }
   audioPage ??= getAudioPage().catch(() => null)
   return audioPage
