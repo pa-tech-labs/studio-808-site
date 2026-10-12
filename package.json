@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/buildSitemap.js",
     "lint": "eslint .",
     "test": "node --test 'src/**/*.test.js' 'tests/**/*.test.js'",
     "seed:studio-finder": "node scripts/seedStudioFinder.ts",
     "seed:membership-page": "node scripts/seedMembershipPage.ts",
+    "migrate:audio-engineers": "node scripts/migrateAudioEngineers.ts",
     "preview": "vite preview",
     "studio": "sanity dev",
     "studio:build": "sanity build",

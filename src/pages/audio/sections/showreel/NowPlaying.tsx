@@ -2,7 +2,7 @@
 // under a wavesurfer waveform, or a 16:9 <video>), its transport, and the
 // clip's details. Only this clip's media is ever loaded, metadata first.
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref, type RefObject } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import type { AudioClip } from '../../../../lib/audioPage'
 import { formatTime, mediaTypeOf, mediaUrlOf } from '../../../../lib/showreel.js'
@@ -40,7 +40,10 @@ export default function NowPlaying(props: Props) {
 
 function AudioStage({ clip, media, setMedia, playing, current, duration, onToggle, onSeek }: Props) {
   const waveRef = useRef<HTMLDivElement>(null)
-  const peaks = usePeaks(clip)
+  const near = useNearScreen(waveRef)
+  // Waveform data waits until the player is near the screen, or until the
+  // clip is played (the media element is then downloading it anyway).
+  const peaks = usePeaks(clip, near || playing)
   const waveDuration = clip.durationSeconds || peaks?.duration || duration
   const ready = Boolean(peaks && waveDuration && media)
 
@@ -82,9 +85,27 @@ function AudioStage({ clip, media, setMedia, playing, current, duration, onToggl
   )
 }
 
+/** True once the element has come within about a screen of the viewport. */
+function useNearScreen(ref: RefObject<HTMLElement | null>): boolean {
+  // Without IntersectionObserver there is no way to tell, so load straight away.
+  const [near, setNear] = useState(() => !('IntersectionObserver' in window))
+  useEffect(() => {
+    const el = ref.current
+    if (near || !el) return
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { setNear(true); io.disconnect() }
+    }, { rootMargin: '100% 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [ref, near])
+  return near
+}
+
 function VideoStage({ clip, media, setMedia, playing, current, duration, onToggle, onSeek }: Props) {
   const [muted, setMuted] = useState(false)
   const frameRef = useRef<HTMLDivElement>(null)
+  // Poster at the player's size (about 660px wide at most, so 1280 covers 2x
+  // screens), not the full-resolution upload.
   const poster = audioImageUrl(clip.posterImage, 1280, 720) ?? audioImageUrl(clip.coverImage, 1280, 720) ?? undefined
 
   useEffect(() => {
@@ -109,6 +130,8 @@ function VideoStage({ clip, media, setMedia, playing, current, duration, onToggl
           src={mediaUrlOf(clip) ?? undefined}
           poster={poster}
           preload="metadata"
+          width={1280}
+          height={720}
           playsInline
           onClick={onToggle}
           aria-label={clip.title}

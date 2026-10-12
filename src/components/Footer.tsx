@@ -68,6 +68,7 @@ export default function Footer() {
               { to: '/dj-studio',              label: 'DJ Studios' },
               { to: '/main-production-studio', label: 'Production Studio' },
               { to: '/podcast-studio',         label: 'Podcast Studio' },
+              { to: '/audio',                  label: 'Voiceover and audiobook recording' },
             ].map(({ to, label }) => (
               <Link key={to} to={to} style={{ display: 'block', fontFamily: F_BODY, fontSize: '14px', color: 'rgba(240,237,232,0.72)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.15s' }}>{label}</Link>
             ))}

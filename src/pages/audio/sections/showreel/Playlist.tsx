@@ -15,7 +15,7 @@ export function ClipThumb({ clip, size, playing = false }: { clip: AudioClip; si
   const src = clipThumb(clip, size * 2)
   return (
     <span className="a8-thumb" style={src ? undefined : gradientFor(clip._id)}>
-      {src && <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" />}
+      {src && <img src={src} alt={clip.title} width={size} height={size} loading="lazy" decoding="async" />}
       {playing && (
         <span className="a8-eq" aria-hidden="true"><i /><i /><i /></span>
       )}

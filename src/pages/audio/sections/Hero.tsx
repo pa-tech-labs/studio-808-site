@@ -1,19 +1,34 @@
 import type { CSSProperties } from 'react'
 import type { AudioPage } from '../../../lib/audioPage'
-import { audioImageUrl } from '../image'
+import { audioImageSrcSet, audioImageUrl } from '../image'
 import Waveform from './Waveform'
 
 /** Full-viewport hero from audioPage.hero. Copy enters in order (--i). */
-export default function Hero({ hero }: { hero: AudioPage['hero'] }) {
+export default function Hero({ hero, size }: { hero: AudioPage['hero']; size?: AudioPage['heroImageSize'] }) {
   if (!hero) return null
-  const bg = audioImageUrl(hero.backgroundImage, 2000)
+  // The LCP element: eager, high priority, real dimensions, sized per screen
+  // and never upscaled past the original.
+  const original = size?.width && size?.height ? { w: size.width, h: size.height } : { w: 2000, h: 1333 }
+  const widths = [640, 960, 1280, 1600, 2000].filter(w => w <= original.w)
+  if (!widths.includes(original.w) && original.w < 2000) widths.push(original.w)
+  const bg = audioImageUrl(hero.backgroundImage, Math.min(1600, original.w))
   let i = 0
 
   return (
     <section className="a8-hero" aria-labelledby="a8-hero-title">
       {bg && (
         <div className="a8-hero-media">
-          <img src={bg} alt={hero.backgroundImage?.alt ?? ''} fetchPriority="high" decoding="async" />
+          <img
+            src={bg}
+            srcSet={audioImageSrcSet(hero.backgroundImage, widths) ?? undefined}
+            sizes="100vw"
+            alt={hero.backgroundImage?.alt || hero.headline || '808 Audio recording studio'}
+            width={original.w}
+            height={original.h}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
       )}
       <div className="a8-hero-shade" />

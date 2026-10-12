@@ -3,7 +3,7 @@
 // pull quote is the one serif moment in the section.
 
 import type { AudioPageData } from '../../../lib/audioPage'
-import { audioImageUrl } from '../image'
+import { audioImageSrcSet, audioImageUrl } from '../image'
 import BlockContent from './Blocks'
 import { hasCaseStudy } from './has'
 
@@ -17,7 +17,16 @@ export default function CaseStudy({ data }: { data: AudioPageData }) {
       <div className={`a8-wrap a8-case-grid${img ? '' : ' a8-case-noimg'}`}>
         {img && (
           <figure className="a8-case-media">
-            <img src={img} alt={c.image?.alt ?? ''} width={1000} height={1250} loading="lazy" decoding="async" />
+            <img
+              src={img}
+              srcSet={audioImageSrcSet(c.image, [480, 720, 1000, 1400], 4 / 5) ?? undefined}
+              sizes="(min-width: 1024px) 480px, calc(100vw - 40px)"
+              alt={c.image?.alt || [c.client, c.heading].filter(Boolean).join(': ') || 'Case study'}
+              width={1000}
+              height={1250}
+              loading="lazy"
+              decoding="async"
+            />
           </figure>
         )}
         <div className="a8-case-body">

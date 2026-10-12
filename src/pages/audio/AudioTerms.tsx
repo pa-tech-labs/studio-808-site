@@ -3,6 +3,7 @@
 
 import { Navigate, useOutletContext } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
+import AudioHead from './AudioHead'
 import BlockContent from './sections/Blocks'
 import { hasTerms } from './sections/has'
 
@@ -20,6 +21,7 @@ export default function AudioTerms() {
 
   return (
     <article className="a8-legal" aria-labelledby="a8-legal-title">
+      <AudioHead data={data} route="terms" />
       <div className="a8-wrap">
         <header className="a8-legal-head">
           <h1 id="a8-legal-title" className="a8-h1">Service terms</h1>

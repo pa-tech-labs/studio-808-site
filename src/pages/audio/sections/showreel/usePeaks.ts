@@ -43,15 +43,19 @@ async function fromDecode(url: string, signal: AbortSignal): Promise<PeaksResult
   return peaks ? { peaks, duration: audio.duration } : null
 }
 
-/** null while loading or when there is nothing to draw. */
-export function usePeaks(clip: AudioClip | null): PeaksResult | null {
+/**
+ * null while loading or when there is nothing to draw. Nothing is fetched
+ * until `enabled` (the player is near the screen), so a visitor who never
+ * scrolls to the showreel never downloads a clip for its waveform.
+ */
+export function usePeaks(clip: AudioClip | null, enabled = true): PeaksResult | null {
   const [result, setResult] = useState<{ id: string; value: PeaksResult | null } | null>(null)
   const id = clip?._id ?? null
   const peaksUrl = clip?.peaksUrl ?? null
   const audioUrl = clip?.audioUrl ?? null
 
   useEffect(() => {
-    if (!id || !audioUrl) return
+    if (!enabled || !id || !audioUrl) return
     const ctl = new AbortController()
     ;(async () => {
       let value: PeaksResult | null = null
@@ -62,7 +66,7 @@ export function usePeaks(clip: AudioClip | null): PeaksResult | null {
       if (!ctl.signal.aborted) setResult({ id, value })
     })()
     return () => ctl.abort()
-  }, [id, peaksUrl, audioUrl])
+  }, [enabled, id, peaksUrl, audioUrl])
 
   return result && result.id === id ? result.value : null
 }

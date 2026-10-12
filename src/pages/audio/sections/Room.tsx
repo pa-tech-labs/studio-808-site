@@ -5,7 +5,7 @@
 import { useRef, useState } from 'react'
 import type { AudioPageData } from '../../../lib/audioPage'
 import { AUDIO_ANCHORS } from '../anchors'
-import { audioImageUrl } from '../image'
+import { audioImageSrcSet, audioImageUrl } from '../image'
 import { hasRoom } from './has'
 
 export default function Room({ data }: { data: AudioPageData }) {
@@ -24,6 +24,7 @@ export default function Room({ data }: { data: AudioPageData }) {
   }
   const step = (d: number) => setOpen(i => (i === null ? 0 : (i + d + gallery.length) % gallery.length))
   const current = open === null ? null : gallery[open]
+  const altOf = (g: { alt?: string | null }, i: number) => g.alt || `${r.heading || 'The room'}, photo ${i + 1} of ${gallery.length}`
 
   return (
     <section id={AUDIO_ANCHORS.studio} className="a8-sec a8-room" aria-labelledby="a8-room-title">
@@ -37,8 +38,17 @@ export default function Room({ data }: { data: AudioPageData }) {
           <ul className="a8-gallery" data-count={gallery.length}>
             {gallery.map((g, i) => (
               <li key={g._key ?? i}>
-                <button type="button" onClick={() => show(i)} aria-label={`View larger: ${g.alt || `photo ${i + 1}`}`}>
-                  <img src={audioImageUrl(g, i === 0 ? 1200 : 700, i === 0 ? 900 : 525)!} alt={g.alt ?? ''} width={i === 0 ? 1200 : 700} height={i === 0 ? 900 : 525} loading="lazy" decoding="async" />
+                <button type="button" onClick={() => show(i)} aria-label={`View larger: ${altOf(g, i)}`}>
+                  <img
+                    src={audioImageUrl(g, i === 0 ? 1200 : 700, i === 0 ? 900 : 525)!}
+                    srcSet={audioImageSrcSet(g, i === 0 ? [600, 900, 1200, 1600] : [360, 540, 700, 1000], 4 / 3) ?? undefined}
+                    sizes={i === 0 ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 768px) 25vw, 50vw'}
+                    alt={altOf(g, i)}
+                    width={i === 0 ? 1200 : 700}
+                    height={i === 0 ? 900 : 525}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </button>
               </li>
             ))}
@@ -83,7 +93,7 @@ export default function Room({ data }: { data: AudioPageData }) {
         >
           {current && (
             <figure>
-              <img key={open} src={audioImageUrl(current, 1800)!} alt={current.alt ?? ''} />
+              <img key={open} src={audioImageUrl(current, 1800)!} alt={altOf(current, open ?? 0)} decoding="async" />
               <figcaption>
                 <span>{current.alt}</span>
                 <span className="a8-lightbox-count">{(open ?? 0) + 1} of {gallery.length}</span>
