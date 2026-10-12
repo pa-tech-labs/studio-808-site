@@ -92,12 +92,17 @@ test('audio host: security headers on every response, autoplay allowed for self'
   assert.deepEqual(resolve(WWW, '/').headers, {}, 'main site headers unchanged')
 })
 
-test('www and apex /audio paths 301 to the subdomain, keeping the path', () => {
+test('www and apex /audio paths serve the app shell; the 301 lives in middleware.ts', () => {
   for (const host of [WWW, 'studio-808.com']) {
-    assert.deepEqual(resolve(host, '/audio'), { status: 301, location: 'https://audio.studio-808.com/', headers: {} })
-    assert.deepEqual(resolve(host, '/audio/'), { status: 301, location: 'https://audio.studio-808.com/', headers: {} })
-    assert.deepEqual(resolve(host, '/audio/terms'), { status: 301, location: 'https://audio.studio-808.com/terms', headers: {} })
+    for (const p of ['/audio', '/audio/', '/audio/terms']) {
+      const r = resolve(host, p)
+      // The app shell, not the subdomain's prerendered file (whose canonical
+      // and og:url point at audio.studio-808.com).
+      assert.deepEqual([r.status, r.file], [200, '/index.html'], `${host}${p}`)
+    }
   }
+  const toSubdomain = routes.filter(r => /audio\.studio-808\.com/.test(r.headers?.Location ?? ''))
+  assert.deepEqual(toSubdomain, [], 'no redirect to the subdomain left in vercel.json')
 })
 
 test('main site behaves as before: SPA fallback, files, API, the old redirect', () => {

@@ -6,10 +6,8 @@
   "routes": [
     { "src": "^/production-studio$", "status": 308, "headers": { "Location": "/main-production-studio" } },
 
-    { "src": "^/audio/?$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/" } },
-    { "src": "^/audio/(.*)$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/$1" } },
-    { "src": "^/audio/?$", "has": [{ "type": "host", "value": "studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/" } },
-    { "src": "^/audio/(.*)$", "has": [{ "type": "host", "value": "studio-808.com" }], "status": 301, "headers": { "Location": "https://audio.studio-808.com/$1" } },
+    { "src": "^/audio(?:/.*)?$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "dest": "/index.html" },
+    { "src": "^/audio(?:/.*)?$", "has": [{ "type": "host", "value": "studio-808.com" }], "dest": "/index.html" },
 
     {
       "src": "^/(.*)$",
