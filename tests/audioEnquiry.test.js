@@ -18,6 +18,8 @@ beforeEach(() => {
   process.env.AUDIO_ENQUIRY_TO = 'audio@example.com'
   process.env.AUDIO_ENQUIRY_CC = 'a@example.com, b@example.com'
   delete process.env.AUDIO_ENQUIRY_FROM
+  delete process.env.VERCEL_ENV
+  delete process.env.VERCEL_URL
   globalThis.fetch = async (url, init) => {
     sent.push({ url, body: JSON.parse(init.body) })
     return { ok: !failSend, status: failSend ? 500 : 200, text: async () => 'stub' }
@@ -30,14 +32,17 @@ afterEach(() => { globalThis.fetch = realFetch; console.error = realError })
 let n = 0
 const load = async () => (await import(`../api/audio-enquiry.js?t=${n++}`)).default
 
-function call(handler, body, { method = 'POST', ip = '1.2.3.4' } = {}) {
+function call(handler, body, { method = 'POST', ip = '1.2.3.4', origin = 'https://audio.studio-808.com', referer } = {}) {
   return new Promise(resolve => {
     const res = {
       statusCode: 200,
       status(c) { this.statusCode = c; return this },
       json(b) { resolve({ status: this.statusCode, body: b }) },
     }
-    handler({ method, body, headers: { 'x-forwarded-for': `${ip}, 10.0.0.1` } }, res)
+    const headers = { 'x-forwarded-for': `${ip}, 10.0.0.1` }
+    if (origin) headers.origin = origin
+    if (referer) headers.referer = referer
+    handler({ method, body, headers }, res)
   })
 }
 
@@ -112,4 +117,28 @@ test('more than five enquiries from one IP in the window are refused', async () 
   for (let i = 0; i < 5; i++) assert.equal((await call(h, good)).status, 200)
   assert.equal((await call(h, good)).status, 429)
   assert.equal((await call(h, good, { ip: '5.6.7.8' })).status, 200)
+})
+
+test('only the two 808 sites may post', async () => {
+  const h = await load()
+  assert.equal((await call(h, good, { origin: 'https://www.studio-808.com' })).status, 200)
+  assert.equal((await call(h, good, { origin: 'https://audio.studio-808.com' })).status, 200)
+  for (const origin of ['https://evil.example', 'https://studio-808.com', 'http://audio.studio-808.com', 'https://audio.studio-808.com.evil.example', 'null']) {
+    const r = await call(h, good, { origin, ip: origin })
+    assert.equal(r.status, 403, origin)
+  }
+  assert.equal((await call(h, good, { origin: '', ip: '9.9.9.9' })).status, 403, 'no origin and no referer')
+  assert.equal((await call(h, good, { origin: '', referer: 'https://audio.studio-808.com/#enquire', ip: '9.9.9.8' })).status, 200, 'referer fallback')
+  assert.equal(sent.length, 3)
+})
+
+test('a preview deployment accepts its own URL; production does not', async () => {
+  process.env.VERCEL_ENV = 'preview'
+  process.env.VERCEL_URL = 'studio-808-site-abc123.vercel.app'
+  const h = await load()
+  assert.equal((await call(h, good, { origin: 'https://studio-808-site-abc123.vercel.app' })).status, 200)
+  assert.equal((await call(h, good, { origin: 'https://other-abc.vercel.app', ip: '2.2.2.2' })).status, 403)
+  process.env.VERCEL_ENV = 'production'
+  const p = await load()
+  assert.equal((await call(p, good, { origin: 'https://studio-808-site-abc123.vercel.app', ip: '3.3.3.3' })).status, 403)
 })

@@ -3,17 +3,17 @@
 // the audioPage singleton. Uses the react-helmet-async provider the app
 // already mounts. Scoped to /audio: the main site keeps components/SEO.tsx.
 
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import type { AudioPageData } from '../../lib/audioPage'
-import { audioHeadTags, buildAudioHead, buildAudioJsonLd, jsonLdString, OG_HEIGHT, OG_WIDTH, type AudioRoute } from '../../lib/audioSeo.js'
+import { audioHeadTags, audioOgImageSource, buildAudioHead, buildAudioJsonLd, jsonLdString, OG_HEIGHT, OG_WIDTH, type AudioRoute } from '../../lib/audioSeo.js'
 import { audioImageUrl } from './image'
 
 export default function AudioHead({ data, route }: { data: AudioPageData; route: AudioRoute }) {
   const page = data.page
   const origin = typeof window === 'undefined' ? 'https://www.studio-808.com' : window.location.origin
   // The share image: seo.ogImage, else the hero photo, cropped to 1200x630.
-  const ogImage = audioImageUrl(page?.seo?.ogImage, OG_WIDTH, OG_HEIGHT)
-    ?? audioImageUrl(page?.hero?.backgroundImage, OG_WIDTH, OG_HEIGHT)
+  const ogImage = audioImageUrl(audioOgImageSource(page) as Parameters<typeof audioImageUrl>[0], OG_WIDTH, OG_HEIGHT)
   const toAbsolute = (u: string | null) => (u && u.startsWith('/') ? `${origin}${u}` : u)
 
   const head = buildAudioHead({ page, route, origin, ogImage: toAbsolute(ogImage) })
@@ -24,6 +24,13 @@ export default function AudioHead({ data, route }: { data: AudioPageData; route:
     ogImage: toAbsolute(ogImage),
     imageUrl: (img, w, h) => toAbsolute(audioImageUrl(img as Parameters<typeof audioImageUrl>[0], w, h)),
   })
+
+  // The subdomain's HTML arrives with this head baked in for link previews
+  // (scripts/audioPrerender.js). Once these tags have mounted, drop the baked
+  // copies so there is one canonical, one description, one JSON-LD.
+  useEffect(() => {
+    document.head.querySelectorAll('[data-audio-prerender]').forEach(n => n.remove())
+  }, [])
 
   return (
     <Helmet prioritizeSeoTags>

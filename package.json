@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/buildSitemap.js",
+    "build": "tsc -b && vite build && node scripts/buildAudio.js",
     "lint": "eslint .",
     "test": "node --test 'src/**/*.test.js' 'tests/**/*.test.js'",
     "seed:studio-finder": "node scripts/seedStudioFinder.ts",

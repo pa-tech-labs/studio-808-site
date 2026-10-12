@@ -4,6 +4,7 @@
 // file never needs the Sanity client.
 
 import { mediaTypeOf, mediaUrlOf, visibleClips } from './showreel.js'
+import { audioBasePath } from './audioHost.js'
 
 export const SITE_NAME = '808 Audio'
 export const OG_WIDTH = 1200
@@ -19,6 +20,11 @@ const text = s => (typeof s === 'string' && s.trim() ? s.trim() : '')
 const some = a => Array.isArray(a) && a.length > 0
 const stripSlash = s => s.replace(/\/+$/, '')
 
+/** The share image source: seo.ogImage, else the hero photo (cropped to 1200x630 by the caller). */
+export function audioOgImageSource(page) {
+  return page?.seo?.ogImage?.asset ? page.seo.ogImage : page?.hero?.backgroundImage ?? null
+}
+
 /** The engineers to show: the list, else the old single engineer. */
 export function audioEngineers(page) {
   const ok = e => Boolean(e && (text(e.name) || some(e.bio)))
@@ -28,12 +34,17 @@ export function audioEngineers(page) {
 }
 
 /**
- * The URL of the /audio root: seo.canonicalUrl when set (the subdomain, where
- * /audio becomes the root), otherwise this origin's /audio. No trailing slash.
+ * The URL of the audio tree's root: seo.canonicalUrl when set, otherwise this
+ * origin plus the host's base path (the root on audio.studio-808.com, /audio
+ * elsewhere; see audioHost.js). No trailing slash.
  */
 export function audioBaseUrl(page, origin) {
   const canonical = text(page?.seo?.canonicalUrl)
-  return canonical ? stripSlash(canonical) : `${stripSlash(origin)}/audio`
+  if (canonical) return stripSlash(canonical)
+  const o = stripSlash(origin)
+  let host = ''
+  try { host = new URL(o).host } catch { /* not a URL: treat as elsewhere */ }
+  return `${o}${audioBasePath(host)}`
 }
 
 /** The canonical URL of a route: 'home' or 'terms'. */
