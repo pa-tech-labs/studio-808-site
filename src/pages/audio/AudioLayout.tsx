@@ -1,7 +1,7 @@
-// The 808 Audio shell: its own header and footer, never the main site's Nav
+// The Studio 808 Voice shell: its own header and footer, never the main site's Nav
 // or Footer, and no links into the DJ side of the site. App.tsx leaves the
 // main chrome off for the audio tree; this renders inside it via AudioRoute.
-// Paths come from lib/audioHost.js: / and /terms on audio.studio-808.com,
+// Paths come from lib/audioHost.js: / and /terms on voice.studio-808.com,
 // /audio and /audio/terms elsewhere.
 
 import { useEffect, useState, type MouseEvent } from 'react'
@@ -72,11 +72,15 @@ function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; 
   return (
     <header className="a8-header" data-scrolled={scrolled}>
       <div className="a8-wrap a8-header-in">
-        <Link to={audioPath(currentHost())} className="a8-mark" aria-label="808 Audio, back to the top">
-          <span>808 Audio</span>
-          <span className="a8-mark-tally" aria-hidden="true" />
+        <Link to={audioPath(currentHost())} className="a8-mark" aria-label="Studio 808 Voice, back to the top">
+          {/* The Studio 808 logo, as on the main site, plus "Voice". */}
+          <img className="a8-mark-logo" src="/images/logo.png" alt="" width={662} height={307} decoding="async" />
+          <span className="a8-mark-word" aria-hidden="true">
+            Voice
+            <span className="a8-mark-tally" />
+          </span>
         </Link>
-        <nav className="a8-nav" aria-label="808 Audio" data-count={nav.length}>
+        <nav className="a8-nav" aria-label="Studio 808 Voice" data-count={nav.length}>
           {nav.length > 0 && (
             <ul>
               {nav.map(item => (
@@ -97,9 +101,9 @@ function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['pag
     <footer className="a8-footer">
       <div className="a8-wrap a8-footer-in">
         <address>
-          <p className="a8-footer-company">{footer?.companyLine || '808 Audio'}</p>
+          <p className="a8-footer-company">{footer?.companyLine || 'Studio 808 Voice'}</p>
           {/* PLACEHOLDER: legal entity line (registered company name and number)
-              goes here once the trading entity for 808 Audio is confirmed. */}
+              goes here once the trading entity for Studio 808 Voice is confirmed. */}
           {footer?.addressLine && <p>{footer.addressLine}</p>}
           <p className="a8-footer-local">Recording studio in Chelmsford, Essex</p>
           {footer?.phone && <a href={`tel:${footer.phone.replace(/[^\d+]/g, '')}`}>{footer.phone}</a>}

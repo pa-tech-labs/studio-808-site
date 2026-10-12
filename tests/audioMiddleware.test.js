@@ -1,4 +1,4 @@
-// middleware.ts: the www and apex /audio 301 to audio.studio-808.com, gated
+// middleware.ts: the www and apex /audio 301 to voice.studio-808.com, gated
 // on AUDIO_SUBDOMAIN_LIVE. Imports the real middleware (Node strips the
 // TypeScript) and its decision helper.
 //
@@ -37,11 +37,11 @@ test('not live: anything other than the exact string "true" counts as off', () =
 test('live: www and apex /audio paths 301 to the subdomain, path and query kept', () => {
   process.env.AUDIO_SUBDOMAIN_LIVE = 'true'
   const cases = [
-    ['https://www.studio-808.com/audio', 'https://audio.studio-808.com/'],
-    ['https://www.studio-808.com/audio/', 'https://audio.studio-808.com/'],
-    ['https://www.studio-808.com/audio/terms', 'https://audio.studio-808.com/terms'],
-    ['https://www.studio-808.com/audio?utm_source=x', 'https://audio.studio-808.com/?utm_source=x'],
-    ['https://studio-808.com/audio/terms', 'https://audio.studio-808.com/terms'],
+    ['https://www.studio-808.com/audio', 'https://voice.studio-808.com/'],
+    ['https://www.studio-808.com/audio/', 'https://voice.studio-808.com/'],
+    ['https://www.studio-808.com/audio/terms', 'https://voice.studio-808.com/terms'],
+    ['https://www.studio-808.com/audio?utm_source=x', 'https://voice.studio-808.com/?utm_source=x'],
+    ['https://studio-808.com/audio/terms', 'https://voice.studio-808.com/terms'],
   ]
   for (const [from, to] of cases) {
     const res = middleware(req(from))
@@ -53,7 +53,8 @@ test('live: www and apex /audio paths 301 to the subdomain, path and query kept'
 test('live: other hosts and look-alike paths pass through', () => {
   process.env.AUDIO_SUBDOMAIN_LIVE = 'true'
   for (const url of [
-    'https://audio.studio-808.com/audio',          // the subdomain's own /audio: vercel.json 404s it
+    'https://voice.studio-808.com/audio',          // the subdomain's own /audio: vercel.json 404s it
+    'https://audio.studio-808.com/audio',          // the old host: vercel.json 301s it to voice
     'https://studio-808-site-abc.vercel.app/audio', // preview deployments keep /audio
     'http://localhost:5173/audio',
     'https://www.studio-808.com/audiobooks',        // not /audio or /audio/...
@@ -67,7 +68,7 @@ test('the helper on its own', () => {
   assert.equal(subdomainLive({}), false)
   assert.equal(subdomainLive(undefined), false)
   const live = { AUDIO_SUBDOMAIN_LIVE: 'true' }
-  assert.equal(audioRedirectTarget('https://www.studio-808.com/audio', 'WWW.Studio-808.com:443', live), 'https://audio.studio-808.com/')
+  assert.equal(audioRedirectTarget('https://www.studio-808.com/audio', 'WWW.Studio-808.com:443', live), 'https://voice.studio-808.com/')
   assert.equal(audioRedirectTarget('https://www.studio-808.com/audio', 'www.studio-808.com', {}), null)
   assert.equal(audioRedirectTarget('https://www.studio-808.com/', 'www.studio-808.com', live), null)
 })

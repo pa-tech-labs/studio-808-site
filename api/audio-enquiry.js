@@ -1,4 +1,4 @@
-// Vercel serverless function: an enquiry from the 808 Audio page (/audio).
+// Vercel serverless function: an enquiry from the Studio 808 Voice page (/audio).
 //
 // Same pattern as tutor-request.js: validates with the validateAudioEnquiry
 // the form uses, drops bots via a honeypot (the hidden "website" field;
@@ -7,7 +7,7 @@
 // Nothing is stored: the email IS the enquiry, so a failed send fails the
 // request and the visitor is offered retry and a mailto fallback.
 //
-// Only the 808 Audio sites may post: https://audio.studio-808.com and
+// Only the Studio 808 Voice sites may post: https://voice.studio-808.com and
 // https://www.studio-808.com (plus a preview deployment's own URL, and
 // localhost under vercel dev). The form posts same-origin, so no CORS headers
 // are sent and other sites' browsers cannot read the response anyway.
@@ -16,7 +16,7 @@
 //   RESEND_API_KEY       (already set for the other forms)
 //   AUDIO_ENQUIRY_TO     where enquiries go (required)
 //   AUDIO_ENQUIRY_CC     optional CC, comma-separated for several
-//   AUDIO_ENQUIRY_FROM   optional, default 808 Audio <audio@send.studio-808.com>
+//   AUDIO_ENQUIRY_FROM   optional, default Studio 808 Voice <voice@send.studio-808.com>
 
 import { enquirySubject, enquiryText, isAllowedEnquiryOrigin, isHoneypot, requestOrigin, validateAudioEnquiry } from '../src/lib/audioEnquiry.js'
 
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   if (!isAllowedEnquiryOrigin(requestOrigin(req.headers), process.env)) {
-    return res.status(403).json({ error: 'Enquiries can only be sent from the 808 Audio website.' })
+    return res.status(403).json({ error: 'Enquiries can only be sent from the Studio 808 Voice website.' })
   }
 
   const body = req.body && typeof req.body === 'object' ? req.body : {}
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Enquiries are not set up yet. Please email us instead.' })
   }
   const cc = (process.env.AUDIO_ENQUIRY_CC ?? '').split(',').map(s => s.trim()).filter(Boolean)
-  const from = process.env.AUDIO_ENQUIRY_FROM || '808 Audio <audio@send.studio-808.com>'
+  const from = process.env.AUDIO_ENQUIRY_FROM || 'Studio 808 Voice <voice@send.studio-808.com>'
 
   try {
     await sendEmail(apiKey, {

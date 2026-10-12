@@ -48,7 +48,7 @@ function resolve(host, path) {
   return { status: 404, headers }
 }
 
-const AUDIO = 'audio.studio-808.com'
+const AUDIO = 'voice.studio-808.com'
 const WWW = 'www.studio-808.com'
 
 test('audio host: / and /terms serve the prerendered pages', () => {
@@ -97,12 +97,23 @@ test('www and apex /audio paths serve the app shell; the 301 lives in middleware
     for (const p of ['/audio', '/audio/', '/audio/terms']) {
       const r = resolve(host, p)
       // The app shell, not the subdomain's prerendered file (whose canonical
-      // and og:url point at audio.studio-808.com).
+      // and og:url point at voice.studio-808.com).
       assert.deepEqual([r.status, r.file], [200, '/index.html'], `${host}${p}`)
     }
   }
-  const toSubdomain = routes.filter(r => /audio\.studio-808\.com/.test(r.headers?.Location ?? ''))
-  assert.deepEqual(toSubdomain, [], 'no redirect to the subdomain left in vercel.json')
+  const mainHosts = ['www.studio-808.com', 'studio-808.com']
+  const mainToSubdomain = routes.filter(r => mainHosts.includes(r.has?.[0]?.value) && /voice\.studio-808\.com/.test(r.headers?.Location ?? ''))
+  assert.deepEqual(mainToSubdomain, [], 'no www or apex redirect to the subdomain left in vercel.json')
+})
+
+test('the old name, audio.studio-808.com, 301s every path to the same path on voice', () => {
+  const OLD = 'audio.studio-808.com'
+  for (const [from, to] of [['/', 'https://voice.studio-808.com/'], ['/terms', 'https://voice.studio-808.com/terms'], ['/sitemap.xml', 'https://voice.studio-808.com/sitemap.xml'], ['/production-studio', 'https://voice.studio-808.com/production-studio'], ['/api/audio-enquiry', 'https://voice.studio-808.com/api/audio-enquiry']]) {
+    const r = resolve(OLD, from)
+    assert.equal(r.status, 301, from)
+    assert.equal(r.location, to, from)
+  }
+  assert.equal(routes.findIndex(r => r.has?.[0]?.value === OLD), 0, 'first rule, ahead of every other redirect')
 })
 
 test('main site behaves as before: SPA fallback, files, API, the old redirect', () => {

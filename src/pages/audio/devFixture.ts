@@ -207,7 +207,7 @@ export const AUDIO_FIXTURE = {
       backgroundImage: { url: '/images/studios/studio4-production-1.jpg', alt: '' },
     },
     footer: {
-      companyLine: '808 Audio, part of Studio 808',
+      companyLine: 'Studio 808 Voice is a service of Studio 808 Ltd',
       addressLine: 'Unit 11-11A Robjohns House, Navigation Road, Chelmsford CM2 6ND',
       phone: '01245 000000',
       email: 'audio@example.com',

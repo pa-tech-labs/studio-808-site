@@ -22,7 +22,7 @@ export default function Hero({ hero, size }: { hero: AudioPage['hero']; size?: A
             src={bg}
             srcSet={audioImageSrcSet(hero.backgroundImage, widths) ?? undefined}
             sizes="100vw"
-            alt={hero.backgroundImage?.alt || hero.headline || '808 Audio recording studio'}
+            alt={hero.backgroundImage?.alt || hero.headline || 'Studio 808 Voice recording studio'}
             width={original.w}
             height={original.h}
             loading="eager"

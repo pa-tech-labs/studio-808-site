@@ -73,9 +73,9 @@ test('dates', () => {
 
 test('subject uses company, else name, and is one line', () => {
   const v = validateAudioEnquiry(good).value
-  assert.equal(enquirySubject(v), '808 Audio enquiry: Audiobook from Northfield Press')
-  assert.equal(enquirySubject({ ...v, company: '' }), '808 Audio enquiry: Audiobook from Alex Reed')
-  assert.equal(enquirySubject({ ...v, company: 'Evil\r\nBcc: x@y.z' }), '808 Audio enquiry: Audiobook from Evil Bcc: x@y.z')
+  assert.equal(enquirySubject(v), 'Studio 808 Voice enquiry: Audiobook from Northfield Press')
+  assert.equal(enquirySubject({ ...v, company: '' }), 'Studio 808 Voice enquiry: Audiobook from Alex Reed')
+  assert.equal(enquirySubject({ ...v, company: 'Evil\r\nBcc: x@y.z' }), 'Studio 808 Voice enquiry: Audiobook from Evil Bcc: x@y.z')
   assert.equal(oneLine('a\n\n b'), 'a b')
 })
 

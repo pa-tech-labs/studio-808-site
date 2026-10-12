@@ -1,4 +1,4 @@
-// SEO for the /audio tree (later audio.studio-808.com): head tags and JSON-LD,
+// SEO for the /audio tree (later voice.studio-808.com): head tags and JSON-LD,
 // built from the audioPage singleton. Plain JS with no React or DOM so node's
 // test runner can check it. Image URLs come in through `imageUrl`, so this
 // file never needs the Sanity client.
@@ -6,15 +6,15 @@
 import { mediaTypeOf, mediaUrlOf, visibleClips } from './showreel.js'
 import { audioBasePath } from './audioHost.js'
 
-export const SITE_NAME = '808 Audio'
+export const SITE_NAME = 'Studio 808 Voice'
 export const OG_WIDTH = 1200
 export const OG_HEIGHT = 630
 export const AREA_SERVED = ['Essex', 'London', 'United Kingdom']
 const PARENT = { '@type': 'Organization', name: 'Studio 808 Ltd', url: 'https://www.studio-808.com/' }
-const DEFAULT_TITLE = '808 Audio | Voiceover and audiobook recording in Chelmsford, Essex'
+const DEFAULT_TITLE = 'Studio 808 Voice | Voiceover and audiobook recording in Chelmsford, Essex'
 const DEFAULT_DESCRIPTION = 'Voiceover and audiobook recording studio in Chelmsford, Essex, with an engineer on every session.'
-const TERMS_TITLE = 'Service terms | 808 Audio'
-const TERMS_DESCRIPTION = 'Service terms for recording sessions at 808 Audio, Chelmsford.'
+const TERMS_TITLE = 'Service terms | Studio 808 Voice'
+const TERMS_DESCRIPTION = 'Service terms for recording sessions at Studio 808 Voice, Chelmsford.'
 
 const text = s => (typeof s === 'string' && s.trim() ? s.trim() : '')
 const some = a => Array.isArray(a) && a.length > 0
@@ -35,7 +35,7 @@ export function audioEngineers(page) {
 
 /**
  * The URL of the audio tree's root: seo.canonicalUrl when set, otherwise this
- * origin plus the host's base path (the root on audio.studio-808.com, /audio
+ * origin plus the host's base path (the root on voice.studio-808.com, /audio
  * elsewhere; see audioHost.js). No trailing slash.
  */
 export function audioBaseUrl(page, origin) {
@@ -238,7 +238,7 @@ export function buildAudioJsonLd({ data, route = 'home', origin, ogImage, imageU
         '@type': video ? 'VideoObject' : 'AudioObject',
         '@id': `${base}/#clip-${clip._id}`,
         name: text(clip.title),
-        description: text(clip.description) || (by ? `${text(clip.title)}, recorded at 808 Audio for ${by}.` : `${text(clip.title)}, recorded at 808 Audio.`),
+        description: text(clip.description) || (by ? `${text(clip.title)}, recorded at Studio 808 Voice for ${by}.` : `${text(clip.title)}, recorded at Studio 808 Voice.`),
         contentUrl: url,
         encodingFormat: mimeOf(url, video ? clip.videoMimeType : clip.audioMimeType),
         duration: isoDuration(clip.durationSeconds),

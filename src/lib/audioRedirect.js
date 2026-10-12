@@ -1,9 +1,9 @@
-// The www and apex /audio paths move to audio.studio-808.com with a 301, but
+// The www and apex /audio paths move to voice.studio-808.com with a 301, but
 // only once the subdomain is live: AUDIO_SUBDOMAIN_LIVE=true in the Vercel
 // environment. Until then they keep serving the app on www. Used by
 // middleware.ts at the repo root; plain JS so node's test runner can check it.
 
-import { AUDIO_ORIGIN } from './audioHost.js'
+import { VOICE_ORIGIN } from './audioHost.js'
 
 /** The hosts whose /audio paths move (the main site). */
 export const REDIRECT_HOSTS = ['www.studio-808.com', 'studio-808.com']
@@ -15,8 +15,8 @@ export function subdomainLive(env) {
 
 /**
  * Where a request should go, or null to let it through.
- *   www.studio-808.com/audio          -> https://audio.studio-808.com/
- *   www.studio-808.com/audio/terms?x  -> https://audio.studio-808.com/terms?x
+ *   www.studio-808.com/audio          -> https://voice.studio-808.com/
+ *   www.studio-808.com/audio/terms?x  -> https://voice.studio-808.com/terms?x
  * Only on the main hosts, only for /audio and /audio/..., only when live.
  */
 export function audioRedirectTarget(requestUrl, host, env) {
@@ -26,5 +26,5 @@ export function audioRedirectTarget(requestUrl, host, env) {
   const url = new URL(requestUrl)
   const m = /^\/audio(\/.*)?$/.exec(url.pathname)
   if (!m) return null
-  return `${AUDIO_ORIGIN}${m[1] && m[1] !== '/' ? m[1] : '/'}${url.search}`
+  return `${VOICE_ORIGIN}${m[1] && m[1] !== '/' ? m[1] : '/'}${url.search}`
 }

@@ -1,4 +1,4 @@
-// Main-site sitemap helpers. The /audio pages moved to audio.studio-808.com,
+// Main-site sitemap helpers. The /audio pages moved to voice.studio-808.com,
 // which has its own sitemap (scripts/audioPrerender.js); scripts/buildAudio.js
 // uses addSitemapEntries(xml, []) to make sure the main sitemap lists none.
 

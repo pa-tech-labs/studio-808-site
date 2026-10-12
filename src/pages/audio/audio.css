@@ -1,5 +1,5 @@
 /*
- * 808 Audio design system. Everything is scoped under .a8 (the AudioLayout
+ * Studio 808 Voice design system. Everything is scoped under .a8 (the AudioLayout
  * wrapper), tokens included, so nothing here can reach the main site.
  *
  * Palette (contrast from tastemaker check_contrast.py, see .tastemaker/style-lock.md):
@@ -88,9 +88,13 @@
 .a8-header[data-scrolled='true'] { background: rgba(15, 15, 14, 0.88); border-bottom-color: var(--a8-line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .a8-header-in { height: 100%; display: grid; grid-template-columns: 1fr auto; grid-template-rows: 56px 48px; align-items: center; column-gap: var(--a8-s4); }
 
-.a8-mark { justify-self: start; display: inline-flex; flex-direction: column; gap: 3px; color: var(--a8-text); text-decoration: none; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; line-height: 1; }
+/* Wordmark: the Studio 808 logo (as in the main site's nav) plus "Voice". */
+.a8-mark { justify-self: start; display: inline-flex; align-items: center; gap: 10px; color: var(--a8-text); text-decoration: none; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1; }
+.a8-mark-logo { display: block; height: 28px; width: auto; }
+@media (min-width: 768px) { .a8-mark-logo { height: 32px; } }
+.a8-mark-word { display: inline-flex; flex-direction: column; gap: 3px; padding-top: 4px; }
 /* The one coral detail: a 1px tally line under "808". */
-.a8-mark-tally { width: 2.05em; height: 1px; background: var(--a8-coral); }
+.a8-mark-tally { width: 100%; height: 1px; background: var(--a8-coral); }
 
 .a8-nav { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid var(--a8-line); height: 100%; }
 .a8-nav ul { list-style: none; margin: 0; padding: 0; height: 100%; display: flex; align-items: center; justify-content: space-between; }

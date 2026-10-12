@@ -1,6 +1,6 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 
-// The 808 Audio page (/audio, later audio.studio-808.com). A SINGLETON: one
+// The Studio 808 Voice page (/audio, later voice.studio-808.com). A SINGLETON: one
 // document, id "audioPage", pinned in the desk by sanity.config.ts. All of the
 // page's copy lives here, so it can change without a deploy. The clips and
 // credits are their own documents (audioClip, audioCredit).
@@ -323,7 +323,7 @@ export default defineType({
         defineField({ name: 'metaTitle', title: 'Meta title', type: 'string', description: 'Shown in the browser tab and Google results. About 60 characters.' }),
         defineField({ name: 'metaDescription', title: 'Meta description', type: 'text', rows: 2, description: 'Shown in Google results. About 155 characters.' }),
         defineField({ name: 'ogImage', title: 'Social share image', type: 'image', description: '1200 x 630 works best.' }),
-        defineField({ name: 'canonicalUrl', title: 'Canonical URL', type: 'url', description: 'e.g. https://audio.studio-808.com/ once the subdomain is live.' }),
+        defineField({ name: 'canonicalUrl', title: 'Canonical URL', type: 'url', description: 'e.g. https://voice.studio-808.com/ once the subdomain is live.' }),
         defineField({ name: 'noindex', title: 'Hide from search engines (noindex)', type: 'boolean', initialValue: false }),
       ],
     }),

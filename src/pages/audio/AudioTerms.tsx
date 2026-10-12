@@ -1,4 +1,4 @@
-// The service terms (/terms on audio.studio-808.com, /audio/terms elsewhere)
+// The service terms (/terms on voice.studio-808.com, /audio/terms elsewhere)
 // from audioPage.terms, inside the AudioLayout shell. No terms in Sanity, no
 // page: back to the audio home page.
 

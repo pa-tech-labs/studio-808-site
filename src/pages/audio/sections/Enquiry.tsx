@@ -163,7 +163,7 @@ export default function Enquiry({ data }: { data: AudioPageData }) {
             <div className="a8-consent">
               <label>
                 <input type="checkbox" name="consent" checked={fields.consent} onChange={set('consent')} {...err('consent')} />
-                <span>I agree to 808 Audio using these details to reply to my enquiry, as described in the <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">privacy policy</a>.</span>
+                <span>I agree to Studio 808 Voice using these details to reply to my enquiry, as described in the <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">privacy policy</a>.</span>
               </label>
               {errors.consent && <p className="a8-err" id="a8-err-consent">{errors.consent}</p>}
             </div>

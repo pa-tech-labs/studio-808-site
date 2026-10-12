@@ -1,4 +1,4 @@
-// Build-time output for audio.studio-808.com: the prerendered <head> of / and
+// Build-time output for voice.studio-808.com: the prerendered <head> of / and
 // /terms, the subdomain's sitemap and robots.txt, and its 404 page. Pure
 // functions, tested in tests/audioPrerender.test.js; scripts/buildAudio.js
 // runs them after `vite build`.
@@ -13,7 +13,7 @@
 
 export const PRERENDER_ATTR = 'data-audio-prerender'
 
-import { AUDIO_ORIGIN } from '../src/lib/audioHost.js'
+import { VOICE_ORIGIN } from '../src/lib/audioHost.js'
 import { audioHeadTags, jsonLdString } from '../src/lib/audioSeo.js'
 
 const attr = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -47,7 +47,7 @@ export function prerenderHtml(indexHtml, { head, jsonLd }) {
 }
 
 /** The subdomain sitemap: / and, when there are terms, /terms. Empty when the page is off or noindex. */
-export function audioSitemapXml(page, origin = AUDIO_ORIGIN) {
+export function audioSitemapXml(page, origin = VOICE_ORIGIN) {
   const listed = page && page.enabled === true && page.seo?.noindex !== true
   const lastmod = page?._updatedAt ? String(page._updatedAt).slice(0, 10) : ''
   const url = (loc, freq, priority) =>
@@ -59,12 +59,12 @@ export function audioSitemapXml(page, origin = AUDIO_ORIGIN) {
 }
 
 /** robots.txt for the subdomain: everything allowed, its own sitemap. */
-export function audioRobotsTxt(origin = AUDIO_ORIGIN) {
+export function audioRobotsTxt(origin = VOICE_ORIGIN) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`
 }
 
 /**
- * The subdomain's 404 page: standalone HTML in the 808 Audio look (no app
+ * The subdomain's 404 page: standalone HTML in the Studio 808 Voice look (no app
  * bundle), with a link back to /. Served with status 404 by vercel.json.
  */
 export function audioNotFoundHtml() {
@@ -74,7 +74,7 @@ export function audioNotFoundHtml() {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Page not found | 808 Audio</title>
+    <title>Page not found | Studio 808 Voice</title>
     <link rel="icon" type="image/png" href="/images/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -82,8 +82,10 @@ export function audioNotFoundHtml() {
     <style>
       html, body { margin: 0; background: #0f0f0e; color: #f0ede8; font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
       main { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; max-width: 1200px; margin: 0 auto; padding: 48px 20px; }
-      .mark { display: inline-flex; flex-direction: column; gap: 3px; margin-bottom: 64px; color: #f0ede8; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; text-decoration: none; }
-      .mark i { width: 2.05em; height: 1px; background: #e8355a; }
+      .mark { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 64px; color: #f0ede8; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1; text-decoration: none; }
+      .mark img { display: block; height: 32px; width: auto; }
+      .mark span { display: inline-flex; flex-direction: column; gap: 3px; padding-top: 4px; }
+      .mark i { width: 100%; height: 1px; background: #e8355a; }
       h1 { margin: 0; font-size: clamp(36px, 5.6vw, 64px); font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; }
       p { margin: 16px 0 32px; color: #a8a49c; font-size: 17px; }
       .btn { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; padding: 0 24px; border-radius: 4px; background: #f0ede8; color: #0f0f0e; font-weight: 600; font-size: 15px; text-decoration: none; }
@@ -93,10 +95,10 @@ export function audioNotFoundHtml() {
   </head>
   <body>
     <main>
-      <a class="mark" href="/"><span>808 Audio</span><i aria-hidden="true"></i></a>
+      <a class="mark" href="/" aria-label="Studio 808 Voice home"><img src="/images/logo.png" alt="" width="662" height="307" /><span aria-hidden="true">Voice<i></i></span></a>
       <h1>Page not found</h1>
       <p>There is nothing at this address.</p>
-      <a class="btn" href="/">Back to 808 Audio</a>
+      <a class="btn" href="/">Back to Studio 808 Voice</a>
     </main>
   </body>
 </html>

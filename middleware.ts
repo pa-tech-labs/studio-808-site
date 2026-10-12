@@ -3,7 +3,7 @@
 // runtime). It runs before vercel.json's routes, for /audio paths only.
 //
 // When AUDIO_SUBDOMAIN_LIVE is "true" in the Vercel environment, the main
-// site's /audio paths (www and apex) answer 301 to audio.studio-808.com.
+// site's /audio paths (www and apex) answer 301 to voice.studio-808.com.
 // Otherwise the request passes through and vercel.json serves /audio on www
 // as before. The decision lives in src/lib/audioRedirect.js (tested).
 
