@@ -7,7 +7,7 @@
 
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import type { AudioCredit } from '../../../lib/audioPage'
-import { audioImageUrl, audioLogoUrl } from '../image'
+import { audioImageSrcSet, audioImageUrl, audioLogoUrl } from '../image'
 
 export default function CreditsWall({ credits }: { credits: AudioCredit[] }) {
   const cleared = credits.filter(c => c.cleared === true)
@@ -63,9 +63,12 @@ function LogoRow({ credits }: { credits: AudioCredit[] }) {
           <img
             className="a8-logo"
             src={audioLogoUrl(c.logo, 96)!}
-            alt={copy ? '' : c.name}
+            alt={c.name}
             style={style}
             data-sized={c.logoAspect ? 'true' : undefined}
+            // Intrinsic size (the 96px-tall file); CSS sets the shown height.
+            width={c.logoAspect ? Math.round(96 * c.logoAspect) : undefined}
+            height={c.logoAspect ? 96 : undefined}
             loading="lazy"
             decoding="async"
           />
@@ -114,7 +117,17 @@ function Voices({ credits }: { credits: AudioCredit[] }) {
       <ul>
         {credits.map(c => (
           <li key={c._id}>
-            <img className="a8-voice-photo" src={audioImageUrl(c.talentPhoto, 480, 600)!} alt="" width={480} height={600} loading="lazy" decoding="async" />
+            <img
+              className="a8-voice-photo"
+              src={audioImageUrl(c.talentPhoto, 480, 600)!}
+              srcSet={audioImageSrcSet(c.talentPhoto, [240, 360, 480, 720], 4 / 5) ?? undefined}
+              sizes="(min-width: 768px) 25vw, 50vw"
+              alt={c.talent || c.name}
+              width={480}
+              height={600}
+              loading="lazy"
+              decoding="async"
+            />
             {c.talent && <p className="a8-voice-name">{c.talent}</p>}
             <p className="a8-voice-prod">
               {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer">{c.name}</a> : c.name}

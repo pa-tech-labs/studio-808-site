@@ -13,6 +13,15 @@ const imageWithAlt = (name: string, title: string) => defineField({
   fields: [defineField({ name: 'alt', title: 'Image description (alt text)', type: 'string' })],
 })
 
+// One engineer: shared by the "engineers" list and the old single field.
+const engineerFields = () => [
+  defineField({ name: 'name', title: 'Name', type: 'string' }),
+  defineField({ name: 'role', title: 'Role', type: 'string' }),
+  defineField({ name: 'bio', title: 'Bio', type: 'array', of: [{ type: 'block' }] }),
+  imageWithAlt('headshot', 'Headshot'),
+  defineField({ name: 'credits', title: 'Credits', type: 'array', of: [{ type: 'string' }] }),
+]
+
 const link = defineArrayMember({
   type: 'object',
   name: 'link',
@@ -139,17 +148,34 @@ export default defineType({
     }),
 
     defineField({
+      name: 'engineersHeading',
+      title: 'Engineers heading',
+      type: 'string',
+      group: 'room',
+      description: 'e.g. The people on the desk',
+    }),
+    defineField({
+      name: 'engineers',
+      title: 'Engineers',
+      type: 'array',
+      group: 'room',
+      description: 'Shown side by side on desktop. Each one is also listed as staff in the page\'s search data.',
+      of: [defineArrayMember({
+        type: 'object',
+        name: 'engineerProfile',
+        fields: engineerFields(),
+        preview: { select: { title: 'name', subtitle: 'role', media: 'headshot' } },
+      })],
+    }),
+    defineField({
       name: 'engineer',
-      title: 'Engineer',
+      title: 'Engineer (old, single)',
       type: 'object',
       group: 'room',
-      fields: [
-        defineField({ name: 'name', title: 'Name', type: 'string' }),
-        defineField({ name: 'role', title: 'Role', type: 'string' }),
-        defineField({ name: 'bio', title: 'Bio', type: 'array', of: [{ type: 'block' }] }),
-        imageWithAlt('headshot', 'Headshot'),
-        defineField({ name: 'credits', title: 'Credits', type: 'array', of: [{ type: 'string' }] }),
-      ],
+      hidden: true,
+      deprecated: { reason: 'Replaced by "Engineers". The site still reads this until Engineers has an entry; run scripts/migrateAudioEngineers.ts to move it.' },
+      readOnly: true,
+      fields: engineerFields(),
     }),
 
     defineField({

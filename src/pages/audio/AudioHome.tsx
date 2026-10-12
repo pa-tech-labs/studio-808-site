@@ -3,6 +3,7 @@
 
 import { useOutletContext } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
+import AudioHead from './AudioHead'
 import Hero from './sections/Hero'
 import CreditsWall from './sections/CreditsWall'
 import Showreel from './sections/Showreel'
@@ -19,7 +20,8 @@ export default function AudioHome() {
   const data = useOutletContext<AudioPageData>()
   return (
     <>
-      <Hero hero={data.page?.hero} />
+      <AudioHead data={data} route="home" />
+      <Hero hero={data.page?.hero} size={data.page?.heroImageSize} />
       <CreditsWall credits={data.credits ?? []} />
       <Showreel data={data} />
       <CaseStudy data={data} />

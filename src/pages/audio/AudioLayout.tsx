@@ -6,6 +6,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import { AUDIO_ANCHORS, scrollToAnchor } from './anchors'
+import { forwardAudioAnalytics } from './analytics'
 import { hasEnquiry, hasFaqs, hasRates, hasRoom, hasShowreel, hasTerms } from './sections/has'
 import './audio.css'
 import './sections/sections.css'
@@ -19,6 +20,7 @@ const NAV = [
 ]
 
 export default function AudioLayout({ data }: { data: AudioPageData }) {
+  useEffect(() => forwardAudioAnalytics(), [])
   const { pathname } = useLocation()
   const onHome = pathname === '/audio' || pathname === '/audio/'
   const nav = NAV.filter(n => n.has(data))
@@ -95,6 +97,7 @@ function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['pag
           {/* PLACEHOLDER: legal entity line (registered company name and number)
               goes here once the trading entity for 808 Audio is confirmed. */}
           {footer?.addressLine && <p>{footer.addressLine}</p>}
+          <p className="a8-footer-local">Recording studio in Chelmsford, Essex</p>
           {footer?.phone && <a href={`tel:${footer.phone.replace(/[^\d+]/g, '')}`}>{footer.phone}</a>}
           {footer?.email && <a href={`mailto:${footer.email}`}>{footer.email}</a>}
         </address>

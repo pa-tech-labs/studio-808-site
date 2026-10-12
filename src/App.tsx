@@ -21,9 +21,14 @@ import Membership from './pages/Membership'
 import StudioFinder from './components/StudioFinder'
 import ScrollToTop from './components/ScrollToTop'
 import { FINDER_PATH, backgroundOf } from './lib/studioFinderRoute'
+import { loadAudioPage } from './pages/audio/audioData'
 
-// 808 Audio is its own site under /audio: own shell, own bundle.
-const AudioRoute = lazy(() => import('./pages/audio/AudioRoute'))
+// 808 Audio is its own site under /audio: own shell, own bundle. Its Sanity
+// query starts alongside the chunk download rather than after it.
+const AudioRoute = lazy(() => {
+  void loadAudioPage()
+  return import('./pages/audio/AudioRoute')
+})
 
 export default function App() {
   return (

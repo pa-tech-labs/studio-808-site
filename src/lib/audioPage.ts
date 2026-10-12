@@ -8,11 +8,12 @@ import type { SanityImage } from './sanity'
 
 export const AUDIO_PAGE_QUERY = `{
   "page": *[_id == "audioPage"][0] {
-    enabled, seo, hero, showreelIntro, caseStudy, room, engineer,
+    _updatedAt, enabled, seo, hero,
+    "heroImageSize": hero.backgroundImage.asset->metadata.dimensions{ width, height }, showreelIntro, caseStudy, room, engineersHeading, engineers, engineer,
     services, rates, process, faqs, enquiry, footer, terms, termsUpdated
   },
   "clips": *[_type == "audioClip"] | order(order asc) {
-    _id, title, clipType, client, production, talent, engineer, description,
+    _id, _createdAt, title, clipType, client, production, talent, engineer, description,
     "mediaType": coalesce(mediaType, "audio"),
     "audioUrl": audioFile.asset->url,
     "audioMimeType": audioFile.asset->mimeType,
@@ -41,8 +42,20 @@ export type AudioMediaType = 'audio' | 'video'
 
 export interface AudioLink { _key?: string; label?: string | null; href?: string | null }
 
+export interface AudioEngineer {
+  name?: string | null
+  role?: string | null
+  bio?: PortableText | null
+  headshot?: AudioImage | null
+  credits?: string[] | null
+}
+
 /** The "808 Audio page" singleton (schemaTypes/audioPage.ts). */
 export interface AudioPage {
+  /** When the document was last published (sitemap lastmod). */
+  _updatedAt?: string | null
+  /** The hero background's original size, for width/height and srcset. */
+  heroImageSize?: { width?: number | null; height?: number | null } | null
   enabled?: boolean | null
   seo?: {
     metaTitle?: string | null
@@ -80,13 +93,10 @@ export interface AudioPage {
     gearList?: string[] | null
     specs?: { _key?: string; label?: string | null; value?: string | null }[] | null
   } | null
-  engineer?: {
-    name?: string | null
-    role?: string | null
-    bio?: PortableText | null
-    headshot?: AudioImage | null
-    credits?: string[] | null
-  } | null
+  engineersHeading?: string | null
+  engineers?: (AudioEngineer & { _key?: string })[] | null
+  /** Deprecated single engineer, read only until `engineers` has an entry. */
+  engineer?: AudioEngineer | null
   services?: {
     _key?: string
     title?: string | null
@@ -132,6 +142,7 @@ export interface AudioPage {
 /** One audioClip document (schemaTypes/audioClip.ts). Show only when `cleared`. */
 export interface AudioClip {
   _id: string
+  _createdAt?: string | null
   title: string
   clipType?: AudioClipType | null
   client?: string | null

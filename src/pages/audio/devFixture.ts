@@ -120,16 +120,28 @@ const sections = {
       { _key: 's4', label: 'Delivery', value: 'WAV, MP3, ACX and broadcast stems' },
     ],
   },
-  engineer: {
-    name: 'Heetan',
-    role: 'Recording engineer',
-    bio: [
-      pt('normal', 'Placeholder copy. Engineer and producer, recording spoken word, music and broadcast audio from the Chelmsford booth.', 'b1'),
-      pt('normal', 'Directs sessions from the control room and edits and masters everything in house.', 'b2'),
-    ],
-    headshot: { url: portrait(40), alt: 'Heetan at the desk' },
-    credits: ['Placeholder Audiobook One', 'Placeholder Broadcast', 'Placeholder Podcast Series', 'Placeholder Course'],
-  },
+  engineersHeading: 'The people on the desk',
+  engineers: [
+    {
+      _key: 'e1',
+      name: 'Heetan',
+      role: 'Recording engineer',
+      bio: [
+        pt('normal', 'Placeholder copy. Engineer and producer, recording spoken word, music and broadcast audio from the Chelmsford booth.', 'b1'),
+        pt('normal', 'Directs sessions from the control room and edits and masters everything in house.', 'b2'),
+      ],
+      headshot: { url: portrait(40), alt: 'Heetan at the desk' },
+      credits: ['Placeholder Audiobook One', 'Placeholder Broadcast', 'Placeholder Podcast Series'],
+    },
+    {
+      _key: 'e2',
+      name: 'Placeholder Engineer',
+      role: 'Editor and mastering',
+      bio: [pt('normal', 'Placeholder copy. Edits, cleans and masters long-form narration to ACX spec.', 'b3')],
+      headshot: { url: portrait(210), alt: 'Placeholder Engineer' },
+      credits: ['Placeholder Course', 'Placeholder Title Two'],
+    },
+  ],
   services: [
     { _key: 'sv1', title: 'Audiobook narration', description: 'Placeholder copy. Unabridged and abridged titles, recorded, edited and mastered to ACX and Audible specs.', typicalUse: 'Publishers and authors' },
     { _key: 'sv2', title: 'Commercial voiceover', description: 'Placeholder copy. Radio, TV and online spots recorded to picture or to time.', typicalUse: 'Agencies and brands' },

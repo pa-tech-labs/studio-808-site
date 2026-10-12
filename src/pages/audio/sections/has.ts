@@ -3,6 +3,7 @@
 // both use these.
 
 import type { AudioPage, AudioPageData } from '../../../lib/audioPage'
+import { audioEngineers } from '../../../lib/audioSeo.js'
 import { groupClips } from '../../../lib/showreel.js'
 
 const text = (s: string | null | undefined) => Boolean(s && s.trim())
@@ -20,10 +21,10 @@ export const hasRoom = (p: AudioPage | null | undefined) => {
   return Boolean(r && (text(r.heading) || text(r.body) || some(r.gallery) || some(r.gearList) || some(r.specs)))
 }
 
-export const hasEngineer = (p: AudioPage | null | undefined) => {
-  const e = p?.engineer
-  return Boolean(e && (text(e.name) || some(e.bio)))
-}
+/** The engineers to show: the list, else the old single engineer. */
+export const engineersOf = (p: AudioPage | null | undefined) => audioEngineers(p)
+
+export const hasEngineer = (p: AudioPage | null | undefined) => engineersOf(p).length > 0
 
 export const hasServices = (p: AudioPage | null | undefined) => some(p?.services?.filter(s => text(s.title)))
 
