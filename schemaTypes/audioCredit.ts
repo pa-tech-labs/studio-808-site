@@ -1,7 +1,7 @@
 import { defineType, defineField } from 'sanity'
 import { AUDIO_CLIP_TYPES } from './audioClip'
 
-// One credit (client, show or talent) on the 808 Audio page (/audio). A credit
+// One credit (client, show or talent) on the Studio 808 Voice page (/audio). A credit
 // shows publicly only once "Cleared" is on: the page query returns every
 // credit and the frontend filters on `cleared`.
 

@@ -1,4 +1,4 @@
-// 808 Audio enquiry form: one validator shared by the form (inline errors) and
+// Studio 808 Voice enquiry form: one validator shared by the form (inline errors) and
 // api/audio-enquiry.js (the server never trusts the client). Plain JS so node's
 // test runner and the serverless function can both import it.
 
@@ -95,16 +95,16 @@ export function oneLine(s) {
   return String(s ?? '').replace(/[\r\n\t\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-/** "808 Audio enquiry: {projectType} from {company or name}" */
+/** "Studio 808 Voice enquiry: {projectType} from {company or name}" */
 export function enquirySubject(v) {
-  return oneLine(`808 Audio enquiry: ${v.projectType} from ${v.company || v.name}`).slice(0, 200)
+  return oneLine(`Studio 808 Voice enquiry: ${v.projectType} from ${v.company || v.name}`).slice(0, 200)
 }
 
 /** The plain-text email body, every field on its own line. */
 export function enquiryText(v) {
   const line = (label, val) => `${label}: ${val || '-'}`
   return [
-    'New enquiry from the 808 Audio page',
+    'New enquiry from the Studio 808 Voice page',
     '',
     line('Name', v.name),
     line('Company', v.company),
@@ -125,7 +125,7 @@ export function enquiryText(v) {
 // ── Who may post an enquiry ─────────────────────────────────────────────────
 
 /** The production sites the enquiry form is served from. */
-export const ENQUIRY_ORIGINS = ['https://audio.studio-808.com', 'https://www.studio-808.com']
+export const ENQUIRY_ORIGINS = ['https://voice.studio-808.com', 'https://www.studio-808.com']
 
 /** The request's origin: the Origin header, else the Referer's origin, else ''. */
 export function requestOrigin(headers) {

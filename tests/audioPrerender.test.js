@@ -1,4 +1,4 @@
-// The build-time output for audio.studio-808.com (scripts/audioPrerender.js):
+// The build-time output for voice.studio-808.com (scripts/audioPrerender.js):
 // both prerendered pages carry the expected head, and the sitemap, robots and
 // 404 page are right.
 //
@@ -10,14 +10,14 @@ import { readFileSync } from 'node:fs'
 import { audioNotFoundHtml, audioRobotsTxt, audioSitemapXml, prerenderHtml } from '../scripts/audioPrerender.js'
 import { buildAudioHead, buildAudioJsonLd } from '../src/lib/audioSeo.js'
 
-const ORIGIN = 'https://audio.studio-808.com'
+const ORIGIN = 'https://voice.studio-808.com'
 // The real index.html shell, as Vite emits it (the bundle tags are added at build).
 const shell = readFileSync('index.html', 'utf8').replace('</head>', '  <script type="module" crossorigin src="/assets/index-abc.js"></script>\n  </head>')
 const OG = 'https://cdn.sanity.io/images/p/production/og-1200x800.jpg?rect=0,85,1200,630&w=1200&h=630&fm=webp&fit=crop'
 const page = {
   _updatedAt: '2026-10-12T15:14:58Z',
   enabled: true,
-  seo: { metaTitle: 'Voiceover & Audiobook Recording | 808 Audio', metaDescription: 'Recording in "Chelmsford", Essex.', canonicalUrl: 'https://audio.studio-808.com/' },
+  seo: { metaTitle: 'Voiceover & Audiobook Recording | Studio 808 Voice', metaDescription: 'Recording in "Chelmsford", Essex.', canonicalUrl: 'https://voice.studio-808.com/' },
   footer: { addressLine: 'Unit 11, Robjohns House, Navigation Road, Chelmsford CM2 6ND', email: 'info@studio-808.com' },
   faqs: [{ question: 'Q?', answer: 'A.' }],
   terms: [{ _type: 'block' }],
@@ -35,7 +35,7 @@ const one = (html, re) => {
   return all[0]
 }
 
-for (const [route, path, title] of [['home', '/', 'Voiceover &amp; Audiobook Recording | 808 Audio'], ['terms', '/terms', 'Service terms | 808 Audio']]) {
+for (const [route, path, title] of [['home', '/', 'Voiceover &amp; Audiobook Recording | Studio 808 Voice'], ['terms', '/terms', 'Service terms | Studio 808 Voice']]) {
   test(`prerendered ${path}: title, description, canonical, OG, Twitter, JSON-LD`, () => {
     const html = render(route)
     assert.equal(one(html, '<title[^>]*>[^<]*</title>'), `<title data-audio-prerender>${title}</title>`)
@@ -43,7 +43,7 @@ for (const [route, path, title] of [['home', '/', 'Voiceover &amp; Audiobook Rec
     one(html, `<meta data-audio-prerender property="og:url" content="${ORIGIN}${path}" />`)
     one(html, '<meta data-audio-prerender name="description" content="[^"]+" />')
     one(html, '<meta data-audio-prerender property="og:title" content="[^"]+" />')
-    one(html, '<meta data-audio-prerender property="og:site_name" content="808 Audio" />')
+    one(html, '<meta data-audio-prerender property="og:site_name" content="Studio 808 Voice" />')
     one(html, '<meta data-audio-prerender property="og:type" content="website" />')
     one(html, '<meta data-audio-prerender property="og:image" content="https://cdn\\.sanity\\.io/[^"]+" />')
     one(html, '<meta data-audio-prerender property="og:image:width" content="1200" />')
@@ -84,8 +84,8 @@ test('a shell without a title or </head> is refused', () => {
 
 test('subdomain sitemap: / and /terms with lastmod; nothing when off or noindex', () => {
   const xml = audioSitemapXml(page)
-  assert.match(xml, /<url><loc>https:\/\/audio\.studio-808\.com\/<\/loc><lastmod>2026-10-12<\/lastmod>/)
-  assert.match(xml, /<loc>https:\/\/audio\.studio-808\.com\/terms<\/loc><lastmod>2026-10-12<\/lastmod>/)
+  assert.match(xml, /<url><loc>https:\/\/voice\.studio-808\.com\/<\/loc><lastmod>2026-10-12<\/lastmod>/)
+  assert.match(xml, /<loc>https:\/\/voice\.studio-808\.com\/terms<\/loc><lastmod>2026-10-12<\/lastmod>/)
   assert.doesNotMatch(xml, /www\.studio-808\.com|\/audio\//)
   assert.doesNotMatch(audioSitemapXml({ ...page, terms: [] }), /\/terms/)
   assert.doesNotMatch(audioSitemapXml({ ...page, enabled: false }), /<url>/)
@@ -93,13 +93,14 @@ test('subdomain sitemap: / and /terms with lastmod; nothing when off or noindex'
 })
 
 test('subdomain robots.txt allows all and points at its sitemap', () => {
-  assert.equal(audioRobotsTxt(), 'User-agent: *\nAllow: /\n\nSitemap: https://audio.studio-808.com/sitemap.xml\n')
+  assert.equal(audioRobotsTxt(), 'User-agent: *\nAllow: /\n\nSitemap: https://voice.studio-808.com/sitemap.xml\n')
 })
 
 test('404 page: branded, noindex, links back to /', () => {
   const html = audioNotFoundHtml()
-  assert.match(html, /<title>Page not found \| 808 Audio<\/title>/)
+  assert.match(html, /<title>Page not found \| Studio 808 Voice<\/title>/)
   assert.match(html, /<meta name="robots" content="noindex" \/>/)
-  assert.match(html, /<a class="btn" href="\/">Back to 808 Audio<\/a>/)
+  assert.match(html, /<a class="btn" href="\/">Back to Studio 808 Voice<\/a>/)
+  assert.match(html, /<a class="mark" href="\/" aria-label="Studio 808 Voice home"><img src="\/images\/logo\.png"/)
   assert.doesNotMatch(html, /—/)
 })

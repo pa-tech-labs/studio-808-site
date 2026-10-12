@@ -8,9 +8,9 @@ import { useAudioPage } from './useAudioPage'
 import { MAIN_ORIGIN, audioPath, currentHost, isAudioHost } from '../../lib/audioHost.js'
 
 /**
- * The 808 Audio route tree: /audio/* on the main site, the root of
- * audio.studio-808.com. Gated like the Studio finder: nothing while loading,
- * then away to the Studio 808 home page unless the 808 Audio page is switched
+ * The Studio 808 Voice route tree: /audio/* on the main site, the root of
+ * voice.studio-808.com. Gated like the Studio finder: nothing while loading,
+ * then away to the Studio 808 home page unless the Studio 808 Voice page is switched
  * on in Sanity (it is off by default).
  */
 export default function AudioRoute() {

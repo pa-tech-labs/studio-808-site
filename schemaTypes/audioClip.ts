@@ -1,6 +1,6 @@
 import { defineType, defineField } from 'sanity'
 
-// One clip in the 808 Audio showreel (/audio). A clip shows publicly only
+// One clip in the Studio 808 Voice showreel (/audio). A clip shows publicly only
 // once "Cleared" is on: the page query returns every clip and the frontend
 // filters on `cleared`.
 //

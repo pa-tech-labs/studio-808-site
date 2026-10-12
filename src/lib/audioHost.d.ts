@@ -1,6 +1,7 @@
-export const AUDIO_HOST: 'audio.studio-808.com'
-export const AUDIO_ORIGIN: 'https://audio.studio-808.com'
+export const VOICE_HOST: 'voice.studio-808.com'
+export const VOICE_ORIGIN: 'https://voice.studio-808.com'
 export const MAIN_ORIGIN: 'https://www.studio-808.com'
+export const OLD_AUDIO_HOST: 'audio.studio-808.com'
 
 export type AudioPageName = 'home' | 'terms'
 

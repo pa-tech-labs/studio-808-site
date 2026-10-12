@@ -143,8 +143,8 @@ export default function Showreel({ data }: { data: AudioPageData }) {
     const art = clipThumb(active, 512)
     navigator.mediaSession.metadata = new MediaMetadata({
       title: active.title,
-      artist: [active.talent, active.client].filter(Boolean).join(', ') || '808 Audio',
-      album: active.production || '808 Audio',
+      artist: [active.talent, active.client].filter(Boolean).join(', ') || 'Studio 808 Voice',
+      album: active.production || 'Studio 808 Voice',
       artwork: art ? [{ src: art, sizes: '512x512' }] : [],
     })
     const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [

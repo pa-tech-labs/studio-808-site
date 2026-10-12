@@ -13,7 +13,7 @@ const imageUrl = (img, w, h) => (img ? `https://img.test/${img.id}?w=${w}&h=${h 
 
 const page = {
   _updatedAt: '2026-10-12T15:14:58Z',
-  seo: { metaTitle: 'Voiceover and Audiobook Recording Studio in Essex | 808 Audio', metaDescription: 'Professional voiceover recording in Chelmsford.' },
+  seo: { metaTitle: 'Voiceover and Audiobook Recording Studio in Essex | Studio 808 Voice', metaDescription: 'Professional voiceover recording in Chelmsford.' },
   hero: { headline: 'Broadcast-grade voice recording' },
   footer: { addressLine: 'Unit 11, Robjohns House, Navigation Road, Chelmsford CM2 6ND', email: 'info@studio-808.com', phone: '01245 000000' },
   engineers: [{ name: 'Paul', role: 'Engineer' }, { name: 'Heetan', role: 'Recording engineer' }],
@@ -36,7 +36,7 @@ test('home head: title, description, canonical from the origin, OG and Twitter',
   assert.equal(h.description, page.seo.metaDescription)
   assert.equal(h.canonical, 'https://www.studio-808.com/audio/')
   assert.equal(h.robots, null)
-  assert.equal(h.og.site_name, '808 Audio')
+  assert.equal(h.og.site_name, 'Studio 808 Voice')
   assert.equal(h.og.type, 'website')
   assert.equal(h.og.url, h.canonical)
   assert.equal(h.og.image, OG)
@@ -47,16 +47,16 @@ test('home head: title, description, canonical from the origin, OG and Twitter',
 
 test('terms head: fixed title, canonical under the same base', () => {
   const h = buildAudioHead({ page, route: 'terms', origin: ORIGIN, ogImage: null })
-  assert.equal(h.title, 'Service terms | 808 Audio')
+  assert.equal(h.title, 'Service terms | Studio 808 Voice')
   assert.equal(h.canonical, 'https://www.studio-808.com/audio/terms')
   assert.equal(h.og.image, null)
 })
 
 test('seo.canonicalUrl becomes the base for both routes', () => {
-  const p = { ...page, seo: { ...page.seo, canonicalUrl: 'https://audio.studio-808.com/' } }
-  assert.equal(audioBaseUrl(p, ORIGIN), 'https://audio.studio-808.com')
-  assert.equal(audioCanonical(p, 'home', ORIGIN), 'https://audio.studio-808.com/')
-  assert.equal(audioCanonical(p, 'terms', ORIGIN), 'https://audio.studio-808.com/terms')
+  const p = { ...page, seo: { ...page.seo, canonicalUrl: 'https://voice.studio-808.com/' } }
+  assert.equal(audioBaseUrl(p, ORIGIN), 'https://voice.studio-808.com')
+  assert.equal(audioCanonical(p, 'home', ORIGIN), 'https://voice.studio-808.com/')
+  assert.equal(audioCanonical(p, 'terms', ORIGIN), 'https://voice.studio-808.com/terms')
 })
 
 test('noindex adds robots on both routes; missing SEO falls back to defaults', () => {
@@ -64,7 +64,7 @@ test('noindex adds robots on both routes; missing SEO falls back to defaults', (
   assert.equal(buildAudioHead({ page: p, route: 'home', origin: ORIGIN }).robots, 'noindex, follow')
   assert.equal(buildAudioHead({ page: p, route: 'terms', origin: ORIGIN }).robots, 'noindex, follow')
   const empty = buildAudioHead({ page: null, route: 'home', origin: ORIGIN })
-  assert.ok(empty.title.includes('808 Audio'))
+  assert.ok(empty.title.includes('Studio 808 Voice'))
   assert.ok(empty.description.length > 20)
 })
 
@@ -74,7 +74,7 @@ test('rendered head tags: canonical, robots only when set, OG image size only wi
   assert.equal(find('rel', 'canonical').href, 'https://www.studio-808.com/audio/')
   assert.equal(find('name', 'robots'), undefined)
   assert.equal(find('property', 'og:image:width').content, '1200')
-  assert.equal(find('property', 'og:site_name').content, '808 Audio')
+  assert.equal(find('property', 'og:site_name').content, 'Studio 808 Voice')
   assert.equal(find('name', 'twitter:card').content, 'summary_large_image')
   assert.equal(find('name', 'twitter:image').content, OG)
   for (const t of tags) assert.ok((t.content ?? t.href).length > 0, JSON.stringify(t))
@@ -92,7 +92,7 @@ test('LocalBusiness: required fields, address parsed, engineers as employees', (
   assert.equal(g['@context'], 'https://schema.org')
   const [b] = byType(g, 'LocalBusiness')
   assert.equal(b['@id'], 'https://www.studio-808.com/audio/#business')
-  assert.equal(b.name, '808 Audio')
+  assert.equal(b.name, 'Studio 808 Voice')
   assert.match(b.additionalType, /Recording_studio/)
   assert.deepEqual(b.parentOrganization, { '@type': 'Organization', name: 'Studio 808 Ltd', url: 'https://www.studio-808.com/' })
   assert.deepEqual(b.address, { '@type': 'PostalAddress', streetAddress: 'Unit 11, Robjohns House, Navigation Road', addressLocality: 'Chelmsford', postalCode: 'CM2 6ND', addressCountry: 'GB' })

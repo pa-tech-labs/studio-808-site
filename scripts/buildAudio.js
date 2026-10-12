@@ -1,9 +1,9 @@
-// After `vite build`: the build output for audio.studio-808.com.
+// After `vite build`: the build output for voice.studio-808.com.
 //
 //   dist/audio/index.html        / with its head and JSON-LD prerendered
 //   dist/audio/terms/index.html  /terms likewise
-//   dist/audio/sitemap.xml       served as audio.studio-808.com/sitemap.xml
-//   dist/audio/robots.txt        served as audio.studio-808.com/robots.txt
+//   dist/audio/sitemap.xml       served as voice.studio-808.com/sitemap.xml
+//   dist/audio/robots.txt        served as voice.studio-808.com/robots.txt
 //   dist/audio/404.html          served for any other path on the subdomain
 //
 // and the main site's dist/sitemap.xml with no /audio entries (those pages
@@ -16,7 +16,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import imageUrlBuilder from '@sanity/image-url'
 import { AUDIO_PAGE_QUERY } from '../src/lib/audioPageQuery.js'
-import { AUDIO_ORIGIN } from '../src/lib/audioHost.js'
+import { VOICE_ORIGIN } from '../src/lib/audioHost.js'
 import { makeAudioImageUrl } from '../src/lib/audioImageUrl.js'
 import { audioOgImageSource, buildAudioHead, buildAudioJsonLd, OG_HEIGHT, OG_WIDTH } from '../src/lib/audioSeo.js'
 import { addSitemapEntries } from './sitemap.js'
@@ -29,7 +29,7 @@ for (const f of ['.env', '.env.local']) {
 }
 
 function fail(message) {
-  console.error(`\n[audio] BUILD FAILED: ${message}\n[audio] The 808 Audio pages need their Sanity content at build time for link previews.\n`)
+  console.error(`\n[audio] BUILD FAILED: ${message}\n[audio] The Studio 808 Voice pages need their Sanity content at build time for link previews.\n`)
   process.exit(1)
 }
 
@@ -54,8 +54,8 @@ const ogImage = imageUrl(audioOgImageSource(data.page), OG_WIDTH, OG_HEIGHT)
 
 const indexHtml = await readFile('dist/index.html', 'utf8')
 for (const route of ['home', 'terms']) {
-  const head = buildAudioHead({ page: data.page, route, origin: AUDIO_ORIGIN, ogImage })
-  const jsonLd = buildAudioJsonLd({ data, route, origin: AUDIO_ORIGIN, ogImage, imageUrl })
+  const head = buildAudioHead({ page: data.page, route, origin: VOICE_ORIGIN, ogImage })
+  const jsonLd = buildAudioJsonLd({ data, route, origin: VOICE_ORIGIN, ogImage, imageUrl })
   const dir = route === 'terms' ? 'dist/audio/terms' : 'dist/audio'
   await mkdir(dir, { recursive: true })
   await writeFile(`${dir}/index.html`, prerenderHtml(indexHtml, { head, jsonLd }))

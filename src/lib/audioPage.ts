@@ -1,4 +1,4 @@
-// The 808 Audio page query and the shape it returns. Schemas live in
+// The Studio 808 Voice page query and the shape it returns. Schemas live in
 // schemaTypes/audioPage.ts, audioClip.ts and audioCredit.ts.
 //
 // The query does NOT filter on `cleared`: every clip and credit comes back
@@ -30,7 +30,7 @@ export interface AudioEngineer {
   credits?: string[] | null
 }
 
-/** The "808 Audio page" singleton (schemaTypes/audioPage.ts). */
+/** The "Studio 808 Voice page" singleton (schemaTypes/audioPage.ts). */
 export interface AudioPage {
   /** When the document was last published (sitemap lastmod). */
   _updatedAt?: string | null

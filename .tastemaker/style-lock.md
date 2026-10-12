@@ -1,4 +1,4 @@
-# Style lock - 808 Audio (/audio)
+# Style lock - Studio 808 Voice (/audio)
 
 Established: 2026-10-12. Source: user-specified brief (dark B2B palette, #f0ede8 text, one muted accent, DM Sans + DM Serif Display italic) plus Studio 808 brand pairing. Scope: the /audio tree only (src/pages/audio/audio.css, all under `.a8`). The main site keeps its own tokens in src/index.css.
 
@@ -26,7 +26,7 @@ check_contrast.py --matrix text=#f0ede8 bg=#0f0f0e surface=#171715 primary=#f0ed
 - Hero h1 clamp(40px, 7.4vw, 84px); subhead clamp(20px, 2.3vw, 26px); body 16px/1.6; captions 14px 500 sentence case (no all-caps eyebrows).
 
 ## Shape language
-- Radius 4px on buttons and images (the main site uses 12px cards and 999px pills; 808 Audio is squarer on purpose).
+- Radius 4px on buttons and images (the main site uses 12px cards and 999px pills; Studio 808 Voice is squarer on purpose).
 - No shadows. 1px hairlines separate regions.
 
 ## Density & spacing

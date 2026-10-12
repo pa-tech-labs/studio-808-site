@@ -24,7 +24,7 @@ import { FINDER_PATH, backgroundOf } from './lib/studioFinderRoute'
 import { loadAudioPage } from './pages/audio/audioData'
 import { currentHost, isAudioHost } from './lib/audioHost.js'
 
-// 808 Audio is its own site under /audio: own shell, own bundle. Its Sanity
+// Studio 808 Voice is its own site under /audio: own shell, own bundle. Its Sanity
 // query starts alongside the chunk download rather than after it.
 const AudioRoute = lazy(() => {
   void loadAudioPage()
@@ -32,7 +32,7 @@ const AudioRoute = lazy(() => {
 })
 
 export default function App() {
-  // audio.studio-808.com is the 808 Audio site alone: its tree at the root,
+  // voice.studio-808.com is the Studio 808 Voice site alone: its tree at the root,
   // none of the main site's routes or chrome.
   if (isAudioHost(currentHost())) {
     return (

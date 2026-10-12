@@ -1,5 +1,5 @@
 // The main site's sitemap and robots.txt after the move of /audio to
-// audio.studio-808.com.
+// voice.studio-808.com.
 //
 // Run: npm test
 

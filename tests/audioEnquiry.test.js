@@ -32,7 +32,7 @@ afterEach(() => { globalThis.fetch = realFetch; console.error = realError })
 let n = 0
 const load = async () => (await import(`../api/audio-enquiry.js?t=${n++}`)).default
 
-function call(handler, body, { method = 'POST', ip = '1.2.3.4', origin = 'https://audio.studio-808.com', referer } = {}) {
+function call(handler, body, { method = 'POST', ip = '1.2.3.4', origin = 'https://voice.studio-808.com', referer } = {}) {
   return new Promise(resolve => {
     const res = {
       statusCode: 200,
@@ -61,10 +61,10 @@ test('a valid enquiry is emailed as plain text, with CC, reply-to and the subjec
   assert.deepEqual(m.to, ['audio@example.com'])
   assert.deepEqual(m.cc, ['a@example.com', 'b@example.com'])
   assert.equal(m.reply_to, 'alex@northfield.example')
-  assert.equal(m.subject, '808 Audio enquiry: Audiobook from Northfield Press')
+  assert.equal(m.subject, 'Studio 808 Voice enquiry: Audiobook from Northfield Press')
   assert.equal(m.html, undefined)
   assert.match(m.text, /Approximate length: 60,000 words/)
-  assert.match(m.from, /808 Audio/)
+  assert.match(m.from, /Studio 808 Voice/)
 })
 
 test('no CC header when AUDIO_ENQUIRY_CC is empty', async () => {
@@ -122,13 +122,13 @@ test('more than five enquiries from one IP in the window are refused', async () 
 test('only the two 808 sites may post', async () => {
   const h = await load()
   assert.equal((await call(h, good, { origin: 'https://www.studio-808.com' })).status, 200)
-  assert.equal((await call(h, good, { origin: 'https://audio.studio-808.com' })).status, 200)
-  for (const origin of ['https://evil.example', 'https://studio-808.com', 'http://audio.studio-808.com', 'https://audio.studio-808.com.evil.example', 'null']) {
+  assert.equal((await call(h, good, { origin: 'https://voice.studio-808.com' })).status, 200)
+  for (const origin of ['https://evil.example', 'https://studio-808.com', 'http://voice.studio-808.com', 'https://voice.studio-808.com.evil.example', 'null']) {
     const r = await call(h, good, { origin, ip: origin })
     assert.equal(r.status, 403, origin)
   }
   assert.equal((await call(h, good, { origin: '', ip: '9.9.9.9' })).status, 403, 'no origin and no referer')
-  assert.equal((await call(h, good, { origin: '', referer: 'https://audio.studio-808.com/#enquire', ip: '9.9.9.8' })).status, 200, 'referer fallback')
+  assert.equal((await call(h, good, { origin: '', referer: 'https://voice.studio-808.com/#enquire', ip: '9.9.9.8' })).status, 200, 'referer fallback')
   assert.equal(sent.length, 3)
 })
 

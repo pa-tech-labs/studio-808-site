@@ -1,4 +1,4 @@
-// The 808 Audio showreel's logic, kept free of React and the DOM so it can be
+// The Studio 808 Voice showreel's logic, kept free of React and the DOM so it can be
 // tested with node --test: which clips show, how they group and sort, the
 // one-clip-at-a-time player state, and reading a peaks file.
 

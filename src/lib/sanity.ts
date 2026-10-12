@@ -190,7 +190,7 @@ export async function getMembershipPage(): Promise<MembershipPageContent | null>
 }
 
 /**
- * The 808 Audio page singleton plus every clip and credit, ordered by `order`.
+ * The Studio 808 Voice page singleton plus every clip and credit, ordered by `order`.
  * Clips and credits are NOT filtered on `cleared`; the frontend does that.
  * Null when Sanity is not configured.
  */
