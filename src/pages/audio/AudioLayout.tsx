@@ -60,6 +60,23 @@ function AnchorLink({ id, onHome, className, children }: { id: string; onHome: b
     : <Link className={className} to={{ pathname: audioPath(currentHost()), hash: `#${id}` }}>{children}</Link>
 }
 
+/** Where the Studio 808 wordmark image lives (public/audio, served on every host by vercel.json). */
+const WORDMARK_SRC = '/audio/studio-808-wordmark.png'
+
+/**
+ * The Studio 808 Voice lockup: the Studio 808 wordmark image, used as
+ * supplied, then "Voice". Goes inside an .a8-mark link; sizes in audio.css.
+ */
+function VoiceMark() {
+  return (
+    <>
+      <img className="a8-mark-logo" src={WORDMARK_SRC} alt="Studio 808 Voice" width={786} height={350} decoding="async" />
+      <span aria-hidden="true">Voice</span>
+      <span className="a8-mark-tally" aria-hidden="true" />
+    </>
+  )
+}
+
 function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; onHome: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
@@ -72,14 +89,7 @@ function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; 
   return (
     <header className="a8-header" data-scrolled={scrolled}>
       <div className="a8-wrap a8-header-in">
-        <Link to={audioPath(currentHost())} className="a8-mark" aria-label="Studio 808 Voice, back to the top">
-          {/* The Studio 808 logo, as on the main site, plus "Voice". */}
-          <img className="a8-mark-logo" src="/images/logo.png" alt="" width={662} height={307} decoding="async" />
-          <span className="a8-mark-word" aria-hidden="true">
-            Voice
-            <span className="a8-mark-tally" />
-          </span>
-        </Link>
+        <Link to={audioPath(currentHost())} className="a8-mark"><VoiceMark /></Link>
         <nav className="a8-nav" aria-label="Studio 808 Voice" data-count={nav.length}>
           {nav.length > 0 && (
             <ul>
@@ -100,15 +110,18 @@ function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['pag
   return (
     <footer className="a8-footer">
       <div className="a8-wrap a8-footer-in">
-        <address>
-          <p className="a8-footer-company">{footer?.companyLine || 'Studio 808 Voice'}</p>
-          {/* PLACEHOLDER: legal entity line (registered company name and number)
-              goes here once the trading entity for Studio 808 Voice is confirmed. */}
-          {footer?.addressLine && <p>{footer.addressLine}</p>}
-          <p className="a8-footer-local">Recording studio in Chelmsford, Essex</p>
-          {footer?.phone && <a href={`tel:${footer.phone.replace(/[^\d+]/g, '')}`}>{footer.phone}</a>}
-          {footer?.email && <a href={`mailto:${footer.email}`}>{footer.email}</a>}
-        </address>
+        <div className="a8-footer-brand">
+          <Link to={audioPath(currentHost())} className="a8-mark a8-mark-sm"><VoiceMark /></Link>
+          <address>
+            <p className="a8-footer-company">{footer?.companyLine || 'Studio 808 Voice'}</p>
+            {/* PLACEHOLDER: legal entity line (registered company name and number)
+                goes here once the trading entity for Studio 808 Voice is confirmed. */}
+            {footer?.addressLine && <p>{footer.addressLine}</p>}
+            <p className="a8-footer-local">Recording studio in Chelmsford, Essex</p>
+            {footer?.phone && <a href={`tel:${footer.phone.replace(/[^\d+]/g, '')}`}>{footer.phone}</a>}
+            {footer?.email && <a href={`mailto:${footer.email}`}>{footer.email}</a>}
+          </address>
+        </div>
         {(links.length > 0 || terms) && (
           <nav aria-label="Footer">
             <ul>

@@ -82,10 +82,10 @@ export function audioNotFoundHtml() {
     <style>
       html, body { margin: 0; background: #0f0f0e; color: #f0ede8; font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
       main { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; max-width: 1200px; margin: 0 auto; padding: 48px 20px; }
-      .mark { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 64px; color: #f0ede8; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1; text-decoration: none; }
-      .mark img { display: block; height: 32px; width: auto; }
-      .mark span { display: inline-flex; flex-direction: column; gap: 3px; padding-top: 4px; }
-      .mark i { width: 100%; height: 1px; background: #e8355a; }
+      /* The header lockup at 28px (src/pages/audio/audio.css .a8-mark, where the numbers are explained). */
+      .mark { position: relative; align-self: flex-start; display: inline-block; white-space: nowrap; margin-bottom: 64px; color: #f0ede8; font-weight: 700; font-size: 30.28px; letter-spacing: -0.02em; line-height: 0; text-decoration: none; }
+      .mark img { display: inline; height: 28px; width: auto; vertical-align: -3.36px; margin-right: 4.88px; }
+      .mark i { position: absolute; bottom: 0; left: 13.84px; width: 43.92px; height: 1px; background: #e8355a; }
       h1 { margin: 0; font-size: clamp(36px, 5.6vw, 64px); font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; }
       p { margin: 16px 0 32px; color: #a8a49c; font-size: 17px; }
       .btn { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; padding: 0 24px; border-radius: 4px; background: #f0ede8; color: #0f0f0e; font-weight: 600; font-size: 15px; text-decoration: none; }
@@ -95,7 +95,7 @@ export function audioNotFoundHtml() {
   </head>
   <body>
     <main>
-      <a class="mark" href="/" aria-label="Studio 808 Voice home"><img src="/images/logo.png" alt="" width="662" height="307" /><span aria-hidden="true">Voice<i></i></span></a>
+      <a class="mark" href="/"><img src="/audio/studio-808-wordmark.png" alt="Studio 808 Voice" width="786" height="350" /><span aria-hidden="true">Voice</span><i aria-hidden="true"></i></a>
       <h1>Page not found</h1>
       <p>There is nothing at this address.</p>
       <a class="btn" href="/">Back to Studio 808 Voice</a>

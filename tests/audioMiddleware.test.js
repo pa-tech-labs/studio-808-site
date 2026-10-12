@@ -58,6 +58,7 @@ test('live: other hosts and look-alike paths pass through', () => {
     'https://studio-808-site-abc.vercel.app/audio', // preview deployments keep /audio
     'http://localhost:5173/audio',
     'https://www.studio-808.com/audiobooks',        // not /audio or /audio/...
+    'https://www.studio-808.com/audio/studio-808-wordmark.png', // a file in public/audio, not a page
   ]) {
     assert.equal(passesThrough(middleware(req(url))), true, url)
   }

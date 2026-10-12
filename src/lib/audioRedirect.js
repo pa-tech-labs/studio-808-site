@@ -18,6 +18,8 @@ export function subdomainLive(env) {
  *   www.studio-808.com/audio          -> https://voice.studio-808.com/
  *   www.studio-808.com/audio/terms?x  -> https://voice.studio-808.com/terms?x
  * Only on the main hosts, only for /audio and /audio/..., only when live.
+ * Files under /audio (public/audio, e.g. /audio/studio-808-wordmark.png) are
+ * not pages: they stay where they are on every host.
  */
 export function audioRedirectTarget(requestUrl, host, env) {
   if (!subdomainLive(env)) return null
@@ -25,6 +27,6 @@ export function audioRedirectTarget(requestUrl, host, env) {
   if (!REDIRECT_HOSTS.includes(h)) return null
   const url = new URL(requestUrl)
   const m = /^\/audio(\/.*)?$/.exec(url.pathname)
-  if (!m) return null
+  if (!m || /^\/[^/]+\.[a-z0-9]+$/i.test(m[1] ?? '')) return null
   return `${VOICE_ORIGIN}${m[1] && m[1] !== '/' ? m[1] : '/'}${url.search}`
 }

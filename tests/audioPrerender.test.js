@@ -101,6 +101,6 @@ test('404 page: branded, noindex, links back to /', () => {
   assert.match(html, /<title>Page not found \| Studio 808 Voice<\/title>/)
   assert.match(html, /<meta name="robots" content="noindex" \/>/)
   assert.match(html, /<a class="btn" href="\/">Back to Studio 808 Voice<\/a>/)
-  assert.match(html, /<a class="mark" href="\/" aria-label="Studio 808 Voice home"><img src="\/images\/logo\.png"/)
+  assert.match(html, /<a class="mark" href="\/"><img src="\/audio\/studio-808-wordmark\.png" alt="Studio 808 Voice" width="786" height="350" \/><span aria-hidden="true">Voice<\/span>/)
   assert.doesNotMatch(html, /—/)
 })
