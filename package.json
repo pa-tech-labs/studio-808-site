@@ -24,7 +24,8 @@
     "react-helmet-async": "^3.0.0",
     "react-is": "^19.2.4",
     "react-router-dom": "^7.14.0",
-    "styled-components": "^6.3.12"
+    "styled-components": "^6.3.12",
+    "wavesurfer.js": "^7.12.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

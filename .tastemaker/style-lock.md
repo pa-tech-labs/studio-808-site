@@ -43,3 +43,9 @@ check_contrast.py --matrix text=#f0ede8 bg=#0f0f0e surface=#171715 primary=#f0ed
 
 ## Assets
 - No photography or illustration sourced in this pass: hero background, logos and talent photos come from Sanity. The dev fixture (/audio?fixture) uses a local studio photo and generated SVG placeholders.
+
+## Showreel player (added 2026-10-12, PR feat/808-audio-player)
+- Waveform: wavesurfer bars 2px, gap 2px, radius 1; wave #4a4946 (opaque: progress is painted source-in over the bars, so a translucent wave colour makes the progress translucent too), progress #9fb4c6, no cursor.
+- Play buttons: solid #f0ede8 squares (52px panel, 40px mini) with #0f0f0e glyphs; hover fills accent.
+- Playlist rows: hairline-separated, active row on surface with a 2px accent bar; type tags are 1px-outlined 4px chips in sentence case.
+- Motion: panel fades in on clip change (320ms easeOutQuart, 6px rise); mini-player slides up (280ms); three-bar playing indicator loops (760-1040ms ease-in-out, alternate). Reduced motion: opacity only, bars still.
