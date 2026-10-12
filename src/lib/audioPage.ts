@@ -9,7 +9,7 @@ import type { SanityImage } from './sanity'
 export const AUDIO_PAGE_QUERY = `{
   "page": *[_id == "audioPage"][0] {
     enabled, seo, hero, showreelIntro, caseStudy, room, engineer,
-    services, rates, process, faqs, enquiry, footer
+    services, rates, process, faqs, enquiry, footer, terms, termsUpdated
   },
   "clips": *[_type == "audioClip"] | order(order asc) {
     _id, title, clipType, client, production, talent, engineer, description,
@@ -123,6 +123,10 @@ export interface AudioPage {
     email?: string | null
     links?: AudioLink[] | null
   } | null
+  /** Service terms for /audio/terms, as Portable Text. */
+  terms?: PortableText | null
+  /** ISO date, e.g. 2026-10-12. */
+  termsUpdated?: string | null
 }
 
 /** One audioClip document (schemaTypes/audioClip.ts). Show only when `cleared`. */

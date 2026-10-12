@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AudioLayout from './AudioLayout'
 import AudioHome from './AudioHome'
+import AudioTerms from './AudioTerms'
 import { useAudioPage } from './useAudioPage'
 
 /**
@@ -16,6 +17,7 @@ export default function AudioRoute() {
     <Routes>
       <Route element={<AudioLayout data={data} />}>
         <Route index element={<AudioHome />} />
+        <Route path="terms" element={<AudioTerms />} />
         <Route path="*" element={<Navigate to="/audio" replace />} />
       </Route>
     </Routes>

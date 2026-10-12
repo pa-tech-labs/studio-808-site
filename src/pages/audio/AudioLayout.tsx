@@ -2,33 +2,59 @@
 // Footer, and no links into the DJ side of the site. App.tsx leaves the main
 // chrome off for every /audio path; this renders inside it via AudioRoute.
 
-import { useEffect, useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { useEffect, useState, type MouseEvent } from 'react'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
-import { AUDIO_ANCHORS } from './anchors'
+import { AUDIO_ANCHORS, scrollToAnchor } from './anchors'
+import { hasEnquiry, hasFaqs, hasRates, hasRoom, hasShowreel, hasTerms } from './sections/has'
 import './audio.css'
+import './sections/sections.css'
 
+// Header links, each shown only when its section renders.
 const NAV = [
-  { label: 'Work', id: AUDIO_ANCHORS.work },
-  { label: 'Studio', id: AUDIO_ANCHORS.studio },
-  { label: 'Rates', id: AUDIO_ANCHORS.rates },
-  { label: 'FAQ', id: AUDIO_ANCHORS.faq },
+  { label: 'Work', id: AUDIO_ANCHORS.work, has: hasShowreel },
+  { label: 'Studio', id: AUDIO_ANCHORS.studio, has: (d: AudioPageData) => hasRoom(d.page) },
+  { label: 'Rates', id: AUDIO_ANCHORS.rates, has: (d: AudioPageData) => hasRates(d.page) },
+  { label: 'FAQ', id: AUDIO_ANCHORS.faq, has: (d: AudioPageData) => hasFaqs(d.page) },
 ]
 
 export default function AudioLayout({ data }: { data: AudioPageData }) {
+  const { pathname } = useLocation()
+  const onHome = pathname === '/audio' || pathname === '/audio/'
+  const nav = NAV.filter(n => n.has(data))
+  const quote = hasEnquiry(data.page)
+
+  // Every in-page "#..." link (header, hero buttons, mini-player) scrolls
+  // smoothly to its section below the sticky header.
+  const onClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    const a = (e.target as HTMLElement).closest('a')
+    const href = a?.getAttribute('href') ?? ''
+    if (!href.startsWith('#') || href.length < 2) return
+    if (href === '#a8-main') return
+    if (scrollToAnchor(decodeURIComponent(href.slice(1)))) e.preventDefault()
+  }
+
   return (
-    <div className="a8">
+    <div className="a8" onClick={onClick}>
       <a className="a8-skip" href="#a8-main">Skip to content</a>
-      <AudioHeader />
+      <AudioHeader nav={nav} quote={quote} onHome={onHome} />
       <main id="a8-main">
         <Outlet context={data} />
       </main>
-      <AudioFooter footer={data.page?.footer} />
+      <AudioFooter footer={data.page?.footer} terms={hasTerms(data.page)} />
     </div>
   )
 }
 
-function AudioHeader() {
+/** On /audio a link is "#id"; elsewhere in the shell (terms) it goes back to /audio#id. */
+function AnchorLink({ id, onHome, className, children }: { id: string; onHome: boolean; className?: string; children: string }) {
+  return onHome
+    ? <a className={className} href={`#${id}`}>{children}</a>
+    : <Link className={className} to={{ pathname: '/audio', hash: `#${id}` }}>{children}</Link>
+}
+
+function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; onHome: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -44,20 +70,22 @@ function AudioHeader() {
           <span>808 Audio</span>
           <span className="a8-mark-tally" aria-hidden="true" />
         </Link>
-        <nav className="a8-nav" aria-label="808 Audio">
-          <ul>
-            {NAV.map(item => (
-              <li key={item.id}><a href={`#${item.id}`}>{item.label}</a></li>
-            ))}
-          </ul>
+        <nav className="a8-nav" aria-label="808 Audio" data-count={nav.length}>
+          {nav.length > 0 && (
+            <ul>
+              {nav.map(item => (
+                <li key={item.id}><AnchorLink id={item.id} onHome={onHome}>{item.label}</AnchorLink></li>
+              ))}
+            </ul>
+          )}
         </nav>
-        <a className="a8-btn a8-btn-solid a8-btn-sm" href={`#${AUDIO_ANCHORS.enquire}`}>Get a quote</a>
+        {quote && <AnchorLink id={AUDIO_ANCHORS.enquire} onHome={onHome} className="a8-btn a8-btn-solid a8-btn-sm">Get a quote</AnchorLink>}
       </div>
     </header>
   )
 }
 
-function AudioFooter({ footer }: { footer: NonNullable<AudioPageData['page']>['footer'] | undefined }) {
+function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['page']>['footer'] | undefined; terms: boolean }) {
   const links = (footer?.links ?? []).filter(l => l.label && l.href)
   return (
     <footer className="a8-footer">
@@ -70,9 +98,10 @@ function AudioFooter({ footer }: { footer: NonNullable<AudioPageData['page']>['f
           {footer?.phone && <a href={`tel:${footer.phone.replace(/[^\d+]/g, '')}`}>{footer.phone}</a>}
           {footer?.email && <a href={`mailto:${footer.email}`}>{footer.email}</a>}
         </address>
-        {links.length > 0 && (
+        {(links.length > 0 || terms) && (
           <nav aria-label="Footer">
             <ul>
+              {terms && <li><Link to="/audio/terms">Service terms</Link></li>}
               {links.map((l, i) => (
                 <li key={l._key ?? i}><a href={l.href!}>{l.label}</a></li>
               ))}

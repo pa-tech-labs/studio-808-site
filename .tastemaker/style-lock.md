@@ -49,3 +49,11 @@ check_contrast.py --matrix text=#f0ede8 bg=#0f0f0e surface=#171715 primary=#f0ed
 - Play buttons: solid #f0ede8 squares (52px panel, 40px mini) with #0f0f0e glyphs; hover fills accent.
 - Playlist rows: hairline-separated, active row on surface with a 2px accent bar; type tags are 1px-outlined 4px chips in sentence case.
 - Motion: panel fades in on clip change (320ms easeOutQuart, 6px rise); mini-player slides up (280ms); three-bar playing indicator loops (760-1040ms ease-in-out, alternate). Reduced motion: opacity only, bars still.
+
+## Sections after the showreel (added 2026-10-12, PR feat/808-audio-sections)
+- Rhythm: every section .a8-sec, 96px padding (128px from 1024px), 1px top hairline; anchors land header height + 16px down (scroll-margin-top).
+- Headings: h2 clamp(30px, 4.2vw, 48px) 600; small labels (Specs, Gear, Credits) 14px 500 muted, sentence case.
+- Serif italic, once per section: case-study pull quote, engineer role, service "typical use".
+- Cards (services, rates): 1px hairline outline, 4px radius, 32px padding, no shadow. Featured rate tier: accent outline.
+- Error colour: #e0806e (6.8:1 on bg, 6.4:1 on input surface), always text plus border, never colour alone.
+- Motion: process steps fade in once (600ms, opacity only, 120ms apart); FAQ answers open with height + opacity (220ms easeOutQuart) via WAAPI, one at a time; lightbox and success panel fade 200-300ms. Reduced motion: no fades, accordion snaps.

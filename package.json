@@ -16,6 +16,7 @@
     "studio:deploy": "sanity deploy"
   },
   "dependencies": {
+    "@portabletext/react": "^8.0.1",
     "@sanity/client": "^6.28.4",
     "@sanity/image-url": "^1.1.0",
     "@supabase/supabase-js": "^2.101.1",

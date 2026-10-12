@@ -35,6 +35,7 @@ export default defineType({
     { name: 'process', title: 'Process and FAQs' },
     { name: 'enquiry', title: 'Enquiry' },
     { name: 'footer', title: 'Footer' },
+    { name: 'terms', title: 'Terms' },
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
@@ -262,6 +263,29 @@ export default defineType({
         defineField({ name: 'email', title: 'Email', type: 'string' }),
         defineField({ name: 'links', title: 'Links', type: 'array', of: [link] }),
       ],
+    }),
+
+    defineField({
+      name: 'terms',
+      title: 'Service terms',
+      type: 'array',
+      group: 'terms',
+      description: 'Shown at /audio/terms. Use Heading 2 for each numbered section.',
+      of: [defineArrayMember({
+        type: 'block',
+        styles: [
+          { title: 'Normal', value: 'normal' },
+          { title: 'Heading 2', value: 'h2' },
+          { title: 'Heading 3', value: 'h3' },
+        ],
+      })],
+    }),
+    defineField({
+      name: 'termsUpdated',
+      title: 'Terms last updated',
+      type: 'date',
+      group: 'terms',
+      options: { dateFormat: 'D MMMM YYYY' },
     }),
 
     defineField({
