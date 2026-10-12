@@ -2,6 +2,7 @@ import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import type { FinderQuestion, FinderRule } from './studioFinder.js'
 import type { MembershipPageContent } from './membershipPageContent.js'
+import { AUDIO_PAGE_QUERY, type AudioPageData } from './audioPage'
 
 const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID ?? ''
 const DATASET    = import.meta.env.VITE_SANITY_DATASET ?? 'production'
@@ -186,6 +187,16 @@ export async function getMembershipPage(): Promise<MembershipPageContent | null>
       dj, producer, socials, tiers
     }`,
   )
+}
+
+/**
+ * The 808 Audio page singleton plus every clip and credit, ordered by `order`.
+ * Clips and credits are NOT filtered on `cleared`; the frontend does that.
+ * Null when Sanity is not configured.
+ */
+export async function getAudioPage(): Promise<AudioPageData | null> {
+  if (!isConfigured()) return null
+  return sanityClient.fetch<AudioPageData>(AUDIO_PAGE_QUERY)
 }
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
