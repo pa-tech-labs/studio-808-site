@@ -83,8 +83,102 @@ const clips = [
   },
 ]
 
+
+const pt = (style: string, text: string, key: string) => ({ _type: 'block', _key: key, style, markDefs: [], children: [{ _type: 'span', _key: `${key}s`, text, marks: [] }] })
+
+// Placeholder copy for every section after the showreel.
+const sections = {
+  caseStudy: {
+    enabled: true,
+    cleared: true,
+    eyebrow: 'Case study',
+    heading: 'Twelve hours of narration in four sessions',
+    client: 'Northfield Press',
+    body: [
+      pt('normal', 'Placeholder copy. The publisher needed a full-length memoir recorded with the author, who had never read for audio before.', 'cs1'),
+      pt('normal', 'We split the book into four sessions, coached pacing in the first hour and delivered chapter files to ACX spec the week after the last session.', 'cs2'),
+    ],
+    quote: 'Placeholder quote. The booth felt calm, and the files came back ready to publish.',
+    quoteAttribution: 'Placeholder Name, Audio Producer, Northfield Press',
+    image: { url: '/images/studios/studio4-production-2.jpg', alt: 'The control room during a narration session' },
+  },
+  room: {
+    heading: 'The booth',
+    body: 'Placeholder copy. A floated, treated vocal booth with its own control room, built for long spoken-word sessions.',
+    gallery: [
+      { _key: 'g1', url: '/images/studios/studio4-production-1.jpg', alt: 'Control room with the desk and monitors' },
+      { _key: 'g2', url: '/images/studios/studio4-production-2.jpg', alt: 'Monitoring position at the desk' },
+      { _key: 'g3', url: '/images/studios/studio2-creator-1.jpg', alt: 'Microphone set up in the booth' },
+      { _key: 'g4', url: '/images/studios/studio2-creator-2.jpg', alt: 'Acoustic treatment on the booth walls' },
+      { _key: 'g5', url: '/images/studios/studio1-performer-1.jpg', alt: 'Talent seat and script stand' },
+    ],
+    gearList: ['Neumann U87 Ai', 'Universal Audio Apollo x8', 'Genelec 8341 monitors', 'Pro Tools Studio', 'iZotope RX 11'],
+    specs: [
+      { _key: 's1', label: 'Noise floor', value: 'Below ACX -60 dB' },
+      { _key: 's2', label: 'Room treatment', value: 'Floated booth, broadband absorption' },
+      { _key: 's3', label: 'Monitoring', value: 'Nearfield, calibrated to 79 dB SPL' },
+      { _key: 's4', label: 'Delivery', value: 'WAV, MP3, ACX and broadcast stems' },
+    ],
+  },
+  engineer: {
+    name: 'Heetan',
+    role: 'Recording engineer',
+    bio: [
+      pt('normal', 'Placeholder copy. Engineer and producer, recording spoken word, music and broadcast audio from the Chelmsford booth.', 'b1'),
+      pt('normal', 'Directs sessions from the control room and edits and masters everything in house.', 'b2'),
+    ],
+    headshot: { url: portrait(40), alt: 'Heetan at the desk' },
+    credits: ['Placeholder Audiobook One', 'Placeholder Broadcast', 'Placeholder Podcast Series', 'Placeholder Course'],
+  },
+  services: [
+    { _key: 'sv1', title: 'Audiobook narration', description: 'Placeholder copy. Unabridged and abridged titles, recorded, edited and mastered to ACX and Audible specs.', typicalUse: 'Publishers and authors' },
+    { _key: 'sv2', title: 'Commercial voiceover', description: 'Placeholder copy. Radio, TV and online spots recorded to picture or to time.', typicalUse: 'Agencies and brands' },
+    { _key: 'sv3', title: 'eLearning narration', description: 'Placeholder copy. Course modules recorded from your script with consistent tone across hours of material.', typicalUse: 'Training teams' },
+    { _key: 'sv4', title: 'Remote-directed sessions', description: 'Placeholder copy. Clients join live and direct the read from wherever they are.', typicalUse: 'Producers working remotely' },
+  ],
+  rates: {
+    intro: 'Placeholder copy. Booth time includes an engineer. Editing and mastering are quoted per project.',
+    vatNote: 'All prices exclusive of VAT at 20%',
+    tiers: [
+      { _key: 't1', name: 'Hourly', price: '£65', unit: 'per hour', includes: ['Booth and control room', 'Engineer', 'Raw files same day'] },
+      { _key: 't2', name: 'Half day', price: '£240', unit: 'per 4 hours', includes: ['Everything in Hourly', 'Remote direction link', 'Rough edit'], featured: true },
+      { _key: 't3', name: 'Audiobook', price: 'From £180', unit: 'per finished hour', includes: ['Recording, editing and mastering', 'ACX delivery', 'One round of pickups'] },
+    ],
+  },
+  process: [
+    { _key: 'p1', step: 1, title: 'Tell us about it', description: 'Placeholder copy. Send the script or a sample and the deadline.' },
+    { _key: 'p2', step: 2, title: 'Get a quote', description: 'Placeholder copy. A fixed price and dates within one working day.' },
+    { _key: 'p3', step: 3, title: 'Record', description: 'Placeholder copy. In the booth, or directed remotely.' },
+    { _key: 'p4', step: 4, title: 'Deliver', description: 'Placeholder copy. Edited, mastered files in the format you need.' },
+  ],
+  faqs: [
+    { _key: 'f1', question: 'Can I direct the session remotely?', answer: 'Placeholder answer. Yes. We send a low-latency link so you hear the booth in real time and can talk to the talent.' },
+    { _key: 'f2', question: 'Do you provide voice talent?', answer: 'Placeholder answer. We can suggest narrators and voiceover artists, or you can bring your own.' },
+    { _key: 'f3', question: 'What formats do you deliver?', answer: 'Placeholder answer. WAV and MP3 as standard, ACX-ready chapter files for audiobooks, and stems for broadcast.' },
+    { _key: 'f4', question: 'How quickly can you turn work around?', answer: 'Placeholder answer. Raw files the same day. Edited and mastered files depend on length; we confirm dates with the quote.' },
+  ],
+  enquiry: {
+    heading: 'Get a quote',
+    body: 'Placeholder copy. Tell us about the project and we will reply within one working day.',
+    successMessage: 'Thanks. Your enquiry is with us and we will reply within one working day.',
+    projectTypes: ['Audiobook', 'Commercial voiceover', 'eLearning', 'Podcast', 'Other'],
+    recipientNote: 'Internal only, never shown.',
+  },
+  terms: [
+    pt('normal', 'Placeholder terms. These are not real terms and must be replaced in Sanity before launch.', 't0'),
+    pt('h2', '1. Bookings', 't1'),
+    pt('normal', 'Placeholder copy describing how sessions are booked and confirmed.', 't1a'),
+    pt('h2', '2. Cancellations', 't2'),
+    pt('normal', 'Placeholder copy describing notice periods and charges.', 't2a'),
+    pt('h2', '3. Delivery and ownership', 't3'),
+    pt('normal', 'Placeholder copy describing file delivery and who owns the recordings.', 't3a'),
+  ],
+  termsUpdated: '2026-10-12',
+}
+
 export const AUDIO_FIXTURE = {
   page: {
+    ...sections,
     enabled: true,
     showreelIntro: {
       heading: 'Selected work',
