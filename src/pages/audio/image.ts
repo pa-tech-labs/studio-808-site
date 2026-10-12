@@ -12,3 +12,11 @@ export function audioImageUrl(image: AudioImageSource | null | undefined, width:
   const b = urlFor(image).width(width).auto('format')
   return (height ? b.height(height).fit('crop') : b).url()
 }
+
+/** A logo scaled to the given height, aspect ratio preserved, never cropped. */
+export function audioLogoUrl(image: AudioImageSource | null | undefined, height: number): string | null {
+  if (!image) return null
+  if ('url' in image) return image.url
+  if (!image.asset) return null
+  return urlFor(image).height(height).fit('max').auto('format').url()
+}

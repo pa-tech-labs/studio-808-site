@@ -1,33 +1,75 @@
 // Credits wall, directly under the hero. Only credits marked "Cleared" in
 // Sanity show; the query returns all of them and the filter lives here.
-// Logos run in a slow marquee (pauses on hover and from its own button;
+// Logos sit in one static centred row when they fit, and run as a slow
+// marquee only when they do not (pauses on hover and from its own button;
 // a static wrapped grid under reduced motion). Credits with a talent photo
 // show as "Voices we've recorded". No cleared credits, no section.
 
-import { useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import type { AudioCredit } from '../../../lib/audioPage'
-import { audioImageUrl } from '../image'
+import { audioImageUrl, audioLogoUrl } from '../image'
 
 export default function CreditsWall({ credits }: { credits: AudioCredit[] }) {
   const cleared = credits.filter(c => c.cleared === true)
-  const logos = cleared.filter(c => audioImageUrl(c.logo, 300))
+  const logos = cleared.filter(c => audioLogoUrl(c.logo, 96))
   const voices = cleared.filter(c => audioImageUrl(c.talentPhoto, 480, 600))
   if (logos.length === 0 && voices.length === 0) return null
 
   return (
     <section className="a8-credits" aria-label="Credits">
-      {logos.length > 0 && <LogoMarquee credits={logos} />}
+      {logos.length > 0 && <LogoRow credits={logos} />}
       {voices.length > 0 && <Voices credits={voices} />}
     </section>
   )
 }
 
-function LogoMarquee({ credits }: { credits: AudioCredit[] }) {
+// Speed of the marquee, so a long row and a short one move alike.
+const MARQUEE_PX_PER_SECOND = 28
+
+function LogoRow({ credits }: { credits: AudioCredit[] }) {
   const [paused, setPaused] = useState(false)
+  // Does one row of logos fit the content width? Measured from the real row
+  // (logo widths come from each asset's aspect ratio, so the row has its
+  // final width before any image loads). Fits: one static centred row.
+  // Overflows: the edge-to-edge marquee with the row duplicated.
+  const [rowWidth, setRowWidth] = useState(0)
+  const [overflows, setOverflows] = useState(false)
+  const rowRef = useRef<HTMLUListElement>(null)
+  const boxRef = useRef<HTMLHeadingElement>(null)
+
+  useLayoutEffect(() => {
+    const row = rowRef.current
+    const box = boxRef.current
+    if (!row || !box) return
+    const measure = () => {
+      const cs = getComputedStyle(box)
+      const available = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+      const width = row.scrollWidth
+      setRowWidth(width)
+      setOverflows(width > available + 1)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(row)
+    ro.observe(box)
+    return () => ro.disconnect()
+  }, [credits])
+
   const row = (copy: boolean) => (
-    <ul className="a8-logos-row" aria-hidden={copy || undefined}>
+    <ul className="a8-logos-row" ref={copy ? undefined : rowRef} aria-hidden={copy || undefined}>
       {credits.map(c => {
-        const img = <img className="a8-logo" src={audioImageUrl(c.logo, 300)!} alt={copy ? '' : c.name} loading="lazy" decoding="async" />
+        const style = c.logoAspect ? ({ '--a8-logo-ar': c.logoAspect } as CSSProperties) : undefined
+        const img = (
+          <img
+            className="a8-logo"
+            src={audioLogoUrl(c.logo, 96)!}
+            alt={copy ? '' : c.name}
+            style={style}
+            data-sized={c.logoAspect ? 'true' : undefined}
+            loading="lazy"
+            decoding="async"
+          />
+        )
         return (
           <li key={c._id}>
             {c.url
@@ -41,21 +83,26 @@ function LogoMarquee({ credits }: { credits: AudioCredit[] }) {
 
   return (
     <div>
-      <h2 className="a8-wrap a8-caption">Recorded for</h2>
-      <div className="a8-logos" data-paused={paused}>
-        <div className="a8-logos-track" style={{ '--a8-mq-dur': `${Math.max(48, credits.length * 9)}s` } as CSSProperties}>
+      <h2 className="a8-wrap a8-caption" ref={boxRef}>Recorded for</h2>
+      <div className="a8-logos" data-mode={overflows ? 'marquee' : 'static'} data-paused={paused}>
+        <div
+          className="a8-logos-track"
+          style={overflows ? ({ '--a8-mq-dur': `${Math.max(20, Math.round(rowWidth / MARQUEE_PX_PER_SECOND))}s` } as CSSProperties) : undefined}
+        >
           {row(false)}
-          {row(true)}
+          {overflows && row(true)}
         </div>
       </div>
-      <div className="a8-wrap">
-        <button type="button" className="a8-logos-toggle" onClick={() => setPaused(p => !p)} aria-pressed={paused}>
-          <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true" fill="currentColor">
-            {paused ? <path d="M3 1.5v9l7.5-4.5z" /> : <><rect x="2.5" y="1.5" width="2.5" height="9" rx="0.5" /><rect x="7" y="1.5" width="2.5" height="9" rx="0.5" /></>}
-          </svg>
-          {paused ? 'Play logos' : 'Pause logos'}
-        </button>
-      </div>
+      {overflows && (
+        <div className="a8-wrap">
+          <button type="button" className="a8-logos-toggle" onClick={() => setPaused(p => !p)} aria-pressed={paused}>
+            <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true" fill="currentColor">
+              {paused ? <path d="M3 1.5v9l7.5-4.5z" /> : <><rect x="2.5" y="1.5" width="2.5" height="9" rx="0.5" /><rect x="7" y="1.5" width="2.5" height="9" rx="0.5" /></>}
+            </svg>
+            {paused ? 'Play logos' : 'Pause logos'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

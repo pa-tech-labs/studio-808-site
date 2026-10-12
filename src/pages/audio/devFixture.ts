@@ -31,13 +31,13 @@ const portrait = (hue: number) => svg(
 type FixtureCredit = Omit<AudioCredit, 'logo' | 'talentPhoto'> & { logo?: { url: string } | null; talentPhoto?: { url: string } | null }
 
 const credits: FixtureCredit[] = [
-  { _id: 'c1', name: 'Northfield Press', logo: { url: wordmark('Northfield Press', true) }, creditType: 'audiobook', cleared: true, order: 1 },
-  { _id: 'c2', name: 'Harbour FM', logo: { url: wordmark('HARBOUR FM') }, creditType: 'broadcast', cleared: true, order: 2 },
-  { _id: 'c3', name: 'Kestrel Learning', logo: { url: wordmark('kestrel learning') }, creditType: 'elearning', cleared: true, order: 3 },
-  { _id: 'c4', name: 'Ashdown Books', logo: { url: wordmark('Ashdown', true) }, creditType: 'audiobook', cleared: true, order: 4 },
-  { _id: 'c5', name: 'Lowmoor Studios', logo: { url: wordmark('LOWMOOR') }, creditType: 'commercial', cleared: true, order: 5 },
-  { _id: 'c6', name: 'The Quiet Hour', logo: { url: wordmark('The Quiet Hour', true) }, creditType: 'podcast', cleared: true, order: 6 },
-  { _id: 'c7', name: 'Not cleared yet', logo: { url: wordmark('HIDDEN') }, creditType: 'broadcast', cleared: false, order: 7 },
+  { _id: 'c1', name: 'Northfield Press', logo: { url: wordmark('Northfield Press', true) }, logoAspect: 6.0, creditType: 'audiobook', cleared: true, order: 1 },
+  { _id: 'c2', name: 'Harbour FM', logo: { url: wordmark('HARBOUR FM') }, logoAspect: 3.75, creditType: 'broadcast', cleared: true, order: 2 },
+  { _id: 'c3', name: 'Kestrel Learning', logo: { url: wordmark('kestrel learning') }, logoAspect: 6.0, creditType: 'elearning', cleared: true, order: 3 },
+  { _id: 'c4', name: 'Ashdown Books', logo: { url: wordmark('Ashdown', true) }, logoAspect: 2.625, creditType: 'audiobook', cleared: true, order: 4 },
+  { _id: 'c5', name: 'Lowmoor Studios', logo: { url: wordmark('LOWMOOR') }, logoAspect: 2.625, creditType: 'commercial', cleared: true, order: 5 },
+  { _id: 'c6', name: 'The Quiet Hour', logo: { url: wordmark('The Quiet Hour', true) }, logoAspect: 5.25, creditType: 'podcast', cleared: true, order: 6 },
+  { _id: 'c7', name: 'Not cleared yet', logo: { url: wordmark('HIDDEN') }, logoAspect: 2.25, creditType: 'broadcast', cleared: false, order: 7 },
   { _id: 'v1', name: 'The Long Road North', talent: 'Placeholder Narrator', talentPhoto: { url: portrait(30) }, creditType: 'audiobook', cleared: true, order: 10 },
   { _id: 'v2', name: 'Morning Brief', talent: 'Placeholder Presenter', talentPhoto: { url: portrait(200) }, creditType: 'broadcast', cleared: true, order: 11 },
   { _id: 'v3', name: 'Field Notes', talent: 'Placeholder Host', talentPhoto: { url: portrait(120) }, creditType: 'podcast', cleared: true, order: 12 },

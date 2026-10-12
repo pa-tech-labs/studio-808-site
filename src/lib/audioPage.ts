@@ -22,7 +22,8 @@ export const AUDIO_PAGE_QUERY = `{
     posterImage, durationSeconds, transcript, coverImage, cleared, featured, order
   },
   "credits": *[_type == "audioCredit"] | order(order asc) {
-    _id, name, logo, talent, talentPhoto, creditType, url, cleared, order
+    _id, name, logo, "logoAspect": logo.asset->metadata.dimensions.aspectRatio,
+    talent, talentPhoto, creditType, url, cleared, order
   }
 }`
 
@@ -155,6 +156,8 @@ export interface AudioCredit {
   _id: string
   name: string
   logo?: SanityImage | null
+  /** Logo width / height, from the asset's metadata. Sizes the logo row before images load. */
+  logoAspect?: number | null
   talent?: string | null
   talentPhoto?: SanityImage | null
   creditType?: AudioCreditType | null
