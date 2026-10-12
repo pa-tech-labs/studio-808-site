@@ -1,0 +1,221 @@
+/*
+ * 808 Audio design system. Everything is scoped under .a8 (the AudioLayout
+ * wrapper), tokens included, so nothing here can reach the main site.
+ *
+ * Palette (contrast from tastemaker check_contrast.py, see .tastemaker/style-lock.md):
+ *   bg #0f0f0e, surface #171715, text #f0ede8 (16.4:1 on bg),
+ *   muted #a8a49c (7.7:1), accent #9fb4c6 (9.0:1, interactive states only).
+ *   Brand coral #e8355a appears once, as the 1px tally line under the wordmark.
+ *
+ * Motion: the site's PR #9 language (one ease-out family, transform and
+ * opacity only, a sequenced hero) at a calmer pace: easeOutQuart instead of
+ * the sharper --s8-ease, 1000ms entrances instead of 700ms, 140ms stagger
+ * instead of 110ms.
+ */
+
+.a8 {
+  --a8-bg: #0f0f0e;
+  --a8-surface: #171715;
+  --a8-text: #f0ede8;
+  --a8-muted: #a8a49c;
+  --a8-line: rgba(240, 237, 232, 0.1);
+  --a8-accent: #9fb4c6;
+  --a8-coral: #e8355a;
+
+  --a8-sans: 'DM Sans', system-ui, sans-serif;
+  --a8-serif: 'DM Serif Display', Georgia, serif;
+
+  /* 4px base. Internal padding never exceeds the gap around it. */
+  --a8-s1: 4px;
+  --a8-s2: 8px;
+  --a8-s3: 12px;
+  --a8-s4: 16px;
+  --a8-s6: 24px;
+  --a8-s8: 32px;
+  --a8-s12: 48px;
+  --a8-s16: 64px;
+  --a8-s24: 96px;
+  --a8-s32: 128px;
+
+  --a8-gutter: 20px;
+  --a8-max: 1200px;
+  --a8-max-text: 640px;
+  --a8-header-h: 104px;
+
+  --a8-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --a8-dur-ui: 240ms;
+  --a8-dur-enter: 1000ms;
+  --a8-stagger: 140ms;
+
+  --a8-radius: 4px;
+
+  background: var(--a8-bg);
+  color: var(--a8-text);
+  font-family: var(--a8-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+@media (min-width: 768px) {
+  .a8 { --a8-gutter: 40px; --a8-header-h: 72px; }
+}
+
+.a8 *, .a8 *::before, .a8 *::after { box-sizing: border-box; }
+.a8 :focus-visible { outline: 2px solid var(--a8-accent); outline-offset: 3px; border-radius: 2px; }
+
+.a8-wrap { width: 100%; max-width: var(--a8-max); margin: 0 auto; padding: 0 var(--a8-gutter); }
+
+.a8-skip { position: absolute; left: var(--a8-gutter); top: -100px; z-index: 60; background: var(--a8-text); color: var(--a8-bg); padding: var(--a8-s2) var(--a8-s4); border-radius: var(--a8-radius); font-weight: 600; text-decoration: none; }
+.a8-skip:focus { top: var(--a8-s3); }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.a8-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--a8-s6); border-radius: var(--a8-radius); font-family: var(--a8-sans); font-size: 15px; font-weight: 600; line-height: 1; letter-spacing: -0.005em; text-decoration: none; white-space: nowrap; cursor: pointer; transition: background-color var(--a8-dur-ui) ease, color var(--a8-dur-ui) ease, border-color var(--a8-dur-ui) ease; }
+.a8-btn-solid { background: var(--a8-text); color: var(--a8-bg); border: 1px solid var(--a8-text); }
+.a8-btn-quiet { background: transparent; color: var(--a8-text); border: 1px solid rgba(240, 237, 232, 0.28); }
+.a8-btn-sm { min-height: 40px; padding: 0 var(--a8-s4); font-size: 14px; }
+.a8-btn:active { transform: scale(0.98); transition: transform 120ms var(--a8-ease); }
+@media (hover: hover) and (pointer: fine) {
+  .a8-btn-solid:hover { background: var(--a8-accent); border-color: var(--a8-accent); }
+  .a8-btn-quiet:hover { border-color: var(--a8-accent); color: var(--a8-accent); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.a8-header { position: sticky; top: 0; z-index: 50; height: var(--a8-header-h); border-bottom: 1px solid transparent; transition: background-color 300ms ease, border-color 300ms ease; }
+.a8-header[data-scrolled='true'] { background: rgba(15, 15, 14, 0.88); border-bottom-color: var(--a8-line); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.a8-header-in { height: 100%; display: grid; grid-template-columns: 1fr auto; grid-template-rows: 56px 48px; align-items: center; column-gap: var(--a8-s4); }
+
+.a8-mark { justify-self: start; display: inline-flex; flex-direction: column; gap: 3px; color: var(--a8-text); text-decoration: none; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; line-height: 1; }
+/* The one coral detail: a 1px tally line under "808". */
+.a8-mark-tally { width: 2.05em; height: 1px; background: var(--a8-coral); }
+
+.a8-nav { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid var(--a8-line); height: 100%; }
+.a8-nav ul { list-style: none; margin: 0; padding: 0; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+.a8-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--a8-s1); color: var(--a8-muted); font-size: 14px; font-weight: 500; text-decoration: none; transition: color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-nav a:hover { color: var(--a8-text); }
+}
+
+@media (min-width: 768px) {
+  .a8-header-in { grid-template-columns: auto 1fr auto; grid-template-rows: 1fr; column-gap: var(--a8-s8); }
+  .a8-nav { grid-column: 2; grid-row: 1; border-top: 0; justify-self: end; }
+  .a8-nav ul { gap: var(--a8-s8); justify-content: flex-end; }
+  .a8-nav a { padding: 0; }
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.a8-hero { position: relative; isolation: isolate; margin-top: calc(var(--a8-header-h) * -1); min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+.a8-hero-media { position: absolute; inset: 0; z-index: -2; }
+.a8-hero-media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.55) brightness(0.82); }
+/* Heaviest at the bottom-left where the copy sits; the room reads at top-right. */
+.a8-hero-shade { position: absolute; inset: 0; z-index: -1; background:
+  linear-gradient(180deg, rgba(15,15,14,0.55) 0%, rgba(15,15,14,0.2) 30%, rgba(15,15,14,0.78) 68%, #0f0f0e 100%),
+  linear-gradient(90deg, rgba(15,15,14,0.7) 0%, rgba(15,15,14,0) 70%); }
+
+.a8-hero-copy { padding-top: calc(var(--a8-header-h) + var(--a8-s16)); padding-bottom: var(--a8-s8); }
+.a8-eyebrow { margin: 0 0 var(--a8-s4); color: var(--a8-muted); font-size: 14px; font-weight: 500; letter-spacing: 0.01em; }
+.a8-hero h1 { margin: 0; max-width: 15ch; font-size: clamp(40px, 7.4vw, 84px); font-weight: 600; line-height: 1.04; letter-spacing: -0.035em; text-wrap: balance; }
+.a8-hero-sub { margin: var(--a8-s6) 0 0; max-width: 34ch; font-family: var(--a8-serif); font-style: italic; font-weight: 400; font-size: clamp(20px, 2.3vw, 26px); line-height: 1.35; color: rgba(240, 237, 232, 0.82); text-wrap: pretty; }
+.a8-hero-ctas { margin-top: var(--a8-s8); display: flex; flex-wrap: wrap; gap: var(--a8-s3); }
+
+.a8-hero-wave { position: relative; height: 72px; margin-bottom: var(--a8-s8); }
+@media (min-width: 768px) {
+  .a8-hero-copy { padding-bottom: var(--a8-s12); }
+  .a8-hero-wave { height: 104px; margin-bottom: var(--a8-s12); }
+}
+
+/* Entrance: the room fades up from black and settles, then each line of copy
+   rises in order (--i), then the waveform draws left to right. */
+.a8-hero-media { animation: a8-settle 2400ms var(--a8-ease) both; }
+@keyframes a8-settle { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+.a8-in { animation: a8-rise var(--a8-dur-enter) var(--a8-ease) both; animation-delay: calc(var(--i, 0) * var(--a8-stagger) + 300ms); }
+@keyframes a8-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ── Waveform motif (decorative) ────────────────────────────────────────── */
+
+.a8-wave { position: absolute; inset: 0; overflow: hidden; }
+.a8-wave svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.a8-wave-base { fill: rgba(240, 237, 232, 0.2); }
+.a8-wave-lit { fill: var(--a8-accent); opacity: 0.85; }
+.a8-wave-draw { animation: a8-draw 1800ms var(--a8-ease) 900ms both; }
+@keyframes a8-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* Played portion: clipped from the right, sweeping with the playhead. */
+.a8-wave-played { position: absolute; inset: 0; animation: a8-play 42s linear 2700ms infinite both; }
+@keyframes a8-play { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* The playhead's box spans the full width; translating it by its own width
+   carries the 1px line from the left edge to the right. */
+.a8-wave-head { position: absolute; inset: 0; animation: a8-head 42s linear 2700ms infinite both; }
+.a8-wave-head::before { content: ''; position: absolute; left: 0; top: -8px; bottom: -8px; width: 1px; background: var(--a8-accent); }
+@keyframes a8-head { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+/* ── Credits wall ───────────────────────────────────────────────────────── */
+
+.a8-credits { padding: var(--a8-s16) 0 var(--a8-s24); border-top: 1px solid var(--a8-line); }
+.a8-caption { margin-top: 0; margin-bottom: var(--a8-s6); color: var(--a8-muted); font-size: 14px; font-weight: 500; }
+
+.a8-logos { position: relative; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.a8-logos-track { display: flex; width: max-content; animation: a8-marquee var(--a8-mq-dur, 60s) linear infinite; }
+.a8-logos:hover .a8-logos-track, .a8-logos[data-paused='true'] .a8-logos-track { animation-play-state: paused; }
+@keyframes a8-marquee { to { transform: translateX(-50%); } }
+.a8-logos-row { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
+.a8-logos-row li { flex: none; display: flex; align-items: center; justify-content: center; height: 64px; padding: 0 clamp(24px, 4vw, 48px); }
+.a8-logo { display: block; height: 32px; width: auto; max-width: 150px; object-fit: contain; filter: grayscale(1) brightness(1.6); opacity: 0.55; transition: opacity var(--a8-dur-ui) ease; }
+.a8-logos-row a { display: flex; align-items: center; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-logos-row a:hover .a8-logo { opacity: 0.95; }
+}
+.a8-logos-toggle { margin-top: var(--a8-s3); display: inline-flex; align-items: center; gap: var(--a8-s2); min-height: 44px; padding: 0; background: none; border: 0; color: var(--a8-muted); font: 500 13px/1 var(--a8-sans); cursor: pointer; transition: color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-logos-toggle:hover { color: var(--a8-text); }
+}
+
+.a8-voices { margin-top: var(--a8-s16); }
+.a8-voices h2 { margin: 0 0 var(--a8-s8); font-size: clamp(26px, 3.4vw, 36px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; }
+.a8-voices ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--a8-s8) var(--a8-s4); }
+@media (min-width: 768px) {
+  .a8-voices ul { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--a8-s12) var(--a8-s6); }
+}
+.a8-voice-photo { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--a8-radius); background: var(--a8-surface); filter: saturate(0.6); }
+.a8-voice-name { margin: var(--a8-s4) 0 0; font-size: 16px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+.a8-voice-prod { margin: var(--a8-s1) 0 0; font-family: var(--a8-serif); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--a8-muted); }
+.a8-voice-prod a { color: inherit; text-decoration: underline; text-decoration-color: var(--a8-line); text-underline-offset: 3px; transition: color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-voice-prod a:hover { color: var(--a8-accent); }
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.a8-footer { border-top: 1px solid var(--a8-line); padding: var(--a8-s12) 0; color: var(--a8-muted); font-size: 14px; }
+.a8-footer-in { display: grid; gap: var(--a8-s8); }
+.a8-footer p { margin: 0; }
+.a8-footer address { font-style: normal; display: grid; gap: var(--a8-s1); }
+.a8-footer-company { color: var(--a8-text); font-weight: 600; }
+.a8-footer a { color: inherit; text-decoration: none; transition: color var(--a8-dur-ui) ease; }
+.a8-footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--a8-s2) var(--a8-s6); }
+.a8-footer li a, .a8-footer address a { display: inline-flex; align-items: center; min-height: 32px; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-footer a:hover { color: var(--a8-text); }
+}
+@media (min-width: 768px) {
+  .a8-footer-in { grid-template-columns: 1fr auto; align-items: end; }
+}
+
+/* ── Reduced motion: no movement, the waveform rests at a fixed point and
+   the logos sit in a static wrapped grid. ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .a8-hero-media, .a8-in, .a8-wave-draw { animation: none; }
+  .a8-wave-played { animation: none; clip-path: inset(0 62% 0 0); }
+  .a8-wave-head { display: none; }
+  .a8-header, .a8-btn, .a8-logo { transition: none; }
+  .a8-btn:active { transform: none; }
+  .a8-logos { -webkit-mask-image: none; mask-image: none; }
+  .a8-logos-track { animation: none; width: auto; }
+  .a8-logos-row { flex-wrap: wrap; justify-content: center; row-gap: var(--a8-s2); }
+  .a8-logos-row[aria-hidden] { display: none; }
+  .a8-logos-toggle { display: none; }
+}

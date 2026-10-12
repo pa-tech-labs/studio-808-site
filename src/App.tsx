@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import Nav from './components/Nav'
@@ -21,18 +22,27 @@ import StudioFinder from './components/StudioFinder'
 import ScrollToTop from './components/ScrollToTop'
 import { FINDER_PATH, backgroundOf } from './lib/studioFinderRoute'
 
+// 808 Audio is its own site under /audio: own shell, own bundle.
+const AudioRoute = lazy(() => import('./pages/audio/AudioRoute'))
+
 export default function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        <Nav />
+        <MainSiteOnly><Nav /></MainSiteOnly>
         <AppRoutes />
-        <Footer />
-        <ChatWidget />
+        <MainSiteOnly><Footer /></MainSiteOnly>
+        <MainSiteOnly><ChatWidget /></MainSiteOnly>
         <StudioFinder />
       </BrowserRouter>
     </HelmetProvider>
   )
+}
+
+/** The main site's chrome (nav, footer, chat) stays off the /audio tree. */
+function MainSiteOnly({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation()
+  return pathname === '/audio' || pathname.startsWith('/audio/') ? null : children
 }
 
 function AppRoutes() {
@@ -62,6 +72,7 @@ function AppRoutes() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/membership-terms" element={<MembershipTerms />} />
         <Route path={FINDER_PATH} element={<Home />} />
+        <Route path="/audio/*" element={<Suspense fallback={null}><AudioRoute /></Suspense>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
