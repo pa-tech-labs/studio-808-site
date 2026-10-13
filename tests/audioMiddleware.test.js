@@ -7,30 +7,36 @@
 import { test, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import middleware, { config } from '../middleware.ts'
-import { audioRedirectTarget, subdomainLive } from '../src/lib/audioRedirect.js'
+import { audioMiddlewareAction, audioRedirectTarget, subdomainLive } from '../src/lib/audioRedirect.js'
 
 afterEach(() => { delete process.env.AUDIO_SUBDOMAIN_LIVE })
 
 const req = (url, host = new URL(url).host) => new Request(url, { headers: { host } })
 const passesThrough = res => res.headers.get('x-middleware-next') === '1' && !res.headers.get('location')
+const rewritesTo = res => res.headers.get('x-middleware-rewrite')
 
 test('matcher covers /audio and everything under it', () => {
   assert.deepEqual(config.matcher, ['/audio', '/audio/:path*'])
   assert.equal(config.runtime, 'nodejs')
 })
 
-test('not live (unset): every /audio request passes through', () => {
-  for (const url of ['https://www.studio-808.com/audio', 'https://www.studio-808.com/audio/terms', 'https://studio-808.com/audio']) {
+test('not live (unset): www and apex /audio pages get the app shell, never a 301', () => {
+  // vercel.json has no www or apex /audio rule (it would end the request
+  // before Vercel ever reached the middleware), so the shell comes from here.
+  for (const url of ['https://www.studio-808.com/audio', 'https://www.studio-808.com/audio/', 'https://www.studio-808.com/audio/terms', 'https://studio-808.com/audio']) {
     const res = middleware(req(url))
-    assert.equal(passesThrough(res), true, url)
     assert.notEqual(res.status, 301, url)
+    assert.equal(res.headers.get('location'), null, url)
+    assert.equal(rewritesTo(res), `${new URL(url).origin}/index.html`, url)
   }
 })
 
 test('not live: anything other than the exact string "true" counts as off', () => {
   for (const v of ['', 'false', 'TRUE', '1', 'yes', ' true']) {
     process.env.AUDIO_SUBDOMAIN_LIVE = v
-    assert.equal(passesThrough(middleware(req('https://www.studio-808.com/audio'))), true, JSON.stringify(v))
+    const res = middleware(req('https://www.studio-808.com/audio'))
+    assert.equal(res.status === 301 || res.headers.get('location') !== null, false, JSON.stringify(v))
+    assert.equal(rewritesTo(res), 'https://www.studio-808.com/index.html', JSON.stringify(v))
   }
 })
 
@@ -62,6 +68,22 @@ test('live: other hosts and look-alike paths pass through', () => {
   ]) {
     assert.equal(passesThrough(middleware(req(url))), true, url)
   }
+})
+
+test('files under /audio are never redirected or rewritten', () => {
+  for (const live of ['true', '']) {
+    process.env.AUDIO_SUBDOMAIN_LIVE = live
+    assert.equal(passesThrough(middleware(req('https://www.studio-808.com/audio/studio-808-wordmark.png'))), true, `live=${live}`)
+  }
+})
+
+test('the decision helper: redirect, app shell or nothing', () => {
+  const live = { AUDIO_SUBDOMAIN_LIVE: 'true' }
+  assert.deepEqual(audioMiddlewareAction('https://www.studio-808.com/audio/terms?x=1', 'www.studio-808.com', live), { redirect: 'https://voice.studio-808.com/terms?x=1' })
+  assert.deepEqual(audioMiddlewareAction('https://www.studio-808.com/audio/terms', 'www.studio-808.com', {}), { rewrite: '/index.html' })
+  assert.equal(audioMiddlewareAction('https://studio-808-site-abc.vercel.app/audio', 'studio-808-site-abc.vercel.app', live), null)
+  assert.equal(audioMiddlewareAction('https://voice.studio-808.com/audio', 'voice.studio-808.com', live), null)
+  assert.equal(audioMiddlewareAction('https://www.studio-808.com/audiobooks', 'www.studio-808.com', live), null)
 })
 
 test('the helper on its own', () => {
