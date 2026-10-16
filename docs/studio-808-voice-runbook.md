@@ -98,6 +98,10 @@ curl -s https://www.studio-808.com/sitemap.xml | grep -c '/audio'        # 0
 curl -sI https://voice.studio-808.com/ | grep -iE "permissions-policy|strict-transport|x-content-type"
 curl -s -o /dev/null -w "%{http_code}\n" https://voice.studio-808.com/dj-studio   # 404
 
+# The header wordmark image: 200 on voice and on www (it is a file, never redirected)
+curl -s -o /dev/null -w "%{http_code} %{content_type}\n" https://voice.studio-808.com/audio/studio-808-wordmark.png   # 200 image/png
+curl -s -o /dev/null -w "%{http_code} %{content_type}\n" https://www.studio-808.com/audio/studio-808-wordmark.png     # 200 image/png
+
 # Enquiry API: other origins refused (403); the form itself is the real test
 curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Origin: https://example.com" -H "Content-Type: application/json" -d '{}' https://voice.studio-808.com/api/audio-enquiry
 

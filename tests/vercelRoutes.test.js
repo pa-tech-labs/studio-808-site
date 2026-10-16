@@ -15,7 +15,7 @@ const routes = config.routes
 // The build output (dist/) plus the serverless functions in api/.
 const FILES = new Set([
   '/index.html', '/sitemap.xml', '/robots.txt', '/assets/index-abc.js', '/assets/index-abc.css', '/images/logo.png', '/videos/hero.mp4',
-  '/audio/index.html', '/audio/terms/index.html', '/audio/sitemap.xml', '/audio/robots.txt', '/audio/404.html',
+  '/audio/index.html', '/audio/terms/index.html', '/audio/sitemap.xml', '/audio/robots.txt', '/audio/404.html', '/audio/studio-808-wordmark.png',
   '/api/audio-enquiry', '/api/chat', '/api/tutor-request',
 ])
 const fileAt = path => (FILES.has(path) ? path : FILES.has(`${path.replace(/\/$/, '')}/index.html`) ? `${path.replace(/\/$/, '')}/index.html` : null)
@@ -81,8 +81,18 @@ test('audio host: app assets load; any other path is a 404 with the branded page
   }
 })
 
+test('the Studio 808 wordmark image (public/audio) loads on every host, with the voice headers on voice', () => {
+  const IMG = '/audio/studio-808-wordmark.png'
+  for (const host of [AUDIO, WWW, 'studio-808.com', 'studio-808-site-abc.vercel.app']) {
+    assert.deepEqual([resolve(host, IMG).status, resolve(host, IMG).file], [200, IMG], host)
+  }
+  assert.equal(resolve(AUDIO, IMG).headers['X-Content-Type-Options'], 'nosniff')
+  assert.deepEqual(resolve(WWW, IMG).headers, {})
+  assert.deepEqual([resolve(AUDIO, '/audio/other.png').status, resolve(AUDIO, '/audio/other.png').file], [404, '/audio/404.html'], 'only the wordmark, not the rest of /audio')
+})
+
 test('audio host: security headers on every response, autoplay allowed for self', () => {
-  for (const p of ['/', '/terms', '/sitemap.xml', '/assets/index-abc.js', '/nope']) {
+  for (const p of ['/', '/terms', '/sitemap.xml', '/assets/index-abc.js', '/production-studio', '/nope']) {
     const h = resolve(AUDIO, p).headers
     assert.match(h['Permissions-Policy'], /autoplay=\(self\)/, p)
     assert.equal(h['X-Content-Type-Options'], 'nosniff', p)
