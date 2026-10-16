@@ -23,9 +23,6 @@
 
     { "src": "^/production-studio$", "status": 308, "headers": { "Location": "/main-production-studio" } },
 
-    { "src": "^/audio(?:/.*)?$", "has": [{ "type": "host", "value": "www.studio-808.com" }], "dest": "/index.html" },
-    { "src": "^/audio(?:/.*)?$", "has": [{ "type": "host", "value": "studio-808.com" }], "dest": "/index.html" },
-
     { "src": "^/$", "has": [{ "type": "host", "value": "voice.studio-808.com" }], "dest": "/audio/index.html" },
     { "src": "^/terms/?$", "has": [{ "type": "host", "value": "voice.studio-808.com" }], "dest": "/audio/terms/index.html" },
     { "src": "^/sitemap\\.xml$", "has": [{ "type": "host", "value": "voice.studio-808.com" }], "dest": "/audio/sitemap.xml" },

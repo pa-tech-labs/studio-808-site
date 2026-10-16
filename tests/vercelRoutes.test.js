@@ -3,11 +3,17 @@
 // one exists at the path. `vercel dev` ignores `has`, so this is where the
 // host rules are checked.
 //
+// middleware.ts is part of the walk, where Vercel's build puts it: after
+// every vercel.json rule before { handle: 'filesystem' } (checked against
+// `vercel build` output, .vercel/output/config.json). A rule that ends a
+// request before that point means the middleware never runs for it.
+//
 // Run: npm test
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { audioMiddlewareAction } from '../src/lib/audioRedirect.js'
 
 const config = JSON.parse(readFileSync('vercel.json', 'utf8'))
 const routes = config.routes
@@ -24,10 +30,18 @@ function hostMatches(route, host) {
   return (route.has ?? []).every(h => h.type === 'host' && h.value === host)
 }
 
-/** { status, location?, file?, headers } for a request. */
-function resolve(host, path) {
+// middleware.ts's matcher: /audio and /audio/:path*.
+const MIDDLEWARE_MATCH = /^\/audio(?:\/.*)?$/
+
+/** { status, location?, file?, headers, middleware? } for a request. */
+function resolve(host, path, env = {}) {
   const headers = {}
   for (const r of routes) {
+    if (r.handle === 'filesystem' && MIDDLEWARE_MATCH.test(path.split('?')[0])) {
+      const action = audioMiddlewareAction(`https://${host}${path}`, host, env)
+      if (action?.redirect) return { status: 301, location: action.redirect, headers, middleware: true }
+      if (action?.rewrite) path = action.rewrite
+    }
     if (r.handle === 'filesystem') {
       const file = fileAt(path)
       if (file) return { status: 200, file, headers }
@@ -102,7 +116,20 @@ test('audio host: security headers on every response, autoplay allowed for self'
   assert.deepEqual(resolve(WWW, '/').headers, {}, 'main site headers unchanged')
 })
 
-test('www and apex /audio paths serve the app shell; the 301 lives in middleware.ts', () => {
+test('www and apex /audio: no vercel.json rule ends them, so the middleware decides', () => {
+  // The bug this guards: vercel.json rewrote these to the app shell itself,
+  // which ended the request before Vercel reached the middleware, so the 301
+  // never fired with AUDIO_SUBDOMAIN_LIVE=true.
+  for (const host of [WWW, 'studio-808.com']) {
+    const before = routes.slice(0, routes.findIndex(r => r.handle === 'filesystem'))
+    for (const p of ['/audio', '/audio/', '/audio/terms']) {
+      const ending = before.filter(r => !r.continue && hostMatches(r, host) && new RegExp(r.src, 'i').test(p))
+      assert.deepEqual(ending, [], `${host}${p}: a vercel.json rule would end it before the middleware`)
+    }
+  }
+})
+
+test('www and apex /audio, not live: the app shell, not the subdomain page', () => {
   for (const host of [WWW, 'studio-808.com']) {
     for (const p of ['/audio', '/audio/', '/audio/terms']) {
       const r = resolve(host, p)
@@ -111,9 +138,16 @@ test('www and apex /audio paths serve the app shell; the 301 lives in middleware
       assert.deepEqual([r.status, r.file], [200, '/index.html'], `${host}${p}`)
     }
   }
+})
+
+test('www and apex /audio, live: 301 to the same path on voice', () => {
+  const live = { AUDIO_SUBDOMAIN_LIVE: 'true' }
+  for (const [host, p, to] of [[WWW, '/audio', 'https://voice.studio-808.com/'], [WWW, '/audio/terms', 'https://voice.studio-808.com/terms'], [WWW, '/audio?utm_source=x', 'https://voice.studio-808.com/?utm_source=x'], ['studio-808.com', '/audio/terms', 'https://voice.studio-808.com/terms']]) {
+    const r = resolve(host, p, live)
+    assert.deepEqual([r.status, r.location, r.middleware], [301, to, true], `${host}${p}`)
+  }
   const mainHosts = ['www.studio-808.com', 'studio-808.com']
-  const mainToSubdomain = routes.filter(r => mainHosts.includes(r.has?.[0]?.value) && /voice\.studio-808\.com/.test(r.headers?.Location ?? ''))
-  assert.deepEqual(mainToSubdomain, [], 'no www or apex redirect to the subdomain left in vercel.json')
+  assert.deepEqual(routes.filter(r => mainHosts.includes(r.has?.[0]?.value)), [], 'no www or apex /audio rule left in vercel.json')
 })
 
 test('the old name, audio.studio-808.com, 301s every path to the same path on voice', () => {
@@ -137,8 +171,10 @@ test('main site behaves as before: SPA fallback, files, API, the old redirect', 
   assert.deepEqual(resolve(WWW, '/production-studio'), { status: 308, location: '/main-production-studio', headers: {} })
 })
 
-test('preview deployments (any other host) keep /audio in the app, no redirect', () => {
+test('preview deployments (any other host) keep /audio in the app, no redirect, even when live', () => {
   const preview = 'studio-808-site-abc.vercel.app'
+  assert.equal(resolve(preview, '/audio', { AUDIO_SUBDOMAIN_LIVE: 'true' }).file, '/audio/index.html')
+  assert.equal(resolve(AUDIO, '/audio', { AUDIO_SUBDOMAIN_LIVE: 'true' }).status, 404, 'voice: its own 404, the middleware never reached')
   assert.equal(resolve(preview, '/audio').file, '/audio/index.html')
   assert.equal(resolve(preview, '/audio/terms').file, '/audio/terms/index.html')
   assert.equal(resolve(preview, '/dj-studio').file, '/index.html')
