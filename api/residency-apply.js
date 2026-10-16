@@ -11,7 +11,7 @@
 //   SUPABASE_SERVICE_ROLE_KEY    (Lumentry project service_role key — secret)
 //   RESEND_API_KEY               (Resend API key — secret)
 //   RESIDENCY_NOTIFY_TO          (optional, default paul@studio-808.com)
-//   RESIDENCY_NOTIFY_FROM        (optional, default residency@send.studio-808.com)
+//   RESIDENCY_NOTIFY_FROM        (optional, default Studio 808 Residency <residency@send.studio-808.com>)
 
 const PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Other']
 const DISCIPLINES = ['DJ', 'Singer', 'Rapper', 'Producer', 'Other']
