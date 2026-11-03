@@ -4,12 +4,13 @@
 // focus moves to the first one. While sending the button is disabled. On
 // success the form is replaced by enquiry.successMessage and an
 // 'audio:enquiry' window event fires; on failure the visitor can retry, or
-// email us with the enquiry prefilled.
+// email us with the enquiry prefilled. "How did you hear about us?" is
+// required; its choices come from enquiry.sources, else DEFAULT_ENQUIRY_SOURCES.
 
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import type { AudioPageData } from '../../../lib/audioPage'
 import {
-  HONEYPOT_FIELD, validateAudioEnquiry, enquirySubject, enquiryText,
+  DEFAULT_ENQUIRY_SOURCES, HONEYPOT_FIELD, validateAudioEnquiry, enquirySubject, enquiryText,
   type AudioEnquiryErrors, type AudioEnquiryField,
 } from '../../../lib/audioEnquiry.js'
 import { AUDIO_ANCHORS } from '../anchors'
@@ -21,9 +22,9 @@ const PRIVACY_URL = 'https://www.studio-808.com/privacy'
 type Status = 'idle' | 'sending' | 'sent' | 'failed'
 type Fields = Record<Exclude<AudioEnquiryField, 'consent'>, string> & { consent: boolean; [HONEYPOT_FIELD]: string }
 
-const EMPTY: Fields = { name: '', company: '', email: '', phone: '', projectType: '', length: '', deadline: '', message: '', consent: false, website: '' }
+const EMPTY: Fields = { name: '', company: '', email: '', phone: '', projectType: '', source: '', length: '', deadline: '', message: '', consent: false, website: '' }
 
-const ORDER: AudioEnquiryField[] = ['name', 'company', 'email', 'phone', 'projectType', 'length', 'deadline', 'message', 'consent']
+const ORDER: AudioEnquiryField[] = ['name', 'company', 'email', 'phone', 'projectType', 'length', 'deadline', 'source', 'message', 'consent']
 
 const todayIso = () => {
   const d = new Date()
@@ -37,6 +38,10 @@ export default function Enquiry({ data }: { data: AudioPageData }) {
     const list = (e?.projectTypes ?? []).map(s => s.trim()).filter(Boolean)
     return list.length ? list : DEFAULT_TYPES
   }, [e?.projectTypes])
+  const sources = useMemo(() => {
+    const list = (e?.sources ?? []).map(s => s.trim()).filter(Boolean)
+    return list.length ? list : DEFAULT_ENQUIRY_SOURCES
+  }, [e?.sources])
 
   const [fields, setFields] = useState<Fields>(EMPTY)
   const [errors, setErrors] = useState<AudioEnquiryErrors>({})
@@ -48,7 +53,7 @@ export default function Enquiry({ data }: { data: AudioPageData }) {
 
   if (!e || !hasEnquiry(data.page)) return null
 
-  const check = (next: Fields) => validateAudioEnquiry(next, { projectTypes, today: todayIso() })
+  const check = (next: Fields) => validateAudioEnquiry(next, { projectTypes, sources, today: todayIso() })
 
   const set = (name: keyof Fields) => (ev: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const t = ev.target
@@ -70,7 +75,7 @@ export default function Enquiry({ data }: { data: AudioPageData }) {
       const body = await res.json().catch(() => ({}))
       if (res.ok && body.ok) {
         setStatus('sent')
-        window.dispatchEvent(new CustomEvent('audio:enquiry', { detail: { projectType: fields.projectType } }))
+        window.dispatchEvent(new CustomEvent('audio:enquiry', { detail: { projectType: fields.projectType, source: fields.source } }))
         requestAnimationFrame(() => doneRef.current?.focus())
         return
       }
@@ -148,6 +153,14 @@ export default function Enquiry({ data }: { data: AudioPageData }) {
               </Field>
               <Field id="deadline" label="Deadline" optional error={errors.deadline}>
                 <input id="a8-f-deadline" name="deadline" type="date" min={todayIso()} value={fields.deadline} onChange={set('deadline')} {...err('deadline')} />
+              </Field>
+              <Field id="source" label="How did you hear about us?" error={errors.source}>
+                <div className="a8-select">
+                  <select id="a8-f-source" name="source" required value={fields.source} onChange={set('source')} {...err('source')}>
+                    <option value="" disabled>Choose one</option>
+                    {sources.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
               </Field>
               <Field id="message" label="About the project" wide error={errors.message}>
                 <textarea id="a8-f-message" name="message" rows={6} required maxLength={5000} value={fields.message} onChange={set('message')} {...err('message')} />

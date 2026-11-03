@@ -52,7 +52,7 @@ function call(handler, body, { method = 'POST', ip = '1.2.3.4', origin = 'https:
 
 const good = {
   name: 'Alex Reed', company: 'Northfield Press', email: 'alex@northfield.example', phone: '',
-  projectType: 'Audiobook', length: '60,000 words', deadline: '', message: 'Unabridged narration, ACX delivery.', consent: true,
+  projectType: 'Audiobook', source: 'SoundBetter', length: '60,000 words', deadline: '', message: 'Unabridged narration, ACX delivery.', consent: true,
 }
 
 test('a valid enquiry is emailed as plain text, with CC, reply-to and the subject format', async () => {
@@ -68,13 +68,14 @@ test('a valid enquiry is emailed as plain text, with CC, reply-to and the subjec
   assert.equal(m.subject, 'Studio 808 Voice enquiry: Audiobook from Northfield Press')
   assert.equal(m.html, undefined)
   assert.match(m.text, /Approximate length: 60,000 words/)
+  assert.match(m.text, /How they heard about us: SoundBetter/)
   assert.match(m.from, /Studio 808 Voice/)
 })
 
 test('the send has a timeout, and success logs the Resend id without personal details', async () => {
   await call(await load(), good)
   assert.ok(sent[0].signal instanceof AbortSignal)
-  assert.deepEqual(logged, ['[audio-enquiry] sent email_123 (Audiobook)'])
+  assert.deepEqual(logged, ['[audio-enquiry] sent email_123 (Audiobook, via SoundBetter)'])
   assert.doesNotMatch(logged.join(), /Alex|northfield/i)
 })
 

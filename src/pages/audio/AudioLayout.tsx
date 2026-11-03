@@ -9,6 +9,8 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import { AUDIO_ANCHORS, scrollToAnchor } from './anchors'
 import { forwardAudioAnalytics } from './analytics'
+import ConsentBanner from './ConsentBanner'
+import { useVoiceConsent } from './useVoiceConsent'
 import { audioPageOf, audioPath, currentHost } from '../../lib/audioHost.js'
 import { hasEnquiry, hasFaqs, hasRates, hasRoom, hasShowreel, hasTerms } from './sections/has'
 import './audio.css'
@@ -24,6 +26,7 @@ const NAV = [
 
 export default function AudioLayout({ data }: { data: AudioPageData }) {
   useEffect(() => forwardAudioAnalytics(), [])
+  const consent = useVoiceConsent()
   // voice.studio-808.com arrives with this page already rendered in front of
   // #root (scripts/buildAudio.js), for crawlers. Now that the app has rendered
   // the same page, swap it in before the browser paints.
@@ -52,7 +55,8 @@ export default function AudioLayout({ data }: { data: AudioPageData }) {
       <main id="a8-main">
         <Outlet context={data} />
       </main>
-      <AudioFooter footer={data.page?.footer} terms={hasTerms(data.page)} />
+      <AudioFooter footer={data.page?.footer} terms={hasTerms(data.page)} onCookies={consent.enabled ? consent.reopen : undefined} />
+      {consent.enabled && <ConsentBanner open={consent.open} choice={consent.choice} choose={consent.choose} />}
     </div>
   )
 }
@@ -136,7 +140,7 @@ function AudioHeader({ nav, quote, onHome }: { nav: typeof NAV; quote: boolean; 
   )
 }
 
-function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['page']>['footer'] | undefined; terms: boolean }) {
+function AudioFooter({ footer, terms, onCookies }: { footer: NonNullable<AudioPageData['page']>['footer'] | undefined; terms: boolean; onCookies?: () => void }) {
   const links = (footer?.links ?? []).filter(l => l.label && l.href)
   return (
     <footer className="a8-footer">
@@ -153,13 +157,14 @@ function AudioFooter({ footer, terms }: { footer: NonNullable<AudioPageData['pag
             {footer?.email && <a href={`mailto:${footer.email}`}>{footer.email}</a>}
           </address>
         </div>
-        {(links.length > 0 || terms) && (
+        {(links.length > 0 || terms || onCookies) && (
           <nav aria-label="Footer">
             <ul>
               {terms && <li><Link to={audioPath(currentHost(), 'terms')}>Service terms</Link></li>}
               {links.map((l, i) => (
                 <li key={l._key ?? i}><a href={l.href!}>{l.label}</a></li>
               ))}
+              {onCookies && <li><button type="button" className="a8-footer-link" onClick={onCookies}>Cookie settings</button></li>}
             </ul>
           </nav>
         )}

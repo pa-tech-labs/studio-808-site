@@ -107,6 +107,7 @@ export interface AudioPage {
     body?: string | null
     successMessage?: string | null
     projectTypes?: string[] | null
+    sources?: string[] | null
     /** Internal only. Never render this. */
     recipientNote?: string | null
   } | null

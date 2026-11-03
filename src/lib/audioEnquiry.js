@@ -8,9 +8,16 @@ export const ENQUIRY_LIMITS = {
   email: 200,
   phone: 40,
   projectType: 80,
+  source: 80,
   length: 200,
   message: 5000,
 }
+
+/**
+ * "How did you hear about us?" choices when Sanity has none
+ * (audioPage.enquiry.sources).
+ */
+export const DEFAULT_ENQUIRY_SOURCES = ['Google search', 'Google Maps', 'Voiceover Studio Finder', 'SoundBetter', 'LinkedIn', 'Referral', 'Existing client', 'Other']
 
 /** The hidden honeypot field. Real people never fill it. */
 export const HONEYPOT_FIELD = 'website'
@@ -35,14 +42,15 @@ export function isIsoDate(s) {
 }
 
 /**
- * Validate an enquiry. `projectTypes`, when given (the form passes the list
- * from Sanity), limits the project type to those options; the server accepts
- * any short value since Sanity's list can change without a deploy.
+ * Validate an enquiry. `projectTypes` and `sources`, when given (the form
+ * passes the lists from Sanity), limit those answers to the options; the
+ * server accepts any short value since Sanity's lists can change without a
+ * deploy.
  * `today` (YYYY-MM-DD) rejects a deadline in the past.
  *
  * Returns { ok, errors: { field: message }, value } with trimmed values.
  */
-export function validateAudioEnquiry(body, { projectTypes, today } = {}) {
+export function validateAudioEnquiry(body, { projectTypes, sources, today } = {}) {
   const b = body ?? {}
   const value = {
     name: str(b.name),
@@ -50,6 +58,7 @@ export function validateAudioEnquiry(body, { projectTypes, today } = {}) {
     email: str(b.email),
     phone: str(b.phone),
     projectType: str(b.projectType),
+    source: str(b.source),
     length: str(b.length),
     deadline: str(b.deadline),
     message: str(b.message),
@@ -73,6 +82,9 @@ export function validateAudioEnquiry(body, { projectTypes, today } = {}) {
   if (!value.projectType) errors.projectType = 'Choose a project type.'
   else if (value.projectType.length > ENQUIRY_LIMITS.projectType) errors.projectType = 'Choose a project type.'
   else if (Array.isArray(projectTypes) && projectTypes.length && !projectTypes.includes(value.projectType)) errors.projectType = 'Choose a project type.'
+
+  if (!value.source || value.source.length > ENQUIRY_LIMITS.source) errors.source = 'Tell us how you heard about us.'
+  else if (Array.isArray(sources) && sources.length && !sources.includes(value.source)) errors.source = 'Tell us how you heard about us.'
 
   if (value.length.length > ENQUIRY_LIMITS.length) errors.length = 'Keep this under 200 characters.'
 
@@ -111,6 +123,7 @@ export function enquiryText(v) {
     line('Email', v.email),
     line('Phone', v.phone),
     line('Project type', v.projectType),
+    line('How they heard about us', v.source),
     line('Approximate length', v.length),
     line('Deadline', v.deadline),
     line('Consent to reply', v.consent ? 'Yes' : 'No'),

@@ -235,6 +235,28 @@
 @media (min-width: 768px) {
   .a8-footer-in { grid-template-columns: 1fr auto; align-items: end; }
 }
+/* "Cookie settings" opens the banner, so it is a button dressed as a footer link. */
+.a8-footer-link { display: inline-flex; align-items: center; min-height: 32px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; transition: color var(--a8-dur-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
+  .a8-footer-link:hover { color: var(--a8-text); }
+}
+
+/* ── Cookie banner (ConsentBanner.tsx) ────────────────────────────────────
+   A small card, bottom-left on wider screens, above the mini-player until a
+   choice is made. The one steel-blue line along its top echoes the coral
+   tally under the wordmark. Accept and Reject are the same size and weight. */
+
+.a8-consent-banner { position: fixed; z-index: 70; left: var(--a8-s4); right: var(--a8-s4); bottom: var(--a8-s4); padding: var(--a8-s4); background: var(--a8-surface); border: 1px solid var(--a8-line); border-top: 1px solid var(--a8-accent); border-radius: var(--a8-radius); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); color: var(--a8-text); font-size: 15px; line-height: 1.5; animation: a8-consent-in var(--a8-dur-ui) var(--a8-ease) both; }
+.a8-consent-banner:focus { outline: none; }
+.a8-consent-banner:focus-visible { outline: 2px solid var(--a8-accent); outline-offset: 3px; }
+.a8-consent-banner p { margin: 0; max-width: 46ch; }
+.a8-consent-banner a { color: var(--a8-accent); text-underline-offset: 3px; }
+.a8-consent-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--a8-s2); margin-top: var(--a8-s4); }
+.a8-consent-banner .a8-consent-now { margin-top: var(--a8-s3); color: var(--a8-muted); font-size: 13px; }
+@media (min-width: 640px) {
+  .a8-consent-banner { right: auto; left: var(--a8-gutter); bottom: var(--a8-s6); width: 420px; padding: var(--a8-s6); }
+}
+@keyframes a8-consent-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
 /* ── Reduced motion: no movement, the waveform rests at a fixed point and
    the logos sit in a static wrapped grid. ─────────────────────────────── */
@@ -244,6 +266,7 @@
   .a8-wave-played { animation: none; clip-path: inset(0 62% 0 0); }
   .a8-wave-head { display: none; }
   .a8-header, .a8-btn, .a8-logo { transition: none; }
+  .a8-consent-banner { animation: none; }
   .a8-btn:active { transform: none; }
   .a8-logos, .a8-logos[data-mode='marquee'] { -webkit-mask-image: none; mask-image: none; }
   .a8-logos .a8-logos-track, .a8-logos[data-mode='marquee'] .a8-logos-track { display: block; animation: none; width: auto; }
