@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       text: enquiryText(value),
     })
     // No personal details in the log: enough to match a request to its email.
-    console.log(`[audio-enquiry] sent ${id ?? '(no id)'} (${value.projectType})`)
+    console.log(`[audio-enquiry] sent ${id ?? '(no id)'} (${value.projectType}, via ${value.source})`)
   } catch (err) {
     console.error('[audio-enquiry] send failed:', err.message)
     return res.status(502).json({ error: 'We could not send your enquiry. Please try again, or email us.' })

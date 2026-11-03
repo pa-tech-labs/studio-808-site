@@ -59,6 +59,8 @@ Wait for "Valid Configuration" on both. Vercel issues the certificates.
 | `AUDIO_ENQUIRY_TO` | where enquiries go | Already set. |
 | `AUDIO_ENQUIRY_CC` | optional | Already set, if used. |
 | `AUDIO_ENQUIRY_FROM` | optional | Leave unset to use the default `Studio 808 Voice <voice@send.studio-808.com>`. If it is set to the old `808 Audio <audio@send.studio-808.com>`, update or remove it. |
+| `VITE_GA4_MEASUREMENT_ID` | GA4 web stream id, e.g. `G-ABC123XYZ` | Turns on the cookie banner and, once a visitor accepts, GA4 (page views, showreel plays, and `generate_lead` on a sent enquiry). Build time: redeploy after setting. |
+| `VITE_GOOGLE_ADS_CONVERSION_ID` | optional, the conversion's full `send_to`, e.g. `AW-123456789/AbCdEfGh` | Adds a Google Ads conversion on a sent enquiry, after consent. Copy it from Google Ads > Goals > Conversions > the conversion > Tag setup > Install the tag yourself (the `send_to` value). |
 
 The variable names keep "AUDIO": they are identifiers, and renaming them would
 silently drop values already set. Env var changes apply to new deployments

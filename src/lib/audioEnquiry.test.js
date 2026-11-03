@@ -2,7 +2,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { enquirySubject, enquiryText, isHoneypot, isIsoDate, oneLine, validateAudioEnquiry } from './audioEnquiry.js'
+import { DEFAULT_ENQUIRY_SOURCES, enquirySubject, enquiryText, isHoneypot, isIsoDate, oneLine, validateAudioEnquiry } from './audioEnquiry.js'
 
 const good = {
   name: '  Alex Reed ',
@@ -10,6 +10,7 @@ const good = {
   email: 'alex@northfield.example',
   phone: '+44 (0)1245 000 000',
   projectType: 'Audiobook',
+  source: 'Voiceover Studio Finder',
   length: '60,000 words',
   deadline: '2026-12-01',
   message: 'Unabridged narration, one narrator, ACX delivery.',
@@ -23,11 +24,23 @@ test('a complete enquiry passes, with values trimmed', () => {
   assert.equal(r.value.name, 'Alex Reed')
 })
 
-test('only name, email, project type, message and consent are required', () => {
-  const r = validateAudioEnquiry({ name: 'A', email: 'a@b.co', projectType: 'Other', message: 'Ten chars!', consent: true })
+test('only name, email, project type, source, message and consent are required', () => {
+  const r = validateAudioEnquiry({ name: 'A', email: 'a@b.co', projectType: 'Other', source: 'Other', message: 'Ten chars!', consent: true })
   assert.equal(r.ok, true)
   const empty = validateAudioEnquiry({})
-  assert.deepEqual(Object.keys(empty.errors).sort(), ['consent', 'email', 'message', 'name', 'projectType'])
+  assert.deepEqual(Object.keys(empty.errors).sort(), ['consent', 'email', 'message', 'name', 'projectType', 'source'])
+})
+
+test('how they heard about us: required, and one of the options when the form passes them', () => {
+  assert.ok(validateAudioEnquiry({ ...good, source: '  ' }).errors.source)
+  assert.ok(validateAudioEnquiry({ ...good, source: 'x'.repeat(81) }).errors.source)
+  assert.ok(validateAudioEnquiry({ ...good, source: 'TikTok' }, { sources: DEFAULT_ENQUIRY_SOURCES }).errors.source)
+  assert.equal(validateAudioEnquiry({ ...good, source: 'TikTok' }).ok, true, 'the server accepts any short value')
+  assert.equal(validateAudioEnquiry(good, { sources: DEFAULT_ENQUIRY_SOURCES }).ok, true)
+})
+
+test('the default sources are the agreed list', () => {
+  assert.deepEqual(DEFAULT_ENQUIRY_SOURCES, ['Google search', 'Google Maps', 'Voiceover Studio Finder', 'SoundBetter', 'LinkedIn', 'Referral', 'Existing client', 'Other'])
 })
 
 test('field formats are checked', () => {

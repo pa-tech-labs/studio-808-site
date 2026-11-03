@@ -330,6 +330,13 @@ export default defineType({
         defineField({ name: 'body', title: 'Text', type: 'text', rows: 2 }),
         defineField({ name: 'successMessage', title: 'Success message', type: 'text', rows: 2, description: 'Shown after the form is sent.' }),
         defineField({ name: 'projectTypes', title: 'Project types', type: 'array', of: [{ type: 'string' }], description: 'The choices in the form, e.g. Audiobook, Commercial' }),
+        defineField({
+          name: 'sources',
+          title: '"How did you hear about us?" choices',
+          type: 'array',
+          of: [{ type: 'string' }],
+          description: 'The choices in the form\'s required "How did you hear about us?" dropdown, and the answer sent in the enquiry email. Leave empty for the defaults: Google search, Google Maps, Voiceover Studio Finder, SoundBetter, LinkedIn, Referral, Existing client, Other.',
+        }),
         defineField({ name: 'recipientNote', title: 'Recipient note (internal)', type: 'text', rows: 2, description: 'Internal only, never shown on the site. e.g. who enquiries go to.' }),
       ],
     }),
