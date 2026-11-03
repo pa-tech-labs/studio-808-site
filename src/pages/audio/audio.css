@@ -173,7 +173,9 @@
 
 /* ── Credits wall ───────────────────────────────────────────────────────── */
 
-.a8-credits { padding: var(--a8-s16) 0 var(--a8-s24); border-top: 1px solid var(--a8-line); }
+/* A quiet band under the hero: the logos alone, so less room than a full
+   section. The session video (a full .a8-sec) follows it. */
+.a8-credits { padding: var(--a8-s16) 0; border-top: 1px solid var(--a8-line); }
 .a8-caption { margin-top: 0; margin-bottom: var(--a8-s6); color: var(--a8-muted); font-size: 14px; font-weight: 500; }
 
 /* Logos: sized by height, width from each asset's aspect ratio, 72px apart
@@ -198,8 +200,9 @@
   .a8-logos-toggle:hover { color: var(--a8-text); }
 }
 
-.a8-voices { margin-top: var(--a8-s16); }
-.a8-voices h2 { margin: 0 0 var(--a8-s8); font-size: clamp(26px, 3.4vw, 36px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; }
+/* Its own section now (.a8-sec rhythm and hairline), between the session video and the work. */
+/* A section heading like its neighbours' (.a8-h2), with the section-head gap below. */
+.a8 .a8-voices h2 { margin: 0 0 var(--a8-s12); }
 .a8-voices ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--a8-s8) var(--a8-s4); }
 @media (min-width: 768px) {
   .a8-voices ul { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--a8-s12) var(--a8-s6); }

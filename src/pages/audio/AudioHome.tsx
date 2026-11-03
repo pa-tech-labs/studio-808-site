@@ -1,11 +1,12 @@
-// The /audio page. Sections run in this order; the placeholder slots render
-// nothing until later prompts build them, so they can be filled in place.
+// The /audio page. Sections run in this order. Each renders nothing when its
+// content is empty (or, for the engineers, switched off in Sanity), so the
+// page closes up around it. The build-time prerender renders this same tree.
 
 import { useOutletContext } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import AudioHead from './AudioHead'
 import Hero from './sections/Hero'
-import CreditsWall from './sections/CreditsWall'
+import { RecordedFor, VoicesRecorded } from './sections/CreditsWall'
 import Showreel from './sections/Showreel'
 import CaseStudy from './sections/CaseStudy'
 import Room from './sections/Room'
@@ -22,14 +23,15 @@ export default function AudioHome() {
     <>
       <AudioHead data={data} route="home" />
       <Hero hero={data.page?.hero} size={data.page?.heroImageSize} />
-      <CreditsWall credits={data.credits ?? []} />
+      <RecordedFor credits={data.credits ?? []} />
+      <Process data={data} />
+      <VoicesRecorded credits={data.credits ?? []} />
       <Showreel data={data} />
       <CaseStudy data={data} />
       <Room data={data} />
       <Engineer data={data} />
       <Services data={data} />
       <Rates data={data} />
-      <Process data={data} />
       <FAQ data={data} />
       <Enquiry data={data} />
     </>

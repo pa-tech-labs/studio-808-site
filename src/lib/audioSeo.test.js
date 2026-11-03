@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   audioBaseUrl, audioCanonical, audioEngineers, audioHeadTags, buildAudioHead, buildAudioJsonLd,
-  clockDuration, isoDuration, jsonLdString, parseUkAddress, visibleSessionVideo,
+  clockDuration, isoDuration, visibleEngineers, jsonLdString, parseUkAddress, visibleSessionVideo,
 } from './audioSeo.js'
 
 const ORIGIN = 'https://www.studio-808.com'
@@ -16,6 +16,7 @@ const page = {
   seo: { metaTitle: 'Voiceover and Audiobook Recording Studio in Essex | Studio 808 Voice', metaDescription: 'Professional voiceover recording in Chelmsford.' },
   hero: { headline: 'Broadcast-grade voice recording' },
   footer: { addressLine: 'Unit 11, Robjohns House, Navigation Road, Chelmsford CM2 6ND', email: 'info@studio-808.com', phone: '01245 000000' },
+  showEngineers: true,
   engineers: [{ name: 'Paul', role: 'Engineer' }, { name: 'Heetan', role: 'Recording engineer' }],
   services: [{ title: 'Audiobook recording', description: 'Narration to ACX spec.' }, { title: '' }],
   faqs: [{ question: 'Do you provide talent?', answer: 'Yes.' }, { question: 'Half', answer: '' }],
@@ -172,6 +173,19 @@ test('no session VideoObject, and nothing on the page, until cleared with a vide
   assert.equal(clockDuration(76), '1:16')
   assert.equal(clockDuration(9), '0:09')
   assert.equal(clockDuration(null), '')
+})
+
+test('engineers hidden: no employees in the JSON-LD, the business and video stay', () => {
+  const hidden = { ...page, showEngineers: false, sessionVideo: session }
+  const g = buildAudioJsonLd({ data: { ...data, page: hidden }, origin: ORIGIN, imageUrl })
+  const [b] = byType(g, 'LocalBusiness')
+  assert.equal('employee' in b, false)
+  assert.deepEqual(b['@type'], ['LocalBusiness', 'ProfessionalService'])
+  assert.equal(g['@graph'].some(n => n['@type'] === 'Person' || n.employee), false)
+  assert.ok(byType(g, 'VideoObject').some(n => n['@id'].endsWith('#session-video')))
+  assert.deepEqual(visibleEngineers(hidden), [])
+  assert.deepEqual(visibleEngineers({ ...hidden, showEngineers: undefined }), [], 'off unless switched on')
+  assert.equal(visibleEngineers({ ...hidden, showEngineers: true }).length, 2)
 })
 
 test('the old single engineer is used until the list has someone', () => {

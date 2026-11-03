@@ -1,24 +1,36 @@
-// Credits wall, directly under the hero. Only credits marked "Cleared" in
-// Sanity show; the query returns all of them and the filter lives here.
-// Logos sit in one static centred row when they fit, and run as a slow
-// marquee only when they do not (pauses on hover and from its own button;
-// a static wrapped grid under reduced motion). Credits with a talent photo
-// show as "Voices we've recorded". No cleared credits, no section.
+// The credits, as two sections that sit apart on the page (AudioHome.tsx):
+// "Recorded for", the client logos directly under the hero, and "Voices
+// we've recorded", credits with a talent photo, further down. Only credits
+// marked "Cleared" in Sanity show; the query returns all of them and the
+// filter lives here. Logos sit in one static centred row when they fit, and
+// run as a slow marquee only when they do not (pauses on hover and from its
+// own button; a static wrapped grid under reduced motion). Each section
+// renders nothing when it has nothing to show.
 
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import type { AudioCredit } from '../../../lib/audioPage'
 import { audioImageSrcSet, audioImageUrl, audioLogoUrl } from '../image'
 
-export default function CreditsWall({ credits }: { credits: AudioCredit[] }) {
-  const cleared = credits.filter(c => c.cleared === true)
-  const logos = cleared.filter(c => audioLogoUrl(c.logo, 96))
-  const voices = cleared.filter(c => audioImageUrl(c.talentPhoto, 480, 600))
-  if (logos.length === 0 && voices.length === 0) return null
+const cleared = (credits: AudioCredit[]) => credits.filter(c => c.cleared === true)
 
+/** "Recorded for": the cleared credits with a logo. */
+export function RecordedFor({ credits }: { credits: AudioCredit[] }) {
+  const logos = cleared(credits).filter(c => audioLogoUrl(c.logo, 96))
+  if (logos.length === 0) return null
   return (
-    <section className="a8-credits" aria-label="Credits">
-      {logos.length > 0 && <LogoRow credits={logos} />}
-      {voices.length > 0 && <Voices credits={voices} />}
+    <section className="a8-credits" aria-label="Recorded for">
+      <LogoRow credits={logos} />
+    </section>
+  )
+}
+
+/** "Voices we've recorded": the cleared credits with a talent photo. */
+export function VoicesRecorded({ credits }: { credits: AudioCredit[] }) {
+  const voices = cleared(credits).filter(c => audioImageUrl(c.talentPhoto, 480, 600))
+  if (voices.length === 0) return null
+  return (
+    <section className="a8-sec a8-voices-sec" aria-labelledby="a8-voices-title">
+      <Voices credits={voices} />
     </section>
   )
 }
@@ -113,7 +125,7 @@ function LogoRow({ credits }: { credits: AudioCredit[] }) {
 function Voices({ credits }: { credits: AudioCredit[] }) {
   return (
     <div className="a8-wrap a8-voices">
-      <h2>Voices we've recorded</h2>
+      <h2 id="a8-voices-title" className="a8-h2">Voices we've recorded</h2>
       <ul>
         {credits.map(c => (
           <li key={c._id}>

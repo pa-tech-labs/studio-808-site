@@ -148,6 +148,14 @@ export default defineType({
     }),
 
     defineField({
+      name: 'showEngineers',
+      title: 'Show the engineers section',
+      type: 'boolean',
+      group: 'room',
+      initialValue: false,
+      description: 'Off hides the engineer cards (and leaves them out of the page\'s search data). The session video introduces Heetan instead. The engineers below are kept either way.',
+    }),
+    defineField({
       name: 'engineersHeading',
       title: 'Engineers heading',
       type: 'string',

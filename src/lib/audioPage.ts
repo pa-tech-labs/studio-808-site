@@ -96,6 +96,8 @@ export interface AudioPage {
       featured?: boolean | null
     }[] | null
   } | null
+  /** Shows the engineers section (and their Person entries in the JSON-LD). Off unless true. */
+  showEngineers?: boolean | null
   /** The engineer's "how a session works" video. Show only when `cleared` and there is a video. */
   sessionVideo?: AudioSessionVideo | null
   process?: { _key?: string; step?: number | null; title?: string | null; description?: string | null }[] | null

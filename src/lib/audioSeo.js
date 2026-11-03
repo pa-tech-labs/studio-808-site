@@ -34,7 +34,15 @@ export function audioOgImageSource(page) {
   return page?.seo?.ogImage?.asset ? page.seo.ogImage : page?.hero?.backgroundImage ?? null
 }
 
-/** The engineers to show: the list, else the old single engineer. */
+/**
+ * The engineers on the page: none unless audioPage.showEngineers is on, so
+ * the section and the JSON-LD's employees always agree.
+ */
+export function visibleEngineers(page) {
+  return page?.showEngineers === true ? audioEngineers(page) : []
+}
+
+/** The engineers in Sanity: the list, else the old single engineer. */
 export function audioEngineers(page) {
   const ok = e => Boolean(e && (text(e.name) || some(e.bio)))
   const list = (page?.engineers ?? []).filter(ok)
@@ -199,7 +207,7 @@ export function buildAudioJsonLd({ data, route = 'home', origin, ogImage, imageU
   const businessId = `${base}/#business`
   const footer = page.footer ?? {}
 
-  const engineers = audioEngineers(page)
+  const engineers = visibleEngineers(page)
     .filter(e => text(e.name))
     .map(e => compact({ '@type': 'Person', name: text(e.name), jobTitle: text(e.role) }))
 
