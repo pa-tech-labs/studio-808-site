@@ -30,20 +30,51 @@ export function audioHeadHtml({ head, jsonLd }) {
   return lines.join('\n    ')
 }
 
+/** The id of the prerendered body; AudioLayout removes it once the app has rendered. */
+export const PRERENDER_BODY_ID = 'a8-prerender'
+
 /**
  * The app's index.html with the audio head baked in: the title replaced, the
  * main site's own JSON-LD (Studio 808) and its hero video preload removed,
  * and the audio tags added before </head>. The app bundle is left as is.
+ *
+ * With `body` (the page rendered by src/pages/audio/prerenderEntry.tsx) the
+ * copy is in the HTML too, in front of #root, styled by `stylesheets` (the
+ * Studio 808 Voice CSS, which otherwise only arrives with the lazy route
+ * chunk; Vite skips a stylesheet that is already linked, so it loads once).
  */
-export function prerenderHtml(indexHtml, { head, jsonLd }) {
+export function prerenderHtml(indexHtml, { head, jsonLd, body = '', stylesheets = [] }) {
   if (!/<title>[\s\S]*?<\/title>/.test(indexHtml) || !indexHtml.includes('</head>')) {
     throw new Error('index.html has no <title> or </head> to fill')
   }
-  return indexHtml
+  if (body && !indexHtml.includes('<div id="root"></div>')) {
+    throw new Error('index.html has no empty <div id="root"> to put the body before')
+  }
+  const css = stylesheets.filter(href => !indexHtml.includes(`href="${href}"`)).map(href => `<link rel="stylesheet" crossorigin href="${attr(href)}" />`).join('\n    ')
+  let html = indexHtml
     .replace(/<title>[\s\S]*?<\/title>/, `<title ${PRERENDER_ATTR}>${text(head.title)}</title>`)
     .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '')
     .replace(/\s*<link rel="preload" as="video"[^>]*>/g, '')
-    .replace(/\s*<\/head>/, `\n    ${audioHeadHtml({ head, jsonLd })}\n  </head>`)
+    .replace(/\s*<\/head>/, `\n    ${audioHeadHtml({ head, jsonLd })}${css ? `\n    ${css}` : ''}\n  </head>`)
+  if (body) html = html.replace('<div id="root"></div>', () => `<div id="${PRERENDER_BODY_ID}">${body}</div>\n    <div id="root"></div>`)
+  return html
+}
+
+/**
+ * The stylesheets a lazily loaded module needs, from Vite's build manifest
+ * (`vite build --manifest`): its own CSS and that of every chunk it imports.
+ */
+export function manifestCss(manifest, entry) {
+  const seen = new Set()
+  const css = []
+  const walk = key => {
+    if (seen.has(key) || !manifest[key]) return
+    seen.add(key)
+    for (const i of manifest[key].imports ?? []) walk(i)
+    for (const c of manifest[key].css ?? []) if (!css.includes(`/${c}`)) css.push(`/${c}`)
+  }
+  walk(entry)
+  return css
 }
 
 /** The subdomain sitemap: / and, when there are terms, /terms. Empty when the page is off or noindex. */

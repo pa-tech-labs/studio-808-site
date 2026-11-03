@@ -73,7 +73,7 @@ export default async function handler(req, res) {
   const from = process.env.AUDIO_ENQUIRY_FROM || 'Studio 808 Voice <voice@send.studio-808.com>'
 
   try {
-    await sendEmail(apiKey, {
+    const id = await sendEmail(apiKey, {
       from,
       to,
       ...(cc.length ? { cc } : {}),
@@ -81,6 +81,8 @@ export default async function handler(req, res) {
       subject: enquirySubject(value),
       text: enquiryText(value),
     })
+    // No personal details in the log: enough to match a request to its email.
+    console.log(`[audio-enquiry] sent ${id ?? '(no id)'} (${value.projectType})`)
   } catch (err) {
     console.error('[audio-enquiry] send failed:', err.message)
     return res.status(502).json({ error: 'We could not send your enquiry. Please try again, or email us.' })
@@ -89,11 +91,18 @@ export default async function handler(req, res) {
   return res.status(200).json({ ok: true })
 }
 
+// Resend normally answers in well under a second; a hung call would otherwise
+// hold the function (and the visitor's spinner) until the platform timeout.
+const SEND_TIMEOUT_MS = 10_000
+
+/** Sends via Resend and returns the email id. */
 async function sendEmail(apiKey, payload) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
   })
   if (!r.ok) throw new Error(`Resend ${r.status}: ${await r.text()}`)
+  return (await r.json().catch(() => ({}))).id
 }

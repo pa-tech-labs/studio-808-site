@@ -11,6 +11,15 @@ export const OG_WIDTH = 1200
 export const OG_HEIGHT = 630
 export const AREA_SERVED = ['Essex', 'London', 'United Kingdom']
 const PARENT = { '@type': 'Organization', name: 'Studio 808 Ltd', url: 'https://www.studio-808.com/' }
+/**
+ * What the business sells, in the JSON-LD whatever Sanity's services list
+ * says (those become their own Service nodes as well).
+ */
+export const CORE_SERVICES = [
+  { name: 'Voiceover recording', description: 'Commercial, broadcast, eLearning and corporate voiceover recorded with an engineer in a treated booth.' },
+  { name: 'Audiobook recording', description: 'Audiobook narration recorded, edited and mastered in Chelmsford, Essex.' },
+  { name: 'ACX-ready audiobook delivery', description: 'Chapter files mastered and checked to ACX and Audible submission requirements.' },
+]
 const DEFAULT_TITLE = 'Studio 808 Voice | Voiceover and audiobook recording in Chelmsford, Essex'
 const DEFAULT_DESCRIPTION = 'Voiceover and audiobook recording studio in Chelmsford, Essex, with an engineer on every session.'
 const TERMS_TITLE = 'Service terms | Studio 808 Voice'
@@ -31,6 +40,23 @@ export function audioEngineers(page) {
   const list = (page?.engineers ?? []).filter(ok)
   if (list.length) return list
   return ok(page?.engineer) ? [page.engineer] : []
+}
+
+/**
+ * The session video to show, or null: only once it is cleared and has a
+ * video file. Shared by the page (Process section) and the JSON-LD so the
+ * two can never disagree.
+ */
+export function visibleSessionVideo(page) {
+  const v = page?.sessionVideo
+  return v && v.cleared === true && text(v.videoUrl) ? v : null
+}
+
+/** "1:16" for 76 seconds; '' when unknown. */
+export function clockDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return ''
+  const s = Math.round(seconds)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
 /**
@@ -178,7 +204,9 @@ export function buildAudioJsonLd({ data, route = 'home', origin, ogImage, imageU
     .map(e => compact({ '@type': 'Person', name: text(e.name), jobTitle: text(e.role) }))
 
   const business = compact({
-    '@type': 'LocalBusiness',
+    // A local business (address, hours: the map pack) that sells a professional
+    // service; Google reads both types.
+    '@type': ['LocalBusiness', 'ProfessionalService'],
     '@id': businessId,
     additionalType: 'http://www.productontology.org/id/Recording_studio',
     name: SITE_NAME,
@@ -195,6 +223,15 @@ export function buildAudioJsonLd({ data, route = 'home', origin, ogImage, imageU
       opens: '09:00',
       closes: '18:00',
     }],
+    knowsAbout: CORE_SERVICES.map(c => c.name),
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Voiceover and audiobook recording',
+      itemListElement: CORE_SERVICES.map(c => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: c.name, description: c.description, serviceType: c.name },
+      })),
+    },
     parentOrganization: PARENT,
     employee: engineers.length ? engineers : undefined,
     sameAs: [],
@@ -225,6 +262,26 @@ export function buildAudioJsonLd({ data, route = 'home', origin, ogImage, imageU
           acceptedAnswer: { '@type': 'Answer', text: text(f.answer) },
         })),
       })
+    }
+
+    const session = visibleSessionVideo(page)
+    if (session) {
+      const name = text(session.heading) || 'How a session works'
+      const paragraphs = text(session.transcript).split(/\n\s*\n/).map(p => p.replace(/\s+/g, ' ').trim()).filter(Boolean)
+      graph.push(compact({
+        '@type': 'VideoObject',
+        '@id': `${base}/#session-video`,
+        name: `${name} | ${SITE_NAME}`,
+        description: text(session.intro) || `${name}: an engineer at ${SITE_NAME} in Chelmsford explains a voiceover or audiobook recording session.`,
+        thumbnailUrl: imageUrl(session.poster, 1080) || ogImage || undefined,
+        uploadDate: text(session.videoUploadedAt) || undefined,
+        duration: isoDuration(session.durationSeconds),
+        contentUrl: text(session.videoUrl),
+        encodingFormat: mimeOf(session.videoUrl, session.videoMimeType),
+        transcript: paragraphs.join('\n\n') || undefined,
+        inLanguage: 'en-GB',
+        publisher: { '@id': businessId },
+      }))
     }
 
     for (const clip of visibleClips(data.clips)) {

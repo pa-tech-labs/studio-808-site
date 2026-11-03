@@ -1,6 +1,6 @@
 // After `vite build`: the build output for voice.studio-808.com.
 //
-//   dist/audio/index.html        / with its head and JSON-LD prerendered
+//   dist/audio/index.html        / with its head, JSON-LD and body prerendered
 //   dist/audio/terms/index.html  /terms likewise
 //   dist/audio/sitemap.xml       served as voice.studio-808.com/sitemap.xml
 //   dist/audio/robots.txt        served as voice.studio-808.com/robots.txt
@@ -13,14 +13,17 @@
 // reached or has no audioPage: shipping link previews with empty meta would
 // be worse than a failed deploy (the previous deployment stays live).
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { pathToFileURL } from 'node:url'
+import { build } from 'vite'
 import imageUrlBuilder from '@sanity/image-url'
 import { AUDIO_PAGE_QUERY } from '../src/lib/audioPageQuery.js'
 import { VOICE_ORIGIN } from '../src/lib/audioHost.js'
 import { makeAudioImageUrl } from '../src/lib/audioImageUrl.js'
 import { audioOgImageSource, buildAudioHead, buildAudioJsonLd, OG_HEIGHT, OG_WIDTH } from '../src/lib/audioSeo.js'
 import { addSitemapEntries } from './sitemap.js'
-import { audioNotFoundHtml, audioRobotsTxt, audioSitemapXml, prerenderHtml } from './audioPrerender.js'
+import { audioNotFoundHtml, audioRobotsTxt, audioSitemapXml, manifestCss, prerenderHtml } from './audioPrerender.js'
+import { VOICE_HOST } from '../src/lib/audioHost.js'
 
 // Vercel sets these as real env vars; locally they live in .env files, which
 // only Vite reads on its own.
@@ -52,14 +55,41 @@ const builder = imageUrlBuilder({ projectId, dataset })
 const imageUrl = makeAudioImageUrl(img => builder.image(img))
 const ogImage = imageUrl(audioOgImageSource(data.page), OG_WIDTH, OG_HEIGHT)
 
+// The page body, so crawlers and no-JS clients get the copy: the same React
+// components, rendered once here (src/pages/audio/prerenderEntry.tsx), with
+// the Voice route's CSS linked from Vite's manifest. Only for an enabled page;
+// a disabled one redirects away in the app and gets no body.
+let renderAudioBody = null
+let stylesheets = []
+if (data.page.enabled === true) {
+  try {
+    await build({
+      logLevel: 'warn',
+      publicDir: false,
+      build: { ssr: 'src/pages/audio/prerenderEntry.tsx', outDir: 'dist-ssr', emptyOutDir: true },
+    })
+    ;({ renderAudioBody } = await import(pathToFileURL('dist-ssr/prerenderEntry.js').href))
+    const manifest = JSON.parse(await readFile('dist/.vite/manifest.json', 'utf8'))
+    stylesheets = manifestCss(manifest, 'src/pages/audio/AudioRoute.tsx')
+    if (!stylesheets.length) throw new Error('no CSS for src/pages/audio/AudioRoute.tsx in the build manifest')
+  } catch (err) {
+    fail(`the body prerender could not be built (${err.message}).`)
+  } finally {
+    await rm('dist-ssr', { recursive: true, force: true })
+  }
+}
+// The manifest is a build artefact, not something to serve.
+await rm('dist/.vite', { recursive: true, force: true })
+
 const indexHtml = await readFile('dist/index.html', 'utf8')
 for (const route of ['home', 'terms']) {
   const head = buildAudioHead({ page: data.page, route, origin: VOICE_ORIGIN, ogImage })
   const jsonLd = buildAudioJsonLd({ data, route, origin: VOICE_ORIGIN, ogImage, imageUrl })
+  const body = renderAudioBody ? renderAudioBody(data, route, VOICE_HOST) : ''
   const dir = route === 'terms' ? 'dist/audio/terms' : 'dist/audio'
   await mkdir(dir, { recursive: true })
-  await writeFile(`${dir}/index.html`, prerenderHtml(indexHtml, { head, jsonLd }))
-  console.log(`[audio] ${dir}/index.html: "${head.title}", canonical ${head.canonical}${head.robots ? `, ${head.robots}` : ''}`)
+  await writeFile(`${dir}/index.html`, prerenderHtml(indexHtml, { head, jsonLd, body, stylesheets: body ? stylesheets : [] }))
+  console.log(`[audio] ${dir}/index.html: "${head.title}", canonical ${head.canonical}${head.robots ? `, ${head.robots}` : ''}, body ${body ? `${Math.round(body.length / 1024)} KB` : 'not prerendered'}`)
 }
 
 await writeFile('dist/audio/sitemap.xml', audioSitemapXml(data.page))

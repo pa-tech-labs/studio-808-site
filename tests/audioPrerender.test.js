@@ -7,7 +7,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { audioNotFoundHtml, audioRobotsTxt, audioSitemapXml, prerenderHtml } from '../scripts/audioPrerender.js'
+import { audioNotFoundHtml, audioRobotsTxt, audioSitemapXml, manifestCss, prerenderHtml } from '../scripts/audioPrerender.js'
 import { buildAudioHead, buildAudioJsonLd } from '../src/lib/audioSeo.js'
 
 const ORIGIN = 'https://voice.studio-808.com'
@@ -51,7 +51,7 @@ for (const [route, path, title] of [['home', '/', 'Voiceover &amp; Audiobook Rec
     one(html, '<meta data-audio-prerender name="twitter:card" content="summary_large_image" />')
     one(html, '<meta data-audio-prerender name="twitter:image" content="[^"]+" />')
     const ld = JSON.parse(one(html, '<script data-audio-prerender type="application/ld\\+json">[^<]*</script>').replace(/^<script[^>]*>|<\/script>$/g, ''))
-    assert.equal(ld['@graph'][0]['@type'], 'LocalBusiness')
+    assert.deepEqual(ld['@graph'][0]['@type'], ['LocalBusiness', 'ProfessionalService'])
     assert.equal(ld['@graph'][0].url, `${ORIGIN}/`)
     assert.equal(ld['@graph'].some(n => n['@type'] === 'FAQPage'), route === 'home')
   })
@@ -103,4 +103,31 @@ test('404 page: branded, noindex, links back to /', () => {
   assert.match(html, /<a class="btn" href="\/">Back to Studio 808 Voice<\/a>/)
   assert.match(html, /<a class="mark" href="\/"><img src="\/audio\/studio-808-wordmark\.png" alt="Studio 808 Voice" width="786" height="350" \/><span aria-hidden="true">Voice<\/span>/)
   assert.doesNotMatch(html, /—/)
+})
+
+test('the body goes in front of #root, with the Voice CSS linked in the head', () => {
+  const head = buildAudioHead({ page, route: 'home', origin: ORIGIN, ogImage: OG })
+  const html = prerenderHtml(shell, { head, jsonLd: null, body: '<div class="a8"><h1>Voice $& $1</h1></div>', stylesheets: ['/assets/AudioRoute-x.css'] })
+  assert.match(html, /<div id="a8-prerender"><div class="a8"><h1>Voice \$& \$1<\/h1><\/div><\/div>\s*<div id="root"><\/div>/, 'inserted verbatim, $ patterns untouched')
+  const headPart = html.slice(0, html.indexOf('</head>'))
+  assert.ok(headPart.includes('<link rel="stylesheet" crossorigin href="/assets/AudioRoute-x.css" />'))
+  assert.equal((html.match(/id="root"/g) ?? []).length, 1)
+  const again = prerenderHtml(shell.replace('</head>', '<link rel="stylesheet" crossorigin href="/assets/index-x.css">\n</head>'), { head, jsonLd: null, body: '<p>x</p>', stylesheets: ['/assets/index-x.css'] })
+  assert.equal((again.match(/index-x\.css/g) ?? []).length, 1, 'a stylesheet the shell already links is not linked twice')
+})
+
+test('no body: the shell is left as it was', () => {
+  const head = buildAudioHead({ page, route: 'home', origin: ORIGIN, ogImage: OG })
+  const html = prerenderHtml(shell, { head, jsonLd: null })
+  assert.equal(html.includes('a8-prerender'), false)
+  assert.equal(html.includes('rel="stylesheet" crossorigin'), false)
+})
+
+test('manifestCss collects a lazy module\'s CSS and its imports\', once each', () => {
+  const manifest = {
+    'src/pages/audio/AudioRoute.tsx': { file: 'assets/AudioRoute.js', css: ['assets/AudioRoute.css'], imports: ['_shared.js'] },
+    '_shared.js': { file: 'assets/shared.js', css: ['assets/shared.css', 'assets/AudioRoute.css'], imports: ['src/pages/audio/AudioRoute.tsx'] },
+  }
+  assert.deepEqual(manifestCss(manifest, 'src/pages/audio/AudioRoute.tsx'), ['/assets/shared.css', '/assets/AudioRoute.css'])
+  assert.deepEqual(manifestCss(manifest, 'missing'), [])
 })

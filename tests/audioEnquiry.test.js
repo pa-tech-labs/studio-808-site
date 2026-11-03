@@ -10,9 +10,12 @@ const sent = []
 let failSend = false
 const realFetch = globalThis.fetch
 const realError = console.error
+const realLog = console.log
+const logged = []
 
 beforeEach(() => {
   sent.length = 0
+  logged.length = 0
   failSend = false
   process.env.RESEND_API_KEY = 'test-key'
   process.env.AUDIO_ENQUIRY_TO = 'audio@example.com'
@@ -21,12 +24,13 @@ beforeEach(() => {
   delete process.env.VERCEL_ENV
   delete process.env.VERCEL_URL
   globalThis.fetch = async (url, init) => {
-    sent.push({ url, body: JSON.parse(init.body) })
-    return { ok: !failSend, status: failSend ? 500 : 200, text: async () => 'stub' }
+    sent.push({ url, body: JSON.parse(init.body), signal: init.signal })
+    return { ok: !failSend, status: failSend ? 500 : 200, text: async () => 'stub', json: async () => ({ id: 'email_123' }) }
   }
   console.error = () => {}
+  console.log = (...a) => { logged.push(a.join(' ')) }
 })
-afterEach(() => { globalThis.fetch = realFetch; console.error = realError })
+afterEach(() => { globalThis.fetch = realFetch; console.error = realError; console.log = realLog })
 
 // Fresh module per test so the in-memory rate limiter starts empty.
 let n = 0
@@ -65,6 +69,19 @@ test('a valid enquiry is emailed as plain text, with CC, reply-to and the subjec
   assert.equal(m.html, undefined)
   assert.match(m.text, /Approximate length: 60,000 words/)
   assert.match(m.from, /Studio 808 Voice/)
+})
+
+test('the send has a timeout, and success logs the Resend id without personal details', async () => {
+  await call(await load(), good)
+  assert.ok(sent[0].signal instanceof AbortSignal)
+  assert.deepEqual(logged, ['[audio-enquiry] sent email_123 (Audiobook)'])
+  assert.doesNotMatch(logged.join(), /Alex|northfield/i)
+})
+
+test('a Resend timeout is a 502, not a hung request', async () => {
+  globalThis.fetch = async () => { throw new DOMException('The operation was aborted due to timeout', 'TimeoutError') }
+  const r = await call(await load(), good)
+  assert.equal(r.status, 502)
 })
 
 test('no CC header when AUDIO_ENQUIRY_CC is empty', async () => {

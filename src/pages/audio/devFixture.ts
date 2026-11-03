@@ -157,6 +157,21 @@ const sections = {
       { _key: 't3', name: 'Audiobook', price: 'From £180', unit: 'per finished hour', includes: ['Recording, editing and mastering', 'ACX delivery', 'One round of pickups'] },
     ],
   },
+  // The session video plays from public/audio/dev/ (gitignored): copy the
+  // encoded MP4, poster and .vtt there as session.mp4, session-poster.jpg and
+  // session.en.vtt to see it locally. Without them the poster and video are blank.
+  sessionVideo: {
+    heading: 'How a session works',
+    intro: 'Placeholder copy. Heetan explains what happens from the moment you arrive to the files landing in your inbox.',
+    videoUrl: '/audio/dev/session.mp4',
+    videoMimeType: 'video/mp4',
+    videoUploadedAt: '2026-11-03T14:00:00Z',
+    poster: { url: '/audio/dev/session-poster.jpg', alt: 'Heetan in the control room at Studio 808, talking to camera' },
+    captionsUrl: '/audio/dev/session.en.vtt',
+    durationSeconds: 76,
+    transcript: 'Placeholder transcript, first paragraph. The real one comes from Sanity.\n\nSecond paragraph, so the disclosure shows its spacing.',
+    cleared: true,
+  },
   process: [
     { _key: 'p1', step: 1, title: 'Tell us about it', description: 'Placeholder copy. Send the script or a sample and the deadline.' },
     { _key: 'p2', step: 2, title: 'Get a quote', description: 'Placeholder copy. A fixed price and dates within one working day.' },

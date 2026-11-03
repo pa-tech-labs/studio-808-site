@@ -32,6 +32,10 @@ export default function AudioHead({ data, route }: { data: AudioPageData; route:
     document.head.querySelectorAll('[data-audio-prerender]').forEach(n => n.remove())
   }, [])
 
+  // The build-time body prerender (prerenderEntry.tsx) has no <head> to fill:
+  // the baked head above already carries these tags.
+  if (typeof window === 'undefined') return null
+
   return (
     <Helmet prioritizeSeoTags>
       <title>{head.title}</title>

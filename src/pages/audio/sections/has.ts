@@ -3,7 +3,7 @@
 // both use these.
 
 import type { AudioPage, AudioPageData } from '../../../lib/audioPage'
-import { audioEngineers } from '../../../lib/audioSeo.js'
+import { audioEngineers, visibleSessionVideo } from '../../../lib/audioSeo.js'
 import { groupClips } from '../../../lib/showreel.js'
 
 const text = (s: string | null | undefined) => Boolean(s && s.trim())
@@ -31,6 +31,9 @@ export const hasServices = (p: AudioPage | null | undefined) => some(p?.services
 export const hasRates = (p: AudioPage | null | undefined) => some(p?.rates?.tiers?.filter(t => text(t.name)))
 
 export const hasProcess = (p: AudioPage | null | undefined) => some(p?.process?.filter(s => text(s.title)))
+
+/** The cleared session video, or null. It sits in the Process section, so either one renders it. */
+export const sessionVideoOf = (p: AudioPage | null | undefined) => visibleSessionVideo(p)
 
 export const hasFaqs = (p: AudioPage | null | undefined) => some(p?.faqs?.filter(f => text(f.question) && text(f.answer)))
 

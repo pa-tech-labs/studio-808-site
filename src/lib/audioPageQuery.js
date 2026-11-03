@@ -8,7 +8,14 @@ export const AUDIO_PAGE_QUERY = `{
   "page": *[_id == "audioPage"][0] {
     _updatedAt, enabled, seo, hero,
     "heroImageSize": hero.backgroundImage.asset->metadata.dimensions{ width, height }, showreelIntro, caseStudy, room, engineersHeading, engineers, engineer,
-    services, rates, process, faqs, enquiry, footer, terms, termsUpdated
+    services, rates, process, faqs, enquiry, footer, terms, termsUpdated,
+    "sessionVideo": sessionVideo {
+      heading, intro, poster, durationSeconds, transcript, cleared,
+      "videoUrl": video.asset->url,
+      "videoMimeType": video.asset->mimeType,
+      "videoUploadedAt": video.asset->_createdAt,
+      "captionsUrl": captions.asset->url
+    }
   },
   "clips": *[_type == "audioClip"] | order(order asc) {
     _id, _createdAt, title, clipType, client, production, talent, engineer, description,
