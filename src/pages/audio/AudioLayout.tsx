@@ -4,7 +4,7 @@
 // Paths come from lib/audioHost.js: / and /terms on voice.studio-808.com,
 // /audio and /audio/terms elsewhere.
 
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useLayoutEffect, useState, type MouseEvent } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import type { AudioPageData } from '../../lib/audioPage'
 import { AUDIO_ANCHORS, scrollToAnchor } from './anchors'
@@ -24,6 +24,10 @@ const NAV = [
 
 export default function AudioLayout({ data }: { data: AudioPageData }) {
   useEffect(() => forwardAudioAnalytics(), [])
+  // voice.studio-808.com arrives with this page already rendered in front of
+  // #root (scripts/buildAudio.js), for crawlers. Now that the app has rendered
+  // the same page, swap it in before the browser paints.
+  useLayoutEffect(() => takeOverPrerender(), [])
   const { pathname } = useLocation()
   const host = currentHost()
   const onHome = audioPageOf(host, pathname) === 'home'
@@ -51,6 +55,33 @@ export default function AudioLayout({ data }: { data: AudioPageData }) {
       <AudioFooter footer={data.page?.footer} terms={hasTerms(data.page)} />
     </div>
   )
+}
+
+/**
+ * Replaces the prerendered copy of the page with the app's. Its CSS
+ * animations (the hero entrance, the waveform) are already under way, and
+ * the app's identical elements would start theirs from zero, so the hero
+ * would play twice: each new animation takes over the time of its
+ * counterpart (same animation name, same position in the page) first.
+ */
+function takeOverPrerender() {
+  const pre = document.getElementById('a8-prerender')
+  if (!pre) return
+  const live = document.querySelector('#root .a8')
+  if (live && typeof pre.getAnimations === 'function') {
+    const name = (a: Animation) => (a as CSSAnimation).animationName ?? ''
+    const running = new Map<string, Animation[]>()
+    for (const a of pre.getAnimations({ subtree: true })) running.set(name(a), [...(running.get(name(a)) ?? []), a])
+    const seen = new Map<string, number>()
+    for (const a of live.getAnimations({ subtree: true })) {
+      const n = name(a)
+      const i = seen.get(n) ?? 0
+      seen.set(n, i + 1)
+      const t = running.get(n)?.[i]?.currentTime
+      if (t != null) a.currentTime = t
+    }
+  }
+  pre.remove()
 }
 
 /** On the home page a link is "#id"; elsewhere in the shell (terms) it goes back to home#id. */

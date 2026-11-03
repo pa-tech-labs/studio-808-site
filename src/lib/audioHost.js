@@ -41,7 +41,10 @@ export function audioPageOf(host, pathname) {
   return null
 }
 
-/** The current browser host, or '' outside a browser. */
+/**
+ * The current browser host. Outside a browser it is '' unless the build-time
+ * body prerender (scripts/buildAudio.js) has set the host it renders for.
+ */
 export function currentHost() {
-  return typeof window === 'undefined' ? '' : window.location.host
+  return typeof window === 'undefined' ? globalThis.__AUDIO_PRERENDER_HOST__ ?? '' : window.location.host
 }

@@ -87,8 +87,9 @@ function AudioStage({ clip, media, setMedia, playing, current, duration, onToggl
 
 /** True once the element has come within about a screen of the viewport. */
 function useNearScreen(ref: RefObject<HTMLElement | null>): boolean {
-  // Without IntersectionObserver there is no way to tell, so load straight away.
-  const [near, setNear] = useState(() => !('IntersectionObserver' in window))
+  // Without IntersectionObserver there is no way to tell, so load straight
+  // away. In the build-time prerender (no window) nothing is near.
+  const [near, setNear] = useState(() => typeof window !== 'undefined' && !('IntersectionObserver' in window))
   useEffect(() => {
     const el = ref.current
     if (near || !el) return

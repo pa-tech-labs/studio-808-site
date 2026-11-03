@@ -3,6 +3,7 @@ export const AUDIO_ANCHORS = {
   work: 'work',
   studio: 'studio',
   rates: 'rates',
+  process: 'how-it-works',
   faq: 'faq',
   enquire: 'enquire',
 } as const

@@ -1,4 +1,4 @@
-import type { AudioEngineer, AudioPage, AudioPageData } from './audioPage'
+import type { AudioEngineer, AudioPage, AudioPageData, AudioSessionVideo } from './audioPage'
 
 export type AudioRoute = 'home' | 'terms'
 
@@ -33,6 +33,10 @@ export const OG_HEIGHT: number
 export const AREA_SERVED: string[]
 
 export function audioOgImageSource(page: AudioPage | null | undefined): unknown
+/** The session video once cleared and uploaded, else null. */
+export function visibleSessionVideo(page: AudioPage | null | undefined): AudioSessionVideo | null
+/** "1:16" for 76 seconds; '' when unknown. */
+export function clockDuration(seconds: number | null | undefined): string
 export function audioEngineers(page: AudioPage | null | undefined): (AudioEngineer & { _key?: string })[]
 export function audioBaseUrl(page: AudioPage | null | undefined, origin: string): string
 export function audioCanonical(page: AudioPage | null | undefined, route: AudioRoute, origin: string): string

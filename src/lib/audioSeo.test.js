@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   audioBaseUrl, audioCanonical, audioEngineers, audioHeadTags, buildAudioHead, buildAudioJsonLd,
-  isoDuration, jsonLdString, parseUkAddress,
+  clockDuration, isoDuration, jsonLdString, parseUkAddress, visibleSessionVideo,
 } from './audioSeo.js'
 
 const ORIGIN = 'https://www.studio-808.com'
@@ -26,7 +26,8 @@ const clips = [
   { _id: 'x1', title: 'Not cleared', cleared: false, audioUrl: 'https://cdn.test/x1.mp3' },
 ]
 const data = { page, clips, credits: [] }
-const byType = (g, t) => g['@graph'].filter(n => n['@type'] === t)
+const byType = (g, t) => g['@graph'].filter(n => [n['@type']].flat().includes(t))
+const types = g => g['@graph'].map(n => [n['@type']].flat().join('+'))
 
 // ── Head ─────────────────────────────────────────────────────────────────
 
@@ -105,6 +106,9 @@ test('LocalBusiness: required fields, address parsed, engineers as employees', (
   assert.equal(b.openingHoursSpecification[0].opens, '09:00')
   assert.equal(b.openingHoursSpecification[0].closes, '18:00')
   assert.deepEqual(b.sameAs, [])
+  assert.deepEqual(b['@type'], ['LocalBusiness', 'ProfessionalService'])
+  assert.deepEqual(b.knowsAbout, ['Voiceover recording', 'Audiobook recording', 'ACX-ready audiobook delivery'])
+  assert.deepEqual(b.hasOfferCatalog.itemListElement.map(o => o.itemOffered.name), b.knowsAbout)
   assert.deepEqual(b.employee, [{ '@type': 'Person', name: 'Paul', jobTitle: 'Engineer' }, { '@type': 'Person', name: 'Heetan', jobTitle: 'Recording engineer' }])
 })
 
@@ -139,6 +143,37 @@ test('Audio and VideoObject per cleared clip', () => {
   assert.equal(v.uploadDate, '2026-10-01T10:00:00Z')
 })
 
+const session = {
+  heading: 'How a session works', intro: 'Heetan walks through a session.', cleared: true,
+  videoUrl: 'https://cdn.test/session.mp4', videoMimeType: 'video/mp4', videoUploadedAt: '2026-11-03T14:00:00Z',
+  poster: { id: 's1' }, durationSeconds: 76, transcript: 'Hi, I am Heetan.\n\nWe have a chat first.',
+}
+
+test('session VideoObject once cleared and uploaded', () => {
+  const g = buildAudioJsonLd({ data: { ...data, page: { ...page, sessionVideo: session } }, origin: ORIGIN, imageUrl })
+  const v = byType(g, 'VideoObject').find(n => n['@id'].endsWith('#session-video'))
+  assert.equal(v.name, 'How a session works | Studio 808 Voice')
+  assert.equal(v.description, 'Heetan walks through a session.')
+  assert.equal(v.thumbnailUrl, 'https://img.test/s1?w=1080&h=', 'the poster at its own shape')
+  assert.equal(v.uploadDate, '2026-11-03T14:00:00Z')
+  assert.equal(v.duration, 'PT1M16S')
+  assert.equal(v.contentUrl, 'https://cdn.test/session.mp4')
+  assert.equal(v.encodingFormat, 'video/mp4')
+  assert.equal(v.transcript, 'Hi, I am Heetan.\n\nWe have a chat first.')
+  assert.deepEqual(v.publisher, { '@id': 'https://www.studio-808.com/audio/#business' })
+})
+
+test('no session VideoObject, and nothing on the page, until cleared with a video', () => {
+  for (const sv of [{ ...session, cleared: false }, { ...session, videoUrl: null }, null]) {
+    assert.equal(visibleSessionVideo({ sessionVideo: sv }), null)
+    const g = buildAudioJsonLd({ data: { ...data, page: { ...page, sessionVideo: sv } }, origin: ORIGIN, imageUrl })
+    assert.equal(g['@graph'].some(n => n['@id']?.endsWith('#session-video')), false)
+  }
+  assert.equal(clockDuration(76), '1:16')
+  assert.equal(clockDuration(9), '0:09')
+  assert.equal(clockDuration(null), '')
+})
+
 test('the old single engineer is used until the list has someone', () => {
   assert.deepEqual(audioEngineers({ engineer: { name: 'Paul' } }).map(e => e.name), ['Paul'])
   assert.deepEqual(audioEngineers({ engineer: { name: 'Paul' }, engineers: [{ name: 'Sam' }] }).map(e => e.name), ['Sam'])
@@ -150,14 +185,14 @@ test('empty source data renders nothing', () => {
   assert.equal(buildAudioJsonLd({ data: null, origin: ORIGIN }), null)
   assert.equal(buildAudioJsonLd({ data: { page: null, clips: [], credits: [] }, origin: ORIGIN }), null)
   const g = buildAudioJsonLd({ data: { page: {}, clips: [], credits: [] }, origin: ORIGIN })
-  assert.deepEqual(g['@graph'].map(n => n['@type']), ['LocalBusiness'], 'no services, FAQ or clips')
+  assert.deepEqual(types(g), ['LocalBusiness+ProfessionalService'], 'no services, FAQ or clips')
   const [b] = g['@graph']
   for (const k of ['address', 'telephone', 'email', 'image', 'employee']) assert.equal(k in b, false, k)
 })
 
 test('terms page carries the business only', () => {
   const g = buildAudioJsonLd({ data, route: 'terms', origin: ORIGIN })
-  assert.deepEqual(g['@graph'].map(n => n['@type']), ['LocalBusiness'])
+  assert.deepEqual(types(g), ['LocalBusiness+ProfessionalService'])
 })
 
 test('helpers', () => {

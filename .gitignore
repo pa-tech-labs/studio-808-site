@@ -26,3 +26,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Local-only media for /audio?fixture (the session video kit; uploaded to Sanity, never committed)
+public/audio/dev/

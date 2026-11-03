@@ -96,6 +96,8 @@ export interface AudioPage {
       featured?: boolean | null
     }[] | null
   } | null
+  /** The engineer's "how a session works" video. Show only when `cleared` and there is a video. */
+  sessionVideo?: AudioSessionVideo | null
   process?: { _key?: string; step?: number | null; title?: string | null; description?: string | null }[] | null
   faqs?: { _key?: string; question?: string | null; answer?: string | null }[] | null
   enquiry?: {
@@ -117,6 +119,21 @@ export interface AudioPage {
   terms?: PortableText | null
   /** ISO date, e.g. 2026-10-12. */
   termsUpdated?: string | null
+}
+
+/** audioPage.sessionVideo as the query returns it (asset URLs resolved). */
+export interface AudioSessionVideo {
+  heading?: string | null
+  intro?: string | null
+  videoUrl?: string | null
+  videoMimeType?: string | null
+  /** ISO timestamp of the video file's upload: the VideoObject uploadDate. */
+  videoUploadedAt?: string | null
+  poster?: AudioImage | null
+  captionsUrl?: string | null
+  durationSeconds?: number | null
+  transcript?: string | null
+  cleared?: boolean | null
 }
 
 /** One audioClip document (schemaTypes/audioClip.ts). Show only when `cleared`. */

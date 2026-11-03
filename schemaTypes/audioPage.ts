@@ -228,6 +228,55 @@ export default defineType({
     }),
 
     defineField({
+      name: 'sessionVideo',
+      title: 'Session video',
+      type: 'object',
+      group: 'process',
+      description: 'An engineer explaining how a session works. Shown beside the process steps once "Cleared" is on and a video is uploaded.',
+      fields: [
+        defineField({ name: 'heading', title: 'Heading', type: 'string', initialValue: 'How a session works' }),
+        defineField({ name: 'intro', title: 'Intro', type: 'text', rows: 3, description: 'One or two sentences above the steps. Also the video\'s description for Google.' }),
+        defineField({
+          name: 'video',
+          title: 'Video',
+          type: 'file',
+          options: { accept: 'video/mp4' },
+          description: 'MP4 (H.264, AAC, faststart). Portrait 9:16 or landscape 16:9 both work.',
+        }),
+        defineField({
+          name: 'poster',
+          title: 'Poster image',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Shown before the video plays, and as its thumbnail in Google.',
+          fields: [defineField({ name: 'alt', title: 'Image description (alt text)', type: 'string' })],
+        }),
+        defineField({
+          name: 'captions',
+          title: 'Captions (WebVTT)',
+          type: 'file',
+          options: { accept: '.vtt,text/vtt' },
+          description: 'English subtitles, shown by default. A .vtt file.',
+        }),
+        defineField({ name: 'durationSeconds', title: 'Duration (seconds)', type: 'number', validation: r => r.min(0) }),
+        defineField({
+          name: 'transcript',
+          title: 'Transcript',
+          type: 'text',
+          rows: 10,
+          description: 'Shown under the video in a "Read the transcript" panel. Leave a blank line between paragraphs.',
+        }),
+        defineField({
+          name: 'cleared',
+          title: 'Cleared',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Permission received to publish this video publicly',
+        }),
+      ],
+    }),
+
+    defineField({
       name: 'process',
       title: 'Process',
       type: 'array',
