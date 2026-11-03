@@ -3,7 +3,7 @@
 // both use these.
 
 import type { AudioPage, AudioPageData } from '../../../lib/audioPage'
-import { audioEngineers, visibleSessionVideo } from '../../../lib/audioSeo.js'
+import { visibleEngineers, visibleSessionVideo } from '../../../lib/audioSeo.js'
 import { groupClips } from '../../../lib/showreel.js'
 
 const text = (s: string | null | undefined) => Boolean(s && s.trim())
@@ -21,8 +21,8 @@ export const hasRoom = (p: AudioPage | null | undefined) => {
   return Boolean(r && (text(r.heading) || text(r.body) || some(r.gallery) || some(r.gearList) || some(r.specs)))
 }
 
-/** The engineers to show: the list, else the old single engineer. */
-export const engineersOf = (p: AudioPage | null | undefined) => audioEngineers(p)
+/** The engineers to show: none unless showEngineers is on; then the list, else the old single engineer. */
+export const engineersOf = (p: AudioPage | null | undefined) => visibleEngineers(p)
 
 export const hasEngineer = (p: AudioPage | null | undefined) => engineersOf(p).length > 0
 

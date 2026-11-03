@@ -9,9 +9,13 @@
 // and the main site's dist/sitemap.xml with no /audio entries (those pages
 // now live on the subdomain). vercel.json maps the subdomain's paths here.
 //
-// Reads Sanity's public CDN, no token. Fails the build if Sanity cannot be
-// reached or has no audioPage: shipping link previews with empty meta would
-// be worse than a failed deploy (the previous deployment stays live).
+// Reads Sanity's live public API (not the API CDN), no token: a build that a
+// Sanity publish triggers (deploy hook) must see that publish, and the CDN
+// can serve the previous version for a short while after it.
+//
+// Fails the build if Sanity cannot be reached or has no audioPage: shipping
+// link previews with empty meta would be worse than a failed deploy (the
+// previous deployment stays live).
 
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
@@ -42,7 +46,7 @@ if (!projectId) fail('VITE_SANITY_PROJECT_ID is not set.')
 
 let data
 try {
-  const url = `https://${projectId}.apicdn.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(AUDIO_PAGE_QUERY)}`
+  const url = `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(AUDIO_PAGE_QUERY)}`
   const res = await fetch(url, { signal: AbortSignal.timeout(15000) })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   data = (await res.json()).result
