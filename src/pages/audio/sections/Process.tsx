@@ -10,6 +10,7 @@
 import type { CSSProperties } from 'react'
 import type { AudioPageData } from '../../../lib/audioPage'
 import { useInView } from '../../../hooks/useInView'
+import { AUDIO_ANCHORS } from '../anchors'
 import { hasProcess, sessionVideoOf } from './has'
 import SessionVideo from './SessionVideo'
 
@@ -33,7 +34,7 @@ export default function Process({ data }: { data: AudioPageData }) {
   )
 
   return (
-    <section className="a8-sec a8-process" aria-labelledby="a8-process-title">
+    <section id={AUDIO_ANCHORS.process} className="a8-sec a8-process" aria-labelledby="a8-process-title">
       <div className={`a8-wrap${video ? ' a8-session' : ''}`}>
         <header className="a8-sec-head">
           <h2 id="a8-process-title" className="a8-h2">{heading}</h2>
