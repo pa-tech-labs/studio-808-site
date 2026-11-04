@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import {
   mediaTypeOf, mediaUrlOf, visibleClips, groupClips, clipsForTab, nextClipId,
   playerReducer, initialPlayerState, isFirstPlay, parsePeaks, formatTime,
+  CLIP_GROUPS, CLIP_TYPE_TAGS, groupOf, tabFromParam, paramForTab,
 } from './showreel.js'
 
 const clip = (id, extra = {}) => ({ _id: id, title: id, cleared: true, audioUrl: `/${id}.mp3`, ...extra })
@@ -135,4 +136,41 @@ test('time formats as m:ss', () => {
   assert.equal(formatTime(75), '1:15')
   assert.equal(formatTime(NaN), '0:00')
   assert.equal(formatTime(undefined), '0:00')
+})
+
+test('video games group, tag and ?work= deep links', () => {
+  const groups = groupClips([
+    clip('g2', { clipType: 'game', order: 2 }),
+    clip('ad', { clipType: 'commercial' }),
+    clip('g1', { clipType: 'game', order: 1 }),
+    clip('pod', { clipType: 'podcast' }),
+  ])
+  assert.deepEqual(groups.map(g => g.type), ['commercial', 'game', 'podcast'])
+  assert.equal(groups[1].label, 'Video Games')
+  assert.equal(CLIP_TYPE_TAGS.game, 'Video Games')
+  assert.equal(groupOf({ clipType: 'game' }), 'game')
+
+  assert.equal(tabFromParam(groups, 'games'), 'game')
+  assert.equal(tabFromParam(groups, 'GAMES'), 'game')
+  assert.equal(tabFromParam(groups, 'game'), 'game')
+  assert.equal(tabFromParam(groups, 'commercials'), 'commercial')
+  assert.equal(tabFromParam(groups, 'podcasts'), 'podcast')
+  assert.equal(clipsForTab(groups, tabFromParam(groups, 'games'))[0]._id, 'g1')
+  // No cleared clips in the group, unknown, empty or missing: All.
+  assert.equal(tabFromParam(groups, 'elearning'), 'all')
+  assert.equal(tabFromParam(groups, 'nope'), 'all')
+  assert.equal(tabFromParam(groups, ''), 'all')
+  assert.equal(tabFromParam(groups, null), 'all')
+
+  assert.equal(paramForTab('all'), null)
+  assert.equal(paramForTab('game'), 'games')
+  assert.equal(paramForTab('broadcast'), 'broadcast')
+  assert.equal(paramForTab('commercial'), 'commercials')
+  assert.equal(paramForTab('elearning'), 'elearning')
+  for (const g of CLIP_GROUPS) assert.equal(tabFromParam([{ ...g, clips: [clip('x')] }], paramForTab(g.type)), g.type)
+})
+
+test('a game clip that is not cleared adds no Video Games tab', () => {
+  const groups = groupClips([clip('ad', { clipType: 'commercial' }), clip('g', { clipType: 'game', cleared: false })])
+  assert.deepEqual(groups.map(g => g.type), ['commercial'])
 })

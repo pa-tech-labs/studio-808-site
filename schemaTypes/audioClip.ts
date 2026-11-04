@@ -12,6 +12,7 @@ export const AUDIO_CLIP_TYPES = [
   { title: 'Broadcast', value: 'broadcast' },
   { title: 'Commercial', value: 'commercial' },
   { title: 'eLearning', value: 'elearning' },
+  { title: 'Video Games', value: 'game' },
   { title: 'Podcast', value: 'podcast' },
   { title: 'Other', value: 'other' },
 ]

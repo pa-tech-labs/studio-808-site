@@ -79,6 +79,12 @@ const clips = [
     audioUrl: narrationUrl, durationSeconds: 24, cleared: true,
   },
   {
+    _id: 'k7', title: 'Creature barks', clipType: 'game', order: 1,
+    client: 'Placeholder Games', production: 'Untitled Action RPG', talent: 'Placeholder Voice', engineer: 'Heetan',
+    description: 'Character barks and efforts recorded in batches and delivered as named files.',
+    audioUrl: spotUrl, durationSeconds: 16, cleared: true,
+  },
+  {
     _id: 'k6', title: 'Not cleared yet', clipType: 'broadcast', audioUrl: spotUrl, durationSeconds: 16, cleared: false,
   },
 ]
@@ -209,7 +215,7 @@ export const AUDIO_FIXTURE = {
     enabled: true,
     showreelIntro: {
       heading: 'Selected work',
-      body: 'Narration, commercials and course audio recorded and finished in the booth. Pick a clip, or play straight through.',
+      body: 'A selection of voice and audio work recorded, mixed and delivered from Studio 808, from broadcast spots to sound design for games and film.',
     },
     hero: {
       eyebrow: 'Voiceover and audiobook recording, Chelmsford',

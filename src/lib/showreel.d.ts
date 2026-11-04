@@ -1,9 +1,9 @@
 import type { AudioClip, AudioClipType, AudioMediaType } from './audioPage'
 
-export interface ClipGroup { type: AudioClipType; label: string; clips: AudioClip[] }
+export interface ClipGroup { type: AudioClipType; label: string; slug: string; clips: AudioClip[] }
 export type ShowreelTab = 'all' | AudioClipType
 
-export const CLIP_GROUPS: { type: AudioClipType; label: string }[]
+export const CLIP_GROUPS: { type: AudioClipType; label: string; slug: string }[]
 export const CLIP_TYPE_TAGS: Record<AudioClipType, string>
 
 export function mediaTypeOf(clip: Pick<AudioClip, 'mediaType'> | null | undefined): AudioMediaType
@@ -14,6 +14,9 @@ export function visibleClips(clips: AudioClip[] | null | undefined): AudioClip[]
 export function groupClips(clips: AudioClip[] | null | undefined): ClipGroup[]
 export function allClipsInOrder(groups: ClipGroup[]): AudioClip[]
 export function clipsForTab(groups: ClipGroup[], tab: ShowreelTab): AudioClip[]
+export const WORK_PARAM: 'work'
+export function tabFromParam(groups: ClipGroup[], value: string | null | undefined): ShowreelTab
+export function paramForTab(tab: ShowreelTab): string | null
 export function nextClipId(list: AudioClip[], id: string | null): string | null
 
 export type PlayerStatus = 'idle' | 'playing' | 'paused' | 'ended'
