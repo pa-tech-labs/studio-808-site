@@ -2,14 +2,18 @@
 // tested with node --test: which clips show, how they group and sort, the
 // one-clip-at-a-time player state, and reading a peaks file.
 
-/** Group order on the page, and each group's tab label. */
+/**
+ * Group order on the page, each group's tab label, and its slug in the
+ * ?work= deep link (voice.studio-808.com/?work=games#work).
+ */
 export const CLIP_GROUPS = [
-  { type: 'audiobook', label: 'Audiobooks' },
-  { type: 'broadcast', label: 'Broadcast' },
-  { type: 'commercial', label: 'Commercials' },
-  { type: 'elearning', label: 'eLearning' },
-  { type: 'podcast', label: 'Podcasts' },
-  { type: 'other', label: 'Other' },
+  { type: 'audiobook', label: 'Audiobooks', slug: 'audiobooks' },
+  { type: 'broadcast', label: 'Broadcast', slug: 'broadcast' },
+  { type: 'commercial', label: 'Commercials', slug: 'commercials' },
+  { type: 'elearning', label: 'eLearning', slug: 'elearning' },
+  { type: 'game', label: 'Video Games', slug: 'games' },
+  { type: 'podcast', label: 'Podcasts', slug: 'podcasts' },
+  { type: 'other', label: 'Other', slug: 'other' },
 ]
 
 /** One tag per clip type, as shown on a playlist row. */
@@ -18,6 +22,7 @@ export const CLIP_TYPE_TAGS = {
   broadcast: 'Broadcast',
   commercial: 'Commercial',
   elearning: 'eLearning',
+  game: 'Video Games',
   podcast: 'Podcast',
   other: 'Other',
 }
@@ -74,6 +79,26 @@ export function allClipsInOrder(groups) {
 export function clipsForTab(groups, tab) {
   if (tab === 'all') return allClipsInOrder(groups)
   return groups.find(g => g.type === tab)?.clips ?? []
+}
+
+/** The ?work= query parameter name. */
+export const WORK_PARAM = 'work'
+
+/**
+ * The tab a ?work= value asks for: a group's slug or its type, any case.
+ * "all", a missing or unknown value, or a group with no cleared clips gives "all".
+ */
+export function tabFromParam(groups, value) {
+  const v = String(value ?? '').trim().toLowerCase()
+  if (!v) return 'all'
+  const g = groups.find(g => g.slug === v || g.type === v)
+  return g ? g.type : 'all'
+}
+
+/** The ?work= value for a tab, or null for "all" (no parameter). */
+export function paramForTab(tab) {
+  if (tab === 'all') return null
+  return CLIP_GROUPS.find(g => g.type === tab)?.slug ?? null
 }
 
 /** The clip after `id` in `list`, or null at the end. */

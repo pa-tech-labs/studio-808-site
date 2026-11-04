@@ -6,14 +6,19 @@
 // Keyboard (anywhere in the section): Space plays or pauses, Left and Right
 // seek 5 seconds, Enter on a row picks that clip.
 //
+// Deep links: ?work=<slug> (src/lib/showreel.js CLIP_GROUPS) opens the
+// section on that filter with its first clip loaded, e.g.
+// voice.studio-808.com/?work=games#work. Clicking a filter rewrites the
+// parameter in place (replaceState, no reload, hash kept); "All" removes it.
+//
 // Analytics: window events 'audio:play' (first play of each clip) and
 // 'audio:complete' (a clip finished), detail { clipId, title, mediaType }.
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type KeyboardEvent } from 'react'
 import type { AudioClip, AudioPageData } from '../../../lib/audioPage'
 import {
-  allClipsInOrder, clipsForTab, groupClips, initialPlayerState, isFirstPlay, mediaTypeOf, nextClipId, playerReducer,
-  type ShowreelTab,
+  allClipsInOrder, clipsForTab, groupClips, initialPlayerState, isFirstPlay, mediaTypeOf, nextClipId, paramForTab,
+  playerReducer, tabFromParam, WORK_PARAM, type ClipGroup, type ShowreelTab,
 } from '../../../lib/showreel.js'
 import { AUDIO_ANCHORS } from '../anchors'
 import NowPlaying from './showreel/NowPlaying'
@@ -29,13 +34,31 @@ function emit(name: 'audio:play' | 'audio:complete', clip: AudioClip) {
   window.dispatchEvent(new CustomEvent(name, { detail: { clipId: clip._id, title: clip.title, mediaType: mediaTypeOf(clip) } }))
 }
 
+/** The tab the page URL asks for. "all" when prerendering (no window). */
+function tabFromUrl(groups: ClipGroup[]): ShowreelTab {
+  if (typeof window === 'undefined') return 'all'
+  return tabFromParam(groups, new URLSearchParams(window.location.search).get(WORK_PARAM))
+}
+
+/** Write the tab into ?work= without a reload or a new history entry. */
+function writeTabToUrl(tab: ShowreelTab) {
+  const url = new URL(window.location.href)
+  const param = paramForTab(tab)
+  if (param) url.searchParams.set(WORK_PARAM, param)
+  else url.searchParams.delete(WORK_PARAM)
+  if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url)
+}
+
 const finite = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0)
 
 export default function Showreel({ data }: { data: AudioPageData }) {
   const groups = useMemo(() => groupClips(data.clips), [data.clips])
   const all = useMemo(() => allClipsInOrder(groups), [groups])
-  const [tab, setTab] = useState<ShowreelTab>('all')
-  const [state, dispatch] = useReducer(playerReducer, initialPlayerState, s => ({ ...s, activeId: all[0]?._id ?? null }))
+  const [tab, setTab] = useState<ShowreelTab>(() => tabFromUrl(groups))
+  const [state, dispatch] = useReducer(playerReducer, initialPlayerState, s => ({
+    ...s,
+    activeId: clipsForTab(groups, tab)[0]?._id ?? all[0]?._id ?? null,
+  }))
   const [media, setMedia] = useState<HTMLMediaElement | null>(null)
   const [time, setTime] = useState({ current: 0, duration: 0 })
   const [panelInView, setPanelInView] = useState(true)
@@ -98,6 +121,20 @@ export default function Showreel({ data }: { data: AudioPageData }) {
   }, [media, state.wantsPlay, state.activeId])
 
   useEffect(() => () => window.clearTimeout(advanceTimer.current), [])
+
+  // A ?work= deep link with #work: the prerendered body the browser scrolled
+  // to has been swapped for the app, so land on the section again.
+  useEffect(() => {
+    if (window.location.hash !== `#${AUDIO_ANCHORS.work}`) return
+    if (!new URLSearchParams(window.location.search).has(WORK_PARAM)) return
+    document.getElementById(AUDIO_ANCHORS.work)?.scrollIntoView({ behavior: 'instant', block: 'start' })
+  }, [])
+
+  // Pick a filter, as before, and put it in the URL.
+  const chooseTab = (next: ShowreelTab) => {
+    setTab(next)
+    writeTabToUrl(next)
+  }
 
   const toggle = useCallback(() => {
     if (!media) return
@@ -185,7 +222,7 @@ export default function Showreel({ data }: { data: AudioPageData }) {
         {groups.length > 1 && (
           <div className="a8-tabs" role="group" aria-label="Filter clips">
             {[{ type: 'all' as const, label: 'All' }, ...groups].map(g => (
-              <button key={g.type} type="button" className="a8-tab" aria-pressed={tab === g.type} onClick={() => setTab(g.type)}>
+              <button key={g.type} type="button" className="a8-tab" aria-pressed={tab === g.type} onClick={() => chooseTab(g.type)}>
                 {g.label}
               </button>
             ))}

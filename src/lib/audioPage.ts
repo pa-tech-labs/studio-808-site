@@ -15,7 +15,7 @@ export type AudioImage = SanityImage & { alt?: string | null }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type PortableText = any[]
 
-export type AudioClipType = 'audiobook' | 'broadcast' | 'commercial' | 'elearning' | 'podcast' | 'other'
+export type AudioClipType = 'audiobook' | 'broadcast' | 'commercial' | 'elearning' | 'game' | 'podcast' | 'other'
 export type AudioCreditType = Exclude<AudioClipType, 'other'>
 /** Missing (clips saved before the field existed) means audio. */
 export type AudioMediaType = 'audio' | 'video'
