@@ -19,6 +19,8 @@ export function tabFromParam(groups: ClipGroup[], value: string | null | undefin
 export function paramForTab(tab: ShowreelTab): string | null
 export function nextClipId(list: AudioClip[], id: string | null): string | null
 
+export function clipIdForTab(groups: ClipGroup[], tab: ShowreelTab, activeId: string | null): string | null
+
 export type PlayerStatus = 'idle' | 'playing' | 'paused' | 'ended'
 export interface PlayerState {
   activeId: string | null

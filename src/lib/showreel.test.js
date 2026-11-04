@@ -3,7 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  mediaTypeOf, mediaUrlOf, visibleClips, groupClips, clipsForTab, nextClipId,
+  mediaTypeOf, mediaUrlOf, visibleClips, groupClips, clipIdForTab, clipsForTab, nextClipId,
   playerReducer, initialPlayerState, isFirstPlay, parsePeaks, formatTime,
   CLIP_GROUPS, CLIP_TYPE_TAGS, groupOf, tabFromParam, paramForTab,
 } from './showreel.js'
@@ -173,4 +173,24 @@ test('video games group, tag and ?work= deep links', () => {
 test('a game clip that is not cleared adds no Video Games tab', () => {
   const groups = groupClips([clip('ad', { clipType: 'commercial' }), clip('g', { clipType: 'game', cleared: false })])
   assert.deepEqual(groups.map(g => g.type), ['commercial'])
+})
+
+test('changing filter keeps the loaded clip if it is listed, else loads the first', () => {
+  const groups = groupClips([
+    clip('ad', { clipType: 'commercial' }),
+    clip('g2', { clipType: 'game', order: 2 }),
+    clip('g1', { clipType: 'game', order: 1 }),
+    clip('pod', { clipType: 'podcast' }),
+  ])
+  // Not in the filter: first clip of the filter.
+  assert.equal(clipIdForTab(groups, 'game', 'ad'), 'g1')
+  assert.equal(clipIdForTab(groups, 'podcast', 'g2'), 'pod')
+  assert.equal(clipIdForTab(groups, 'commercial', 'pod'), 'ad')
+  // Already in the filter: kept, even when it is not the first.
+  assert.equal(clipIdForTab(groups, 'game', 'g2'), 'g2')
+  // All keeps whatever is loaded.
+  assert.equal(clipIdForTab(groups, 'all', 'pod'), 'pod')
+  // Nothing loaded (first render, e.g. ?work=games): the filter's first clip.
+  assert.equal(clipIdForTab(groups, 'game', null), 'g1')
+  assert.equal(clipIdForTab(groups, 'all', null), 'ad')
 })
