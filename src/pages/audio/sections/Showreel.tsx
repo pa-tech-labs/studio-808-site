@@ -7,7 +7,7 @@
 // seek 5 seconds, Enter on a row picks that clip.
 //
 // Deep links: ?work=<slug> (src/lib/showreel.js CLIP_GROUPS) opens the
-// section on that filter with its first clip loaded, e.g.
+// section on that filter with its first clip loaded (paused), e.g.
 // voice.studio-808.com/?work=games#work. Clicking a filter rewrites the
 // parameter in place (replaceState, no reload, hash kept); "All" removes it.
 //
@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type KeyboardEvent } from 'react'
 import type { AudioClip, AudioPageData } from '../../../lib/audioPage'
 import {
-  allClipsInOrder, clipsForTab, groupClips, initialPlayerState, isFirstPlay, mediaTypeOf, nextClipId, paramForTab,
+  allClipsInOrder, clipIdForTab, clipsForTab, groupClips, initialPlayerState, isFirstPlay, mediaTypeOf, nextClipId, paramForTab,
   playerReducer, tabFromParam, WORK_PARAM, type ClipGroup, type ShowreelTab,
 } from '../../../lib/showreel.js'
 import { AUDIO_ANCHORS } from '../anchors'
@@ -57,7 +57,7 @@ export default function Showreel({ data }: { data: AudioPageData }) {
   const [tab, setTab] = useState<ShowreelTab>(() => tabFromUrl(groups))
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState, s => ({
     ...s,
-    activeId: clipsForTab(groups, tab)[0]?._id ?? all[0]?._id ?? null,
+    activeId: clipIdForTab(groups, tab, null) ?? all[0]?._id ?? null,
   }))
   const [media, setMedia] = useState<HTMLMediaElement | null>(null)
   const [time, setTime] = useState({ current: 0, duration: 0 })
@@ -130,10 +130,13 @@ export default function Showreel({ data }: { data: AudioPageData }) {
     document.getElementById(AUDIO_ANCHORS.work)?.scrollIntoView({ behavior: 'instant', block: 'start' })
   }, [])
 
-  // Pick a filter, as before, and put it in the URL.
+  // Pick a filter and put it in the URL. If the loaded clip is not in the
+  // new list, load that list's first clip, paused ("All" keeps it).
   const chooseTab = (next: ShowreelTab) => {
     setTab(next)
     writeTabToUrl(next)
+    const id = clipIdForTab(groups, next, state.activeId)
+    if (id && id !== state.activeId) select(id, false)
   }
 
   const toggle = useCallback(() => {

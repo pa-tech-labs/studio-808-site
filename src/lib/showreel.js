@@ -81,6 +81,17 @@ export function clipsForTab(groups, tab) {
   return groups.find(g => g.type === tab)?.clips ?? []
 }
 
+/**
+ * The clip the player should hold after the filter changes to `tab`: the
+ * current one when it is in that tab's list ("All" always keeps it), else
+ * the list's first clip. Null when the list is empty and nothing is loaded.
+ */
+export function clipIdForTab(groups, tab, activeId) {
+  const list = clipsForTab(groups, tab)
+  if (activeId && (tab === 'all' || list.some(c => c._id === activeId))) return activeId
+  return list[0]?._id ?? activeId ?? null
+}
+
 /** The ?work= query parameter name. */
 export const WORK_PARAM = 'work'
 
