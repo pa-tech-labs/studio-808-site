@@ -51,7 +51,7 @@ All `<img>` tags have empty `src=""` and descriptive `alt` text. Replace with re
 | `/dj-studio` | DjStudios.tsx | Studios 1, 2, 3 detailed |
 | `/main-production-studio` | ProductionStudio.tsx | Studio 4, services & pricing |
 | `/production-studio` | — | 301 → /main-production-studio |
-| `/podcast-studio` | PodcastStudio.tsx | PA Media cross-sell |
+| `/podcast-studio` | PodcastStudio.tsx | Podyard cross-sell |
 | `/about-us` | About.tsx | Origin story, address |
 | `/contact` | Contact.tsx | Form + contact details |
 | `/blog` | Blog.tsx | Static post listing |
