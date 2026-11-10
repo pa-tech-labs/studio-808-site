@@ -1,0 +1,40 @@
+/* Podcast page layout around the photo backdrops (components/PhotoBackdrop.tsx). */
+
+.pod-hero,
+.pod-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+/* Hero: on narrow screens the brick set is a band above the copy, so the copy
+   starts lower, inside the band's fade. */
+.pod-hero {
+  --pod-hero-band: calc(64px + min(64vw, 440px));
+  padding-top: calc(var(--pod-hero-band) - 28px);
+}
+@media (min-width: 1024px) {
+  .pod-hero { padding-top: 152px; }
+}
+
+/* Introducing Podyard: stacked below 1100px, with the walnut band above the
+   card; from 1100px, copy | TV | card, side tracks equal so the TV centres. */
+.pod-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 60px;
+  align-items: start;
+}
+.pod-card-wrap {
+  --pod-card-band: min(60vw, 420px);
+  position: relative;
+  padding-top: var(--pod-card-band);
+}
+@media (min-width: 1100px) {
+  .pod-grid {
+    grid-template-columns: minmax(0, 420px) minmax(260px, 1fr) minmax(0, 420px);
+    gap: 40px;
+  }
+  .pod-copy { grid-column: 1; }
+  .pod-card-wrap { grid-column: 3; padding-top: 0; }
+}
