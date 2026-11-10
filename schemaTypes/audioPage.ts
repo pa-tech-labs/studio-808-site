@@ -3,7 +3,8 @@ import { defineType, defineField, defineArrayMember } from 'sanity'
 // The Studio 808 Voice page (/audio, later voice.studio-808.com). A SINGLETON: one
 // document, id "audioPage", pinned in the desk by sanity.config.ts. All of the
 // page's copy lives here, so it can change without a deploy. The clips and
-// credits are their own documents (audioClip, audioCredit).
+// credits and testimonials are their own documents (audioClip, audioCredit,
+// audioTestimonial).
 
 const imageWithAlt = (name: string, title: string) => defineField({
   name,
@@ -39,6 +40,7 @@ export default defineType({
   groups: [
     { name: 'top', title: 'Top of page', default: true },
     { name: 'showcase', title: 'Showreel and case study' },
+    { name: 'testimonials', title: 'Testimonials' },
     { name: 'room', title: 'Room and engineer' },
     { name: 'offer', title: 'Services and rates' },
     { name: 'process', title: 'Process and FAQs' },
@@ -108,6 +110,22 @@ export default defineType({
           description: 'Permission received to publish this case study, quote and image publicly',
         }),
       ],
+    }),
+
+    defineField({
+      name: 'showTestimonials',
+      title: 'Show the testimonials section',
+      type: 'boolean',
+      group: 'testimonials',
+      initialValue: true,
+      description: 'Shown after "Voices we\'ve recorded". Off hides the section. Either way, only testimonials marked "Cleared" ever show. The testimonials themselves are under 808 Audio > Testimonials.',
+    }),
+    defineField({
+      name: 'testimonialsHeading',
+      title: 'Testimonials heading',
+      type: 'string',
+      group: 'testimonials',
+      description: 'Leave empty for "What clients say".',
     }),
 
     defineField({

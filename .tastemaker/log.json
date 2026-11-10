@@ -18,5 +18,14 @@
     "component": "now-playing panel left, playlist right; sticky mini-player",
     "mood": "premium",
     "accent": "#9fb4c6"
+  },
+  {
+    "id": "studio-808-voice-testimonials-2026-11-10",
+    "date": "2026-11-10",
+    "page": "/audio testimonials",
+    "macrostructure": "Long-Scroll Narrative (sections fixed by brief)",
+    "component": "editorial pull quote, label left on 1:3 split; 2-3 as equal columns",
+    "mood": "premium",
+    "accent": "#9fb4c6"
   }
 ]

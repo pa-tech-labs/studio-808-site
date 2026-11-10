@@ -15,6 +15,7 @@ const SINGLETON_TYPES = new Set(SINGLETONS.map(s => s.type))
 const AUDIO_LISTS = [
   { type: 'audioClip', title: 'Clips' },
   { type: 'audioCredit', title: 'Credits' },
+  { type: 'audioTestimonial', title: 'Testimonials' },
 ]
 const GROUPED_TYPES = new Set([...SINGLETON_TYPES, ...AUDIO_LISTS.map(l => l.type)])
 

@@ -1,8 +1,11 @@
 // DEV ONLY placeholder content for /audio?fixture, so the page can be worked
 // on before Sanity has any. Every client, show and person here is invented;
-// none of it is a real credit. Never imported by a production build.
+// none of it is a real credit, except the first testimonial (Dominic Gribben,
+// Hachette), which is the real, cleared one seeded by
+// scripts/seedAudioTestimonial.ts. Never imported by a production build.
 
-import type { AudioPageData, AudioCredit } from '../../lib/audioPage'
+import type { AudioPageData, AudioCredit, AudioTestimonial } from '../../lib/audioPage'
+import { AUDIO_TESTIMONIAL_SEED } from '../../lib/audioTestimonialSeed.js'
 // Generated with ffmpeg (tones shaped like speech, a gradient test video).
 // Imported as URLs from here, so they only ever exist in dev builds.
 import narrationUrl from './fixture/tone-narration.mp3?url'
@@ -209,6 +212,20 @@ const sections = {
   termsUpdated: '2026-10-12',
 }
 
+type FixtureTestimonial = Omit<AudioTestimonial, 'logo'> & { logo?: { url: string } | null }
+
+// The real testimonial, plus one that is not cleared (never shows).
+const testimonials: FixtureTestimonial[] = [
+  { _id: 't1', ...AUDIO_TESTIMONIAL_SEED },
+  { _id: 't9', quote: 'Placeholder quote that is not cleared and must never show.', name: 'Hidden Person', company: 'Not cleared yet', cleared: false, order: 9 },
+]
+
+/** Placeholders for /audio?fixture&testimonials=2 or 3, to check the grid layout. */
+export const TESTIMONIAL_EXTRAS: FixtureTestimonial[] = [
+  { _id: 't2', quote: 'Placeholder quote. The booth was quiet, the engineer was quick, and the files passed ACX first time.', name: 'Placeholder Name', role: 'Audio Producer', company: 'Northfield Press', logo: { url: wordmark('Northfield Press', true) }, logoAspect: 6.0, cleared: true, order: 2 },
+  { _id: 't3', quote: 'Placeholder quote. Two days of narration, delivered edited and mastered the following week.', name: 'Another Placeholder', company: 'Kestrel Learning', cleared: true, order: 3 },
+]
+
 export const AUDIO_FIXTURE = {
   page: {
     ...sections,
@@ -237,4 +254,5 @@ export const AUDIO_FIXTURE = {
   },
   clips,
   credits,
+  testimonials,
 } as unknown as AudioPageData

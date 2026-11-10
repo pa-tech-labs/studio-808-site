@@ -1,13 +1,13 @@
 // The /audio page's GROQ query, in plain JS so the build scripts (prerender,
 // sitemap) can import it without TypeScript. Types live in audioPage.ts.
 //
-// The query does NOT filter on `cleared`: every clip and credit comes back
+// The query does NOT filter on `cleared`: every clip, credit and testimonial comes back
 // with its `cleared` flag, and the frontend decides what to show.
 
 export const AUDIO_PAGE_QUERY = `{
   "page": *[_id == "audioPage"][0] {
     _updatedAt, enabled, seo, hero,
-    "heroImageSize": hero.backgroundImage.asset->metadata.dimensions{ width, height }, showreelIntro, caseStudy, room, showEngineers, engineersHeading, engineers, engineer,
+    "heroImageSize": hero.backgroundImage.asset->metadata.dimensions{ width, height }, showreelIntro, caseStudy, showTestimonials, testimonialsHeading, room, showEngineers, engineersHeading, engineers, engineer,
     services, rates, process, faqs, enquiry, footer, terms, termsUpdated,
     "sessionVideo": sessionVideo {
       heading, intro, poster, durationSeconds, transcript, cleared,
@@ -30,5 +30,9 @@ export const AUDIO_PAGE_QUERY = `{
   "credits": *[_type == "audioCredit"] | order(order asc) {
     _id, name, logo, "logoAspect": logo.asset->metadata.dimensions.aspectRatio,
     talent, talentPhoto, creditType, url, cleared, order
+  },
+  "testimonials": *[_type == "audioTestimonial"] | order(order asc) {
+    _id, quote, name, role, company, logo, "logoAspect": logo.asset->metadata.dimensions.aspectRatio,
+    cleared, order
   }
 }`
