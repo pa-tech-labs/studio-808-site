@@ -1,7 +1,7 @@
 // The Studio 808 Voice page query and the shape it returns. Schemas live in
-// schemaTypes/audioPage.ts, audioClip.ts and audioCredit.ts.
+// schemaTypes/audioPage.ts, audioClip.ts, audioCredit.ts and audioTestimonial.ts.
 //
-// The query does NOT filter on `cleared`: every clip and credit comes back
+// The query does NOT filter on `cleared`: every clip, credit and testimonial comes back
 // with its `cleared` flag, and the frontend decides what to show.
 
 import type { SanityImage } from './sanity'
@@ -66,6 +66,10 @@ export interface AudioPage {
     image?: AudioImage | null
     cleared?: boolean | null
   } | null
+  /** Shows the testimonials section. On unless false (documents saved before the field existed). */
+  showTestimonials?: boolean | null
+  /** The testimonials section heading. Empty means the default, "What clients say". */
+  testimonialsHeading?: string | null
   room?: {
     heading?: string | null
     body?: string | null
@@ -181,9 +185,25 @@ export interface AudioCredit {
   order?: number | null
 }
 
+/** One audioTestimonial document (schemaTypes/audioTestimonial.ts). Show only when `cleared`. */
+export interface AudioTestimonial {
+  _id: string
+  quote: string
+  name: string
+  role?: string | null
+  company?: string | null
+  logo?: SanityImage | null
+  /** Logo width / height, from the asset's metadata. Sizes the logo before it loads. */
+  logoAspect?: number | null
+  cleared?: boolean | null
+  order?: number | null
+}
+
 /** What AUDIO_PAGE_QUERY returns. `page` is null until the singleton exists. */
 export interface AudioPageData {
   page: AudioPage | null
   clips: AudioClip[]
   credits: AudioCredit[]
+  /** Missing in data built before testimonials existed (tests, old fixtures): treat as none. */
+  testimonials?: AudioTestimonial[]
 }

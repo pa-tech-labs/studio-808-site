@@ -8,6 +8,7 @@ import AudioHead from './AudioHead'
 import Hero from './sections/Hero'
 import { RecordedFor, VoicesRecorded } from './sections/CreditsWall'
 import Showreel from './sections/Showreel'
+import Testimonials from './sections/Testimonials'
 import CaseStudy from './sections/CaseStudy'
 import Room from './sections/Room'
 import Engineer from './sections/Engineer'
@@ -26,6 +27,7 @@ export default function AudioHome() {
       <RecordedFor credits={data.credits ?? []} />
       <Process data={data} />
       <VoicesRecorded credits={data.credits ?? []} />
+      <Testimonials data={data} />
       <Showreel data={data} />
       <CaseStudy data={data} />
       <Room data={data} />

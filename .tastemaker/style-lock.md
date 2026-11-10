@@ -57,3 +57,12 @@ check_contrast.py --matrix text=#f0ede8 bg=#0f0f0e surface=#171715 primary=#f0ed
 - Cards (services, rates): 1px hairline outline, 4px radius, 32px padding, no shadow. Featured rate tier: accent outline.
 - Error colour: #e0806e (6.8:1 on bg, 6.4:1 on input surface), always text plus border, never colour alone.
 - Motion: process steps fade in once (600ms, opacity only, 120ms apart); FAQ answers open with height + opacity (220ms easeOutQuart) via WAAPI, one at a time; lightbox and success panel fade 200-300ms. Reduced motion: no fades, accordion snaps.
+
+## Testimonials (added 2026-11-10, PR claude/voice-page-testimonials)
+- Placement: its own .a8-sec directly after "Voices we've recorded". Renders nothing without a cleared audioTestimonial or with audioPage.showTestimonials off.
+- One testimonial: an editorial pull quote. Label (the section h2) as a 14px 500 muted caption; from 1024px it sits in a left column on a 1 : 3 split with the quote. Quote DM Serif Display italic, clamp(28px, 2.2vw + 18px, 50px), line-height 1.2, max 34ch, text colour.
+- Two or three: equal columns from 1024px (stacked below), quote 24-30px (2) or 22-26px (3). No carousel.
+- Quotation marks drawn in CSS, muted and decorative; the opening one hangs into the margin.
+- Attribution: a 32px x 1px muted rule, name 16px 600 text, "role, company" 14px 500 muted, optional logo 28px tall below (grayscale, 0.55 opacity, decorative alt).
+- Markup: figure > blockquote + figcaption. No Review or AggregateRating structured data.
+- Motion: none (no per-section scroll reveals), so nothing changes under reduced motion.

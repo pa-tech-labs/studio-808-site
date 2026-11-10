@@ -13,16 +13,25 @@ let audioPage: Promise<AudioPageData | null> | null = null
 
 export function loadAudioPage(): Promise<AudioPageData | null> {
   // Dev only: /audio?fixture shows placeholder content, for working on the
-  // page before Sanity has any; &logos=N keeps only the first N logos.
-  // Vite drops this branch from production builds.
+  // page before Sanity has any; &logos=N keeps only the first N logos, and
+  // &testimonials=N shows N testimonials (placeholders after the first; 0
+  // hides the section). Vite drops this branch from production builds.
   const params = new URLSearchParams(window.location.search)
   if (import.meta.env.DEV && params.has('fixture')) {
     return import('./devFixture').then(m => {
+      let data: AudioPageData = m.AUDIO_FIXTURE
       const n = Number(params.get('logos'))
-      if (!params.has('logos') || !Number.isFinite(n)) return m.AUDIO_FIXTURE
-      let kept = 0
-      const credits = m.AUDIO_FIXTURE.credits.filter(c => !c.logo || kept++ < n)
-      return { ...m.AUDIO_FIXTURE, credits }
+      if (params.has('logos') && Number.isFinite(n)) {
+        let kept = 0
+        data = { ...data, credits: data.credits.filter(c => !c.logo || kept++ < n) }
+      }
+      const t = Number(params.get('testimonials'))
+      if (params.has('testimonials') && Number.isFinite(t)) {
+        const all = [...(data.testimonials ?? []), ...m.TESTIMONIAL_EXTRAS] as NonNullable<AudioPageData['testimonials']>
+        let kept = 0
+        data = { ...data, testimonials: all.filter(x => x.cleared !== true || kept++ < t) }
+      }
+      return data
     })
   }
   audioPage ??= getAudioPage().catch(() => null)
