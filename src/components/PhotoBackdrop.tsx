@@ -8,6 +8,10 @@
 //
 // Images are pre-processed files named `${src}-${width}.avif|.jpg` (see
 // public/podcast/). They are decorative: alt="" inside an aria-hidden layer.
+// They lazy-load, unless `eager` is set: use that for a backdrop at the top of
+// the page, where it is usually the LCP element. Eager loads at high priority
+// and adds an AVIF preload (type="image/avif", so browsers without AVIF skip
+// it and fetch the JPEG from the <img> as usual).
 //
 // Fades: each stop is [position, visible], where position is a % (number) or
 // any CSS length, and visible is the share of the photo that shows there
@@ -19,6 +23,7 @@
 // prefers-reduced-motion it does not move at all.
 
 import { useId } from 'react'
+import { preload } from 'react-dom'
 import { useInView } from '../hooks/useInView'
 import './PhotoBackdrop.css'
 
@@ -56,6 +61,8 @@ interface Props {
   grain?: boolean
   /** Page ground the photo fades into, as "r, g, b". */
   ground?: string
+  /** Load at once with high priority and preload the AVIF (above-the-fold backdrops). */
+  eager?: boolean
 }
 
 const pos = (p: number | string) => (typeof p === 'number' ? `${p}%` : p)
@@ -89,10 +96,23 @@ export default function PhotoBackdrop({
   wide,
   grain = true,
   ground = '13, 13, 13',
+  eager = false,
 }: Props) {
   const cls = `pb-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
   const { ref, inView } = useInView<HTMLDivElement>('0px')
   const srcSet = (ext: string) => widths.map(w => `${src}-${w}.${ext} ${w}w`).join(', ')
+  // Puts <link rel="preload" as="image" type="image/avif" imagesrcset ...> in
+  // <head> (deduped by React). href is only a fallback for browsers that
+  // ignore imagesrcset.
+  if (eager) {
+    preload(`${src}-${widths[Math.min(1, widths.length - 1)]}.avif`, {
+      as: 'image',
+      type: 'image/avif',
+      imageSrcSet: srcSet('avif'),
+      imageSizes: sizes,
+      fetchPriority: 'high',
+    })
+  }
   const css = `.${cls}{${vars(base, ground)}}` +
     (wide ? `@media (min-width:${wide.minWidth}px){.${cls}{${vars(wide, ground)}}}` : '')
 
@@ -107,7 +127,8 @@ export default function PhotoBackdrop({
             srcSet={srcSet('jpg')}
             sizes={sizes}
             alt=""
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchPriority={eager ? 'high' : undefined}
             decoding="async"
             className="pb-photo"
           />

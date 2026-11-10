@@ -13,6 +13,7 @@ const PODYARD_URL = 'https://podyard.studio'
 // Hero: the brick set. Wide: the photo sits right (mics and right sofa) and the
 // left half fades to solid ground under the heading. Narrow: a band above the
 // copy that fades down into it (band height lives in PodcastStudio.css).
+// It is the page's LCP element, so it loads eagerly with an AVIF preload.
 // The narrow layout runs up to 1024px so the copy never shares a row with it.
 const HERO_BACKDROP: { base: BackdropLayout; wide: BackdropLayout & { minWidth: number } } = {
   base: {
@@ -72,7 +73,7 @@ export default function PodcastStudio() {
 
       {/* Page header */}
       <section className="pod-hero" style={{ paddingBottom: '80px', paddingLeft: '24px', paddingRight: '24px', borderBottom: `1px solid ${BORDER}` }}>
-        <PhotoBackdrop src="/podcast/brick" {...HERO_BACKDROP} />
+        <PhotoBackdrop src="/podcast/brick" eager {...HERO_BACKDROP} />
         <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
           <span style={sectionLabel}>Podcast Studio</span>
           <h1 className="mh" style={{ fontSize: 'clamp(36px, 5.5vw, 64px)', color: TEXT, margin: '0 0 20px', lineHeight: 1.05, letterSpacing: '-0.02em', maxWidth: '700px' }}>
