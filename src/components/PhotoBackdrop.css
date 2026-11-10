@@ -1,0 +1,56 @@
+/* PhotoBackdrop (components/PhotoBackdrop.tsx). Geometry, focal point and fades
+   come in per instance as custom properties; this is the shared treatment. */
+
+.pb {
+  position: absolute;
+  top: var(--pb-top, 0);
+  left: var(--pb-left, 0);
+  width: var(--pb-w, 100%);
+  height: var(--pb-h, 100%);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pb picture,
+.pb-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pb-photo {
+  object-fit: cover;
+  object-position: var(--pb-focal, 50% 50%);
+  transform: scale(1.06);
+  transform-origin: var(--pb-focal, 50% 50%);
+  transition: transform 2400ms var(--s8-ease);
+}
+.pb-in .pb-photo { transform: none; }
+
+/* The page black over the photo. */
+.pb-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--pb-veil);
+}
+
+/* Film grain: a 160px fractal-noise tile turned into white specks, overlaid at
+   half strength so it sits in the photo's mid-tones. Masked by the same fades,
+   so wherever the veil is solid the ground stays a flat black. */
+.pb-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.6 0.6 0.6 0 -0.75'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+  -webkit-mask-image: var(--pb-mask);
+  mask-image: var(--pb-mask);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-photo { transform: none; transition: none; }
+}
