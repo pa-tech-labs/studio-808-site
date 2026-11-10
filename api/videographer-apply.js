@@ -2,7 +2,7 @@
 //
 // Validates server-side, drops obvious bots via a honeypot, optionally uploads a
 // CV to the private `videographer-cvs` storage bucket, inserts a row into the
-// Lumentry Supabase project's `videographer_applications` table using the
+// Console Supabase project's `videographer_applications` table using the
 // service_role key (server-side only — never exposed to the client), then emails
 // a notification via Resend with a short-lived signed link to the CV. A failed
 // email does NOT fail the request: the application is already saved.
@@ -12,7 +12,7 @@
 //
 // Set in Vercel env vars for studio-808-site:
 //   SUPABASE_URL                 https://eesphuovfbwfiqqldqtu.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY    (Lumentry project service_role key — secret)
+//   SUPABASE_SERVICE_ROLE_KEY    (Console project service_role key — secret)
 //   RESEND_API_KEY               (Resend API key — secret)
 //   VIDEOGRAPHER_NOTIFY_TO       (optional, default paul@studio-808.com)
 //   VIDEOGRAPHER_NOTIFY_FROM     (optional, default Studio 808 <videographer@send.studio-808.com>)

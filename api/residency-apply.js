@@ -1,14 +1,14 @@
 // Vercel serverless function — accepts Studio 808 Residency applications.
 //
 // Validates server-side, drops obvious bots via a honeypot, inserts a row into
-// the Lumentry Supabase project's `residency_applications` table using the
+// the Console Supabase project's `residency_applications` table using the
 // service_role key (server-side only — never exposed to the client), then emails
 // a notification via Resend. A failed email does NOT fail the request: the
 // application is already saved.
 //
 // Set in Vercel env vars for studio-808-site:
 //   SUPABASE_URL                 https://eesphuovfbwfiqqldqtu.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY    (Lumentry project service_role key — secret)
+//   SUPABASE_SERVICE_ROLE_KEY    (Console project service_role key — secret)
 //   RESEND_API_KEY               (Resend API key — secret)
 //   RESIDENCY_NOTIFY_TO          (optional, default paul@studio-808.com)
 //   RESIDENCY_NOTIFY_FROM        (optional, default Studio 808 Residency <residency@send.studio-808.com>)
