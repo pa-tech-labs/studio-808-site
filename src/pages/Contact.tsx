@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import SEO from '../components/SEO'
+import { useTurnstile } from '../hooks/useTurnstile'
+import { buildSubmission, CONTACT_FORM_ID, fetchFormGuard, readSubmitResult, RETRY_MESSAGES, submitUrl, type FormGuard } from '../lib/cueForm.js'
 import { BG, SURF, TEXT, MUTED, BORDER, F_BODY, ACCENT, sectionLabel, btnPrimary } from '../styles'
 
 const BOOK_URL = 'https://book.studio-808.com'
@@ -18,7 +20,15 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 }
 
-const FORM_URL = 'https://access-hub-production.up.railway.app/api/forms/47a08cea-a18e-442d-8c4d-16cd07255ba3/submit'
+// Posts to Cue's Studio 808 enquiry form, with the spam guard fields Cue
+// checks (src/lib/cueForm.js). Without a fresh render token Cue quarantines
+// the message, so the token is fetched as the page loads.
+const FORM_URL = submitUrl(CONTACT_FORM_ID)
+
+/** Off-screen, out of the tab order and hidden from screen readers: only a bot fills it. */
+const honeypotWrap: React.CSSProperties = {
+  position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden',
+}
 
 const SERVICES = ['Recording Studio', 'DJ Studio', 'Podcast Studio', 'Voiceovers', 'Audiobooks']
 
@@ -26,6 +36,56 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState<string>(RETRY_MESSAGES.error)
+  const [guard, setGuard] = useState<FormGuard | null>(null)
+  const honeypotRef = useRef<HTMLInputElement | null>(null)
+  const { containerRef: turnstileRef, token: turnstileToken, status: turnstileStatus, reset: resetTurnstile } = useTurnstile(guard?.turnstileSiteKey ?? null)
+
+  // Fetch the render token on load, retrying a couple of times on a blip.
+  // Returns a cleanup so a fast unmount does not set state.
+  function loadGuard(): () => void {
+    let live = true
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const attempt = (n: number) => {
+      fetchFormGuard(CONTACT_FORM_ID)
+        .then(g => { if (live) setGuard(g) })
+        .catch(() => { if (live && n < 3) timer = setTimeout(() => attempt(n + 1), 2000 * n) })
+    }
+    attempt(1)
+    return () => { live = false; if (timer) clearTimeout(timer) }
+  }
+  useEffect(loadGuard, [])
+
+  function fail(msg: string) {
+    setErrorMsg(msg)
+    setStatus('error')
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!guard) { loadGuard(); return fail(RETRY_MESSAGES.not_ready) }
+    if (guard.turnstileSiteKey && !turnstileToken && turnstileStatus !== 'error') return fail(RETRY_MESSAGES.check_pending)
+    setStatus('sending')
+    try {
+      const res = await fetch(FORM_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildSubmission(
+          { name: form.name, email: form.email, phone: form.phone || null, message: form.message || null, selected_services: selectedServices },
+          guard,
+          { honeypotValue: honeypotRef.current?.value ?? '', turnstileToken: turnstileToken },
+        )),
+      })
+      const result = await readSubmitResult(res)
+      if (result === 'sent') return setStatus('sent')
+      // A Turnstile token is single use: re-arm the widget for the retry.
+      resetTurnstile()
+      fail(RETRY_MESSAGES[result])
+    } catch {
+      resetTurnstile()
+      fail(RETRY_MESSAGES.error)
+    }
+  }
 
   return (
     <>
@@ -102,23 +162,13 @@ export default function Contact() {
               </div>
             ) : (
             <form
-              onSubmit={async e => {
-                e.preventDefault()
-                setStatus('sending')
-                try {
-                  const res = await fetch(FORM_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: form.name, email: form.email, phone: form.phone || null, message: form.message || null, selected_services: selectedServices }),
-                  })
-                  if (!res.ok) throw new Error()
-                  setStatus('sent')
-                } catch {
-                  setStatus('error')
-                }
-              }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}
+              onSubmit={onSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '18px', position: 'relative' }}
             >
+              <div aria-hidden="true" style={honeypotWrap}>
+                <label htmlFor="company_website">Company website</label>
+                <input ref={honeypotRef} id="company_website" name={guard?.honeypotField ?? 'company_website'} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+              </div>
               {[
                 { id: 'name', label: 'Your Name', type: 'text', placeholder: 'Full name' },
                 { id: 'email', label: 'Email Address', type: 'email', placeholder: 'you@example.com' },
@@ -168,9 +218,14 @@ export default function Contact() {
                   })}
                 </div>
               </div>
+              {guard?.turnstileSiteKey && (
+                // Managed mode: often passes without a click. Reserves the
+                // widget's height so the button does not jump when it appears.
+                <div ref={turnstileRef} className="contact-turnstile" style={{ minHeight: '65px' }} />
+              )}
               {status === 'error' && (
-                <p style={{ fontFamily: F_BODY, fontSize: '13px', color: '#ef4444', margin: 0 }}>
-                  Something went wrong. Please try again or email us at info@studio-808.com
+                <p role="alert" style={{ fontFamily: F_BODY, fontSize: '13px', color: '#ef4444', margin: 0, lineHeight: 1.5 }}>
+                  {errorMsg}
                 </p>
               )}
               <button
