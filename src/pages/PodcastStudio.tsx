@@ -67,7 +67,7 @@ export default function PodcastStudio() {
     <>
       <SEO
         title="Podcast Studio Chelmsford | Podyard | Professional Podcast Recording"
-        description="Podcast recording in Chelmsford at Podyard, Studio 808's sister studio. Professional studio, editing, video podcasts and distribution support."
+        description="Podcast recording in Chelmsford at Podyard, Studio 808's sister studio. Professional filming, editing, video podcasts and social clips."
         canonical="/podcast-studio"
         image="/images/studios/studio4-production-1.jpg"
       />
