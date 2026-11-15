@@ -20,7 +20,7 @@ import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode 
 import { useLocation, useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
 import Headline from '../components/Headline'
-import { FoundingLine, PlanCard, PlanFootnote, TermToggle } from '../components/PlanCards'
+import { DjPlanCard, FoundingLine, PlanCard, PlanFootnote, TermToggle } from '../components/PlanCards'
 import { useFoundingStatus, type FoundingStatus } from '../hooks/useFoundingStatus'
 import { ACCENT, BG, BORDER, BORDER_SM, F_BODY, F_HEAD, MUTED, MUTED_LT, SURF, TEXT, sectionLabel } from '../styles'
 import Reveal from '../components/Reveal'
@@ -30,8 +30,8 @@ import { sanityImageUrl, type SanityImage } from '../lib/sanity'
 import { membershipPageContent, type MembershipImage, type TrackCopy } from '../lib/membershipPageContent.js'
 import { fillMinHours } from '../lib/roomPricing.js'
 import {
-  clock, creditBackLine, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, joinUrl, memberHoursWeek, pickTerm, planSlug,
-  planTerms, planValue, plansForTrack, priceFromLabel, producerRoom, producerSavings,
+  clock, creditBackLine, djCardModel, fillTerms, formatPounds, foundingPriceFor, heroPlanKey, isPrepaid, joinUrl, memberHoursWeek, pickTerm, planSlug,
+  planTerms, planValue, plansForTrack, priceFromLabel, producerRoom, producerSavings, trackShowsFounding,
   type MembershipPlan, type MembershipRoom, type SavingsRow, type Span, type Track,
 } from '../lib/membershipPlans.js'
 
@@ -120,7 +120,7 @@ export default function Membership() {
                 track={track}
                 onSelect={selectTrack}
                 labels={{ dj: c.selector?.djLabel || "I'm a DJ", producer: c.selector?.producerLabel || "I'm a producer" }}
-                prices={plans ? { dj: priceFromLabel(plans.plans, 'dj'), producer: priceFromLabel(plans.plans, 'producer') } : null}
+                prices={plans?.source === 'cue' ? { dj: priceFromLabel(plans.plans, 'dj'), producer: priceFromLabel(plans.plans, 'producer') } : null}
               />
             </div>
           </section>
@@ -148,7 +148,7 @@ export default function Membership() {
 
           {/* Plans */}
           <section id="plans" className="mp-section" style={{ borderBottom: `1px solid ${BORDER}` }}>
-            <div style={{ maxWidth: '920px', margin: '0 auto' }}>
+            <div style={{ maxWidth: track === 'dj' ? '1040px' : '920px', margin: '0 auto' }}>
               <Reveal style={{ textAlign: 'center', marginBottom: '28px' }}>
                 {copy.planLabel && <span style={sectionLabel}>{copy.planLabel}</span>}
                 {copy.planIntro && <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, lineHeight: 1.6, margin: '0 auto', maxWidth: '520px' }}>{copy.planIntro}</p>}
@@ -328,15 +328,20 @@ function PlanList({ track, term, onTerm, plans, copy, founding }: {
     return <p style={{ fontFamily: F_BODY, fontSize: '15px', color: MUTED, textAlign: 'center' }}>No plans are open right now. Check back soon.</p>
   }
 
+  // With Cue unreachable the plans are the Sanity fallback: no live prices,
+  // nothing founding, and each card links to Cue's current prices.
+  const live = plans.source === 'cue'
+  const f: FoundingStatus | null = live ? founding : null
   // The room rate behind "Save £X/mo vs public": the same Cue data as "What
   // members save", so the two always agree, and absent whenever that block is.
-  const rate = plans.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
-  const heroKey = heroPlanKey(plans.plans, track)
+  const rate = live ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
+  const heroKey = heroPlanKey(plans.plans, track, f)
   const terms = planTerms(plans.plans, track)
   const remaining = track === 'dj' ? founding.dj : founding.producer
   const cap = track === 'dj' ? founding.djCap : founding.producerCap
-  // DJ founding is a locked discount; producer founding is recognition at the standard price.
-  const isFounding = track === 'dj' ? list.some(p => foundingPriceFor(p, founding) != null) : remaining !== 0
+  // DJ founding is a locked discount; producer founding is recognition at the
+  // standard price. Either way only while a plan's offer is open in Cue.
+  const isFounding = live && trackShowsFounding(plans.plans, track, f)
 
   const compareClick = (e: MouseEvent<HTMLAnchorElement>) => {
     const target = document.getElementById('savings')
@@ -350,14 +355,14 @@ function PlanList({ track, term, onTerm, plans, copy, founding }: {
     return (
       <PlanCard
         plan={p}
-        price={foundingPriceFor(p, founding) ?? p.monthlyPrice}
-        value={value}
-        creditLine={creditBackLine(copy.creditBackLine, value.credit)}
+        price={live ? foundingPriceFor(p, f) ?? p.monthlyPrice : null}
+        value={live ? value : { perHour: null, saving: null, credit: null }}
+        creditLine={live ? creditBackLine(copy.creditBackLine, value.credit) : ''}
         hero={p.key === heroKey}
         heroLabel={copy.bestValueLabel || 'Best value'}
         joinHref={joinUrl(p.track)}
         joinLabel={copy.joinLabel || 'Join Now'}
-        compare={value.saving != null ? { href: '#savings', label: copy.compareLabel || 'Compare plans', onClick: compareClick } : null}
+        compare={live && value.saving != null ? { href: '#savings', label: copy.compareLabel || 'Compare plans', onClick: compareClick } : null}
       />
     )
   }
@@ -366,6 +371,34 @@ function PlanList({ track, term, onTerm, plans, copy, founding }: {
       {items.map((p, i) => <Reveal key={p.key} index={i}>{card(p)}</Reveal>)}
     </div>
   )
+
+  // DJ plans: one set, rolling first then prepaid terms by length, each card
+  // carrying its own terms line, so the footnote drops the standard terms.
+  if (track === 'dj') {
+    const meterMonths = Math.max(1, ...list.map(p => (isPrepaid(p) ? p.termMonths ?? 1 : Math.max(1, p.commitmentMonths))))
+    return (
+      <div key={track} className="pc-scope pc-fade">
+        <FoundingLine note={isFounding ? copy.foundingPriceNote : null} remaining={remaining} cap={cap} />
+        <div className="pc-set" data-count={list.length}>
+          {list.map((p, i) => (
+            <Reveal key={p.key} index={i}>
+              <DjPlanCard
+                plan={p}
+                model={djCardModel(p, { plans: plans.plans, rooms: plans.rooms, founding: f })!}
+                showPrice={live}
+                meterMonths={meterMonths}
+                hero={live && list.length > 1 && p.key === heroKey}
+                heroLabel={copy.bestValueLabel || 'Best value'}
+                joinHref={joinUrl(p.track)}
+                joinLabel={copy.joinLabel || 'Join Now'}
+              />
+            </Reveal>
+          ))}
+        </div>
+        <PlanFootnote lines={[isFounding ? copy.foundingTerms : '', copy.creditLine]} />
+      </div>
+    )
+  }
 
   return (
     <div key={track} className="pc-scope pc-fade">
@@ -377,7 +410,7 @@ function PlanList({ track, term, onTerm, plans, copy, founding }: {
           <div className="pc-stack">
             {terms.map(m => (
               <div key={m} className={`pc-pane${m === term ? ' pc-pane-on' : ''}`} inert={m !== term}>
-                {grid(list.filter(p => p.commitmentMonths === m))}
+                {grid(list.filter(p => isPrepaid(p) || p.commitmentMonths === m))}
               </div>
             ))}
           </div>

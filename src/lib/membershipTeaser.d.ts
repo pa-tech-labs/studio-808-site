@@ -15,6 +15,9 @@ export interface TeaserModel {
   perksAreSteps: boolean
   founding: { show: boolean; note: string; remaining: number | null; cap: number }
   heroKey: string | null
+  isFounding: boolean
+  /** False with only the Sanity fallback: the card links to Cue's prices instead. */
+  livePrices: boolean
   bestValueLabel: string
   compareLabel: string
   creditBackLine: string
@@ -31,6 +34,7 @@ export declare function teaserPriceLine(
   plans: MembershipPlan[] | null | undefined,
   track: Track,
   founding: Partial<FoundingInfo> | null | undefined,
+  source?: 'cue' | 'sanity',
 ): string
 export declare function teaserPerks(
   copy: TrackCopy | null | undefined,
@@ -44,4 +48,5 @@ export declare function teaserModel(input: {
   plans: MembershipPlan[] | null | undefined
   founding: Partial<FoundingInfo> | null | undefined
   minBookingHours?: number | null
+  source?: 'cue' | 'sanity'
 }): TeaserModel

@@ -40,6 +40,8 @@ test('mapCueTiers maps fields and coerces numeric strings', () => {
   assert.deepEqual(p, {
     key: 'p8-6', track: 'producer', name: 'Producer Membership - 8hrs/mo (6 Month)',
     monthlyPrice: 100, hoursPerMonth: 8, commitmentMonths: 6, foundingPrice: null, monthlyCredit: null, included: [], roomId: null,
+    billingModel: 'subscription', termMonths: null, termPrice: null, creditRollover: false, discountPercent: null, discountRoomIds: [],
+    planFamily: null, foundingOpen: false,
   })
   assert.deepEqual(mapCueTiers(CUE_BODY).find(x => x.key === 'dj').included, ['Cue perk for 808 DJ'])
 })
@@ -189,7 +191,7 @@ const LIVE_STATUS = { cap: 15, taken: 7, remaining: 8, prices: { '808 DJ': 2000,
 
 test('parseFoundingStatus reads counts, caps and prices in pounds', () => {
   assert.deepEqual(parseFoundingStatus(LIVE_STATUS), {
-    dj: 8, producer: 2, djCap: 15, producerCap: 3, prices: { '808 DJ': 20, '808 Resident': 45 },
+    dj: 8, producer: 2, djCap: 15, producerCap: 3, prices: { '808 DJ': 20, '808 Resident': 45 }, plans: {},
   })
 })
 
@@ -204,7 +206,8 @@ test('parseFoundingStatus reads a failed or HTML response as unknown', () => {
 })
 
 test('foundingPriceFor: live price while places remain, stored price while unknown, none when full', () => {
-  const [dj] = mergePlans(mapCueTiers(CUE_BODY), mapSanityTiers(membershipPageContent.tiers)).plans
+  const open = { ...CUE_BODY, tiers: CUE_BODY.tiers.map(t => ({ ...t, founding_offer_open: true })) }
+  const [dj] = mergePlans(mapCueTiers(open), mapSanityTiers(membershipPageContent.tiers)).plans
   assert.equal(dj.name, '808 DJ')
   assert.equal(foundingPriceFor(dj, parseFoundingStatus({ ...LIVE_STATUS, prices: { '808 DJ': 1800 } })), 18)
   assert.equal(foundingPriceFor(dj, parseFoundingStatus(null)), 20, 'unknown keeps the offer, as the founding line does')

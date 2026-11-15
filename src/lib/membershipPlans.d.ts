@@ -14,6 +14,19 @@ export interface MembershipPlan {
   included: string[]
   /** The room a producer plan books into (Cue's room_venue_id), null otherwise. */
   roomId?: string | null
+  /** 'prepaid_term' for a plan paid upfront for a fixed term; absent on Sanity plans. */
+  billingModel?: 'subscription' | 'prepaid_term'
+  /** Prepaid plans: the term in months and its upfront price in pounds. monthlyPrice is the per-month equivalent. */
+  termMonths?: number | null
+  termPrice?: number | null
+  /** Prepaid plans: unused monthly credit carries over until the term ends. */
+  creditRollover?: boolean
+  /** Member discount on room bookings, percent, and the rooms it applies to. */
+  discountPercent?: number | null
+  discountRoomIds?: string[]
+  planFamily?: string | null
+  /** Cue's founding_offer_open: a new joiner can get the founding price now. */
+  foundingOpen?: boolean
 }
 
 /** A tier room from Cue: public rate, opening hours and gated rows. */
@@ -74,6 +87,21 @@ export interface FoundingInfo {
   djCap: number
   producerCap: number
   prices: Record<string, number>
+  /** Per Cue tier id: whether its founding offer is open, and its price in pounds. */
+  plans: Record<string, { open: boolean; price: number | null }>
+}
+
+export interface DjCardModel {
+  prepaid: boolean
+  headline: { amount: string; unit: string }
+  was: string
+  subline: string
+  credit: { amount: string; note: string } | null
+  discount: string
+  perks: string[]
+  saving: string
+  terms: string
+  termMonths: number
 }
 
 export declare const CUE_API_URL: string
@@ -125,7 +153,7 @@ export declare function termLabel(months: number): string
 export declare function planSlug(plan: MembershipPlan | null | undefined): string
 export declare function planTerms(plans: MembershipPlan[] | null | undefined, track: Track): number[]
 export declare function pickTerm(plans: MembershipPlan[] | null | undefined, track: Track, requested: string | number | null | undefined): number
-export declare function heroPlanKey(plans: MembershipPlan[] | null | undefined, track: Track): string | null
+export declare function heroPlanKey(plans: MembershipPlan[] | null | undefined, track: Track, founding?: Partial<FoundingInfo> | null): string | null
 export declare function planValue(
   plan: MembershipPlan | null | undefined,
   rate: number | null | undefined,
@@ -137,3 +165,13 @@ export declare function foundingSummary(
   remaining: number | null,
   cap: number,
 ): { show: boolean; label: string; count: string; taken: number | null; cap: number }
+export declare function isPrepaid(plan: MembershipPlan | null | undefined): boolean
+export declare function foundingOpenFor(plan: MembershipPlan | null | undefined, founding: Partial<FoundingInfo> | null | undefined): boolean
+export declare function trackFoundingOpen(plans: MembershipPlan[] | null | undefined, track: Track, founding: Partial<FoundingInfo> | null | undefined): boolean
+export declare function trackShowsFounding(plans: MembershipPlan[] | null | undefined, track: Track, founding: Partial<FoundingInfo> | null | undefined): boolean
+export declare function roomsPhrase(names: string[] | null | undefined): string
+export declare function rollingCounterpart(plan: MembershipPlan | null | undefined, plans: MembershipPlan[] | null | undefined): MembershipPlan | null
+export declare function djCardModel(
+  plan: MembershipPlan | null | undefined,
+  opts?: { plans?: MembershipPlan[] | null; rooms?: MembershipRoom[] | null; founding?: Partial<FoundingInfo> | null },
+): DjCardModel | null

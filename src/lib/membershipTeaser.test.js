@@ -17,7 +17,10 @@ const CUE_BODY = {
   rooms: [{ id: 's4', name: 'Studio 4', price_per_hour: 55, availability: [], member_hours: [] }],
 }
 const STORED = mapSanityTiers(membershipPageContent.tiers)
-const CUE_PLANS = mergePlans(mapCueTiers(CUE_BODY), STORED, mapCueRooms(CUE_BODY)).plans
+// Every plan's founding offer open, as Cue had it before the offer closed.
+const OPEN_BODY = { ...CUE_BODY, tiers: CUE_BODY.tiers.map(t => ({ ...t, founding_offer_open: t.membership_type !== 'custom' })) }
+const CUE_PLANS = mergePlans(mapCueTiers(OPEN_BODY), STORED, mapCueRooms(CUE_BODY)).plans
+const CLOSED_PLANS = mergePlans(mapCueTiers(CUE_BODY), STORED, mapCueRooms(CUE_BODY)).plans
 const SANITY_PLANS = mergePlans([], STORED).plans
 const LIVE = parseFoundingStatus({ cap: 15, remaining: 8, prices: { '808 DJ': 2000, '808 Resident': 4500 }, producer: { cap: 3, remaining: 2 } })
 const UNKNOWN = parseFoundingStatus(null)
@@ -81,9 +84,23 @@ test('a singleton missing one track falls back to the bundled copy for that trac
   assert.equal(m.eyebrow, membershipPageContent.eyebrow)
 })
 
-test('with Cue down, the price line comes from the Sanity tiers', () => {
-  assert.equal(teaserModel({ track: 'dj', content: null, plans: SANITY_PLANS, founding: UNKNOWN }).priceLine, 'From £20/mo founding, then £25/mo')
-  assert.equal(teaserModel({ track: 'producer', content: null, plans: SANITY_PLANS, founding: UNKNOWN }).priceLine, 'From £100/mo')
+test('with Cue down, the teaser shows no live prices and nothing founding', () => {
+  for (const track of ['dj', 'producer']) {
+    const m = teaserModel({ track, content: null, plans: SANITY_PLANS, founding: LIVE, source: 'sanity' })
+    assert.equal(m.priceLine, '')
+    assert.equal(m.founding.show, false)
+    assert.equal(m.isFounding, false)
+    assert.equal(m.livePrices, false)
+  }
+})
+
+test('with every founding offer closed in Cue, the teaser drops everything founding', () => {
+  for (const track of ['dj', 'producer']) {
+    const m = teaserModel({ track, content: null, plans: CLOSED_PLANS, founding: LIVE })
+    assert.equal(m.founding.show, false, track)
+    assert.equal(m.isFounding, false, track)
+    assert.doesNotMatch(m.priceLine, /founding/, track)
+  }
 })
 
 test('the price line is empty while plans load, and the rest still renders', () => {

@@ -5,6 +5,7 @@
 // foundingSummary). Everything founding disappears at 0 remaining.
 
 import { useEffect, useState } from 'react'
+import { devCueFetch } from '../lib/cueFixtures.js'
 import { foundingStatusUrl, parseFoundingStatus, type FoundingInfo } from '../lib/membershipPlans.js'
 
 // dj / producer: remaining places, null = unknown (fetch failed). Also the
@@ -17,7 +18,8 @@ export function useFoundingStatus(): FoundingStatus {
   const [status, setStatus] = useState<FoundingStatus>(UNKNOWN)
   useEffect(() => {
     let cancelled = false
-    fetch(foundingStatusUrl())
+    const doFetch = (import.meta.env.DEV ? devCueFetch() : null) ?? fetch
+    doFetch(foundingStatusUrl())
       .then(r => (r.ok ? r.json() : null))
       .then(b => {
         if (cancelled || !b) return
