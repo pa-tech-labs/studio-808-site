@@ -5,7 +5,7 @@
 // bundled copy), plans from Cue (or the singleton's tiers).
 
 import { membershipPageContent } from './membershipPageContent.js'
-import { formatPounds, foundingPriceFor, heroPlanKey, joinUrl, plansForTrack } from './membershipPlans.js'
+import { formatPounds, foundingPriceFor, heroPlanKey, joinUrl, plansForTrack, trackShowsFounding } from './membershipPlans.js'
 import { fillMinHours } from './roomPricing.js'
 
 const PERK_COUNT = 3
@@ -18,15 +18,18 @@ export function firstSentence(text) {
 }
 
 /**
- * The teaser's price line. DJ plans show the founding price while it is on
- * offer (the founding rule: unknown keeps it, known-full drops it) next to
- * the standard price. Producer founding is recognition only, so producer
- * plans show the standard price. Empty until there are plans.
+ * The teaser's price line, from the lowest monthly figure (a prepaid plan's
+ * per-month equivalent counts). A DJ plan shows its founding price while its
+ * offer is open (foundingPriceFor) next to the standard price. Producer
+ * founding is recognition only, so producer plans show the standard price.
+ * Empty until there are plans, and with only the Sanity fallback (no live
+ * prices to show).
  */
-export function teaserPriceLine(plans, track, founding) {
+export function teaserPriceLine(plans, track, founding, source = 'cue') {
   const list = plansForTrack(plans, track)
-  if (list.length === 0) return ''
-  const cheapest = list.reduce((a, b) => (b.monthlyPrice < a.monthlyPrice ? b : a))
+  if (list.length === 0 || source !== 'cue') return ''
+  const effective = p => foundingPriceFor(p, founding) ?? p.monthlyPrice
+  const cheapest = list.reduce((a, b) => (effective(b) < effective(a) ? b : a))
   const from = list.length > 1 ? 'From ' : ''
   const standard = `${formatPounds(cheapest.monthlyPrice)}/mo`
   const founder = foundingPriceFor(cheapest, founding)
@@ -60,30 +63,36 @@ export function teaserPerksAreSteps(copy) {
  * (null or undefined reads as the bundled copy); `plans` may be empty while
  * Cue is loading. `minBookingHours` (Cue's) fills {minHours} in the perks. An unknown track reads as DJ, like /membership's ?type=.
  */
-export function teaserModel({ track, content, plans, founding, minBookingHours = null }) {
+export function teaserModel({ track, content, plans, founding, minBookingHours = null, source = 'cue' }) {
   const t = track === 'producer' ? 'producer' : 'dj'
   const c = content ?? membershipPageContent
   const copy = c[t] ?? membershipPageContent[t]
   const remaining = t === 'dj' ? founding?.dj ?? null : founding?.producer ?? null
+  // Nothing founding without Cue's live plans, or once no plan's offer is open.
+  const f = source === 'cue' ? founding : null
+  const showFounding = source === 'cue' && trackShowsFounding(plans, t, f)
   return {
     track: t,
     eyebrow: c.eyebrow || membershipPageContent.eyebrow,
     heading: copy.heading || membershipPageContent[t].heading,
     intro: firstSentence(copy.intro || membershipPageContent[t].intro),
-    priceLine: teaserPriceLine(plans, t, founding),
+    priceLine: teaserPriceLine(plans, t, f, source),
     creditLine: copy.creditLine || '',
     // {minHours} in a perk is Cue's minimum booking length ("2 hours").
     perks: teaserPerks(copy, plans, t).map(p => ({ title: fillMinHours(p.title, minBookingHours), body: fillMinHours(p.body, minBookingHours) })),
     perksAreSteps: teaserPerksAreSteps(copy),
     // The one founding line, as on /membership: the note, then the places left.
     founding: {
-      show: remaining !== 0 && Boolean(copy.foundingPriceNote),
+      show: showFounding && Boolean(copy.foundingPriceNote),
       note: copy.foundingPriceNote || '',
       remaining,
       cap: t === 'dj' ? founding?.djCap ?? 15 : founding?.producerCap ?? 3,
     },
     /** The plan the teaser shows as a card: /membership's "Best value" plan. */
-    heroKey: heroPlanKey(plans, t),
+    heroKey: heroPlanKey(plans, t, f),
+    /** Whether the founding terms replace the standard terms under the card. */
+    isFounding: showFounding,
+    livePrices: source === 'cue',
     bestValueLabel: copy.bestValueLabel || membershipPageContent[t].bestValueLabel,
     compareLabel: copy.compareLabel || membershipPageContent[t].compareLabel,
     creditBackLine: copy.creditBackLine || membershipPageContent[t].creditBackLine || '',

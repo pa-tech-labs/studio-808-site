@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getMembershipPage } from '../lib/sanity'
 import { membershipPageContent, type MembershipPageContent } from '../lib/membershipPageContent.js'
+import { devCueFetch } from '../lib/cueFixtures.js'
 import { fetchCueMembership, mapSanityTiers, mergePlans, type MembershipPlan, type MembershipRoom } from '../lib/membershipPlans.js'
 
 // Membership copy and plans, shared by /membership and the studio pages'
@@ -25,6 +26,12 @@ export type MembershipPlans = {
 
 const SANITY_WAIT_MS = 3000
 
+/** Dev builds: ?cue-fixture=<name> answers Cue from lib/cueFixtures.js. */
+function devFetchOpts() {
+  const fetchImpl = import.meta.env.DEV ? devCueFetch() : null
+  return fetchImpl ? { fetchImpl } : undefined
+}
+
 let contentPromise: Promise<MembershipPageContent> | null = null
 let plansPromise: Promise<MembershipPlans> | null = null
 let settledContent: MembershipPageContent | undefined
@@ -35,7 +42,7 @@ function load() {
     const cap = new Promise<null>(resolve => setTimeout(() => resolve(null), SANITY_WAIT_MS))
     const doc = Promise.race([getMembershipPage().catch(() => null), cap])
     contentPromise = doc.then(d => (settledContent = d ?? membershipPageContent))
-    plansPromise = Promise.all([doc, fetchCueMembership()]).then(([d, cue]) => {
+    plansPromise = Promise.all([doc, fetchCueMembership(devFetchOpts())]).then(([d, cue]) => {
       const stored = d?.tiers?.length ? d.tiers : membershipPageContent.tiers
       const merged = mergePlans(cue.plans, mapSanityTiers(stored), cue.rooms)
       if (import.meta.env.DEV && merged.source === 'sanity') console.info('[membership] Cue tiers unavailable, showing Sanity tiers')

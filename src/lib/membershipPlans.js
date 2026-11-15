@@ -65,23 +65,53 @@ export function mapCueTiers(body) {
   for (const t of tiers) {
     if (!t || !isTrack(t.membership_type)) continue
     const name = typeof t.name === 'string' ? t.name.trim() : ''
-    const monthlyPrice = toNumber(t.monthly_price)
+    const term = prepaidTerm(t)
+    // A prepaid plan's price is its upfront term price; its monthly figure is
+    // the per-month equivalent, whatever monthly_price holds.
+    const monthlyPrice = term ? term.perMonth : toNumber(t.monthly_price)
     if (!name || !(monthlyPrice > 0)) continue
+    if (t.billing_model === 'prepaid_term' && !term) continue
+    if (t.billing_model === 'one_off_pass') continue
     plans.push({
       key: typeof t.id === 'string' && t.id ? t.id : `${t.membership_type}-${nameKey(name)}`,
       track: t.membership_type,
       name,
       monthlyPrice,
       hoursPerMonth: Math.max(0, toNumber(t.hours_per_month) || 0),
-      commitmentMonths: Math.max(0, toNumber(t.commitment_months) || 0),
+      commitmentMonths: term ? 0 : Math.max(0, toNumber(t.commitment_months) || 0),
       foundingPrice: null,
       // Booking credit each month in pounds (Cue sends pence), null when none.
       monthlyCredit: toNumber(t.monthly_credit_pence) > 0 ? toNumber(t.monthly_credit_pence) / 100 : null,
       included: cleanList(t.perks),
       roomId: typeof t.room_venue_id === 'string' && t.room_venue_id ? t.room_venue_id : null,
+      billingModel: term ? 'prepaid_term' : 'subscription',
+      termMonths: term ? term.months : null,
+      termPrice: term ? term.price : null,
+      creditRollover: Boolean(term) && t.credit_rollover === true,
+      discountPercent: toNumber(t.member_discount_percent) > 0 ? toNumber(t.member_discount_percent) : null,
+      discountRoomIds: toNumber(t.member_discount_percent) > 0 ? cleanList(t.member_discount_room_ids) : [],
+      planFamily: typeof t.plan_family === 'string' && t.plan_family.trim() ? t.plan_family.trim() : null,
+      // Whether a new joiner can get this plan's founding price right now.
+      // Absent (a Cue that predates the flag) reads as closed.
+      foundingOpen: t.founding_offer_open === true,
     })
   }
   return plans
+}
+
+/**
+ * A prepaid term plan's months, upfront price and per-month equivalent, all
+ * in pounds, or null for any other plan. The per-month figure is Cue's
+ * per_month_equivalent_pence, else the term price over the months.
+ */
+function prepaidTerm(t) {
+  if (t?.billing_model !== 'prepaid_term') return null
+  const months = toNumber(t.term_months)
+  const pricePence = toNumber(t.term_price_pence)
+  if (!Number.isInteger(months) || months < 1 || !(pricePence > 0)) return null
+  const eqPence = toNumber(t.per_month_equivalent_pence)
+  const perMonthPence = eqPence > 0 ? eqPence : Math.round(pricePence / months)
+  return { months, price: pricePence / 100, perMonth: perMonthPence / 100 }
 }
 
 const HHMM = /^\d{2}:\d{2}/
@@ -218,11 +248,19 @@ export async function loadPlans({ sanityTiers, ...opts } = {}) {
   return mergePlans(plans, mapSanityTiers(sanityTiers), rooms)
 }
 
-/** One track's plans in display order: by commitment, then hours, then price. */
+export const isPrepaid = plan => plan?.billingModel === 'prepaid_term'
+
+/**
+ * One track's plans in display order: rolling and minimum-term plans first
+ * (by commitment, then hours, then price), then prepaid term plans by length.
+ */
 export function plansForTrack(plans, track) {
   return (plans ?? [])
     .filter(p => p.track === track)
-    .sort((a, b) => a.commitmentMonths - b.commitmentMonths || a.hoursPerMonth - b.hoursPerMonth || a.monthlyPrice - b.monthlyPrice)
+    .sort((a, b) =>
+      Number(isPrepaid(a)) - Number(isPrepaid(b))
+      || (a.termMonths ?? 0) - (b.termMonths ?? 0)
+      || a.commitmentMonths - b.commitmentMonths || a.hoursPerMonth - b.hoursPerMonth || a.monthlyPrice - b.monthlyPrice)
 }
 
 /** £25, £16.25: whole pounds without pence. */
@@ -232,7 +270,11 @@ export function formatPounds(amount) {
   return Number.isInteger(n) ? `£${n}` : `£${n.toFixed(2)}`
 }
 
-/** The selector's price line for a track: "£25/mo", or "from £100/mo" when prices differ. */
+/**
+ * The selector's price line for a track: the lowest per-month equivalent
+ * across its plans ("£22/mo" for a 6-month plan at £132), "from" when the
+ * plans' monthly figures differ.
+ */
 export function priceFromLabel(plans, track) {
   const prices = plansForTrack(plans, track).map(p => p.monthlyPrice)
   if (prices.length === 0) return ''
@@ -262,27 +304,67 @@ export function parseFoundingStatus(body) {
       if (n > 0) prices[name] = n / 100
     }
   }
+  // Per plan, by Cue tier id: is the offer open to new joiners, and its price
+  // in pounds (null when closed or none).
+  const plans = {}
+  for (const p of Array.isArray(body?.plans) ? body.plans : []) {
+    if (!p || typeof p.id !== 'string' || !p.id) continue
+    const pence = toNumber(p.founding_price_pence)
+    plans[p.id] = { open: p.founding_offer_open === true, price: p.founding_offer_open === true && pence > 0 ? pence / 100 : null }
+  }
   return {
     dj: remaining(body?.remaining),
     producer: remaining(body?.producer?.remaining),
     djCap: cap(body?.cap, DEFAULT_CAPS.dj),
     producerCap: cap(body?.producer?.cap, DEFAULT_CAPS.producer),
     prices,
+    plans,
   }
 }
 
 /**
+ * Whether a plan's founding offer is open to new joiners: founding-status's
+ * per-plan answer when it gave one, else the tiers endpoint's
+ * founding_offer_open on the plan. A plan from the Sanity fallback never has
+ * an open offer, so the fallback shows nothing founding.
+ */
+export function foundingOpenFor(plan, founding) {
+  if (!plan) return false
+  const live = founding?.plans?.[plan.key]
+  return live ? live.open : plan.foundingOpen === true
+}
+
+/** True when any of the track's plans has its founding offer open. */
+export function trackFoundingOpen(plans, track, founding) {
+  return plansForTrack(plans, track).some(p => foundingOpenFor(p, founding))
+}
+
+/**
  * The founding price to show on a DJ plan, or null for the standard price.
- * Follows the founding line's rule: the offer shows unless the pool is KNOWN to
- * be full (remaining 0); unknown keeps it. Cue's live price wins over the
- * Sanity-stored one. Producer founding is recognition only, never a discount.
+ * Only while the plan's offer is open (foundingOpenFor), and not once the
+ * pool is KNOWN to be full (remaining 0); an unknown count keeps it. Cue's
+ * live price wins over the Sanity-stored one. Producer founding is
+ * recognition only, never a discount, and a prepaid term plan has no
+ * founding price (it is one upfront payment, not a monthly one).
  */
 export function foundingPriceFor(plan, founding) {
-  if (!plan || plan.track !== 'dj') return null
+  if (!plan || plan.track !== 'dj' || isPrepaid(plan)) return null
+  if (!foundingOpenFor(plan, founding)) return null
   if (founding?.dj === 0) return null
-  const live = founding?.prices?.[plan.name]
-  const price = live > 0 ? live : plan.foundingPrice
+  const byId = founding?.plans?.[plan.key]?.price
+  const byName = founding?.prices?.[plan.name]
+  const price = byId > 0 ? byId : byName > 0 ? byName : plan.foundingPrice
   return price > 0 && price < plan.monthlyPrice ? price : null
+}
+
+/**
+ * Whether the track's founding line and founding terms show: DJ while any
+ * plan shows a founding price, producer (recognition, no discount) while any
+ * producer plan's offer is open and the pool is not known to be full.
+ */
+export function trackShowsFounding(plans, track, founding) {
+  if (track === 'dj') return plansForTrack(plans, 'dj').some(p => foundingPriceFor(p, founding) != null)
+  return trackFoundingOpen(plans, 'producer', founding) && founding?.producer !== 0
 }
 
 /** Fills "{months}" in a Sanity terms line with the plan's commitment. */
@@ -431,7 +513,7 @@ export function planSlug(plan) {
 
 /** A track's minimum terms in months, shortest first: [3, 6] for producers, [0] for DJs. */
 export function planTerms(plans, track) {
-  return [...new Set(plansForTrack(plans, track).map(p => p.commitmentMonths))].sort((a, b) => a - b)
+  return [...new Set(plansForTrack(plans, track).filter(p => !isPrepaid(p)).map(p => p.commitmentMonths))].sort((a, b) => a - b)
 }
 
 /**
@@ -448,9 +530,10 @@ export function pickTerm(plans, track, requested) {
 /**
  * The one plan per track that gets the "Best value" treatment. Producer: the
  * 6-month 8-hour plan when there is one, else the lowest hourly rate (longest
- * term first). DJ: the entry plan, the cheapest.
+ * term first). DJ: the lowest per-month cost, the founding price counting
+ * while it is on offer; on a tie, the longer term.
  */
-export function heroPlanKey(plans, track) {
+export function heroPlanKey(plans, track, founding = null) {
   const list = plansForTrack(plans, track)
   if (list.length === 0) return null
   if (track === 'producer') {
@@ -459,7 +542,9 @@ export function heroPlanKey(plans, track) {
         .sort((a, b) => a.monthlyPrice / a.hoursPerMonth - b.monthlyPrice / b.hoursPerMonth || b.commitmentMonths - a.commitmentMonths)[0]
     return pick?.key ?? null
   }
-  return list.reduce((a, b) => (b.monthlyPrice < a.monthlyPrice ? b : a)).key
+  const perMonth = p => foundingPriceFor(p, founding) ?? p.monthlyPrice
+  const months = p => p.termMonths ?? p.commitmentMonths
+  return list.reduce((a, b) => (perMonth(b) < perMonth(a) || (perMonth(b) === perMonth(a) && months(b) > months(a)) ? b : a)).key
 }
 
 /**
@@ -498,4 +583,93 @@ export function foundingSummary(note, remaining, cap) {
   if (remaining == null || !(cap > 0)) return { show: true, label, count: '', taken: null, cap }
   const left = Math.min(remaining, cap)
   return { show: true, label, count: `${left} of ${cap} places left`, taken: cap - left, cap }
+}
+
+// ── DJ plan cards: rolling and prepaid term ──────────────────────────────────
+
+/** "Studio 1", "Studios 1, 2 and 3", "Studio 4 and The Loft": room names as one phrase. */
+export function roomsPhrase(names) {
+  const list = (Array.isArray(names) ? names : []).map(n => String(n ?? '').trim()).filter(Boolean)
+  if (list.length === 0) return ''
+  const join = parts => (parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`)
+  const nums = list.map(n => n.match(/^Studio\s+(\S+)$/i)?.[1])
+  if (list.length > 1 && nums.every(Boolean)) return `Studios ${join(nums)}`
+  return join(list)
+}
+
+/**
+ * The rolling plan a prepaid plan is measured against: the one in the same
+ * plan family, else the one with the same monthly credit, else the cheapest
+ * rolling plan of the track. Null when the track has no rolling plan.
+ */
+export function rollingCounterpart(plan, plans) {
+  const rolling = plansForTrack(plans, plan?.track).filter(p => !isPrepaid(p) && p.commitmentMonths === 0)
+  if (!plan || rolling.length === 0) return null
+  return (plan.planFamily && rolling.find(p => p.planFamily === plan.planFamily))
+    ?? (plan.monthlyCredit > 0 && rolling.find(p => p.monthlyCredit === plan.monthlyCredit))
+    ?? rolling.reduce((a, b) => (b.monthlyPrice < a.monthlyPrice ? b : a))
+}
+
+/**
+ * Everything a DJ plan card says, from the plan's own data. `rooms` names the
+ * discount rooms; `founding` decides the founding price. Prices in pounds.
+ *
+ *   headline  { amount, unit }   "£25" "/mo", or "£75" "for 3 months"
+ *   was       the struck-through standard price while a founding price shows
+ *   subline   "£25 a month, paid upfront" on a prepaid plan
+ *   credit    { amount: "£25 booking credit every month", note }
+ *   discount  "10% off every booking in Studios 1, 2 and 3"
+ *   perks     the plan's perks from Cue, minus its credit line (shown above)
+ *   saving    "Save £18 against monthly over 6 months"
+ *   terms     "Monthly rolling. Cancel anytime." or the prepaid terms
+ *   termMonths  months the plan covers (1 for rolling), for the term meter
+ */
+export function djCardModel(plan, { plans = [], rooms = [], founding = null } = {}) {
+  if (!plan) return null
+  const prepaid = isPrepaid(plan)
+  const founder = foundingPriceFor(plan, founding)
+  const credit = plan.monthlyCredit > 0
+    ? {
+        amount: `${formatPounds(plan.monthlyCredit)} booking credit every month`,
+        note: plan.creditRollover ? 'Unused credit rolls over until your term ends' : 'Unused credit expires each month',
+      }
+    : null
+  const roomName = id => (Array.isArray(rooms) ? rooms : []).find(r => r.id === id)?.name ?? ''
+  const where = roomsPhrase((plan.discountRoomIds ?? []).map(roomName))
+  const discount = plan.discountPercent > 0
+    ? `${plan.discountPercent}% off every booking${where ? ` in ${where}` : ''}`
+    : ''
+
+  let saving = ''
+  if (prepaid) {
+    const base = rollingCounterpart(plan, plans)
+    if (base) {
+      const baseMonthly = foundingPriceFor(base, founding) ?? base.monthlyPrice
+      const save = pence(baseMonthly * plan.termMonths - plan.termPrice)
+      if (save > 0 && plan.monthlyPrice < baseMonthly) saving = `Save ${formatPounds(save)} against monthly over ${plan.termMonths} months`
+    }
+  }
+
+  // The rolling plan's terms line gives way to the founding terms in the
+  // footnote while it shows a founding price (founding members have an
+  // initial term), exactly as the page read before term plans.
+  const terms = prepaid
+    ? 'Paid upfront for the full term. Does not renew automatically.'
+    : founder != null ? ''
+      : plan.commitmentMonths > 0 ? `${plan.commitmentMonths}-month minimum, then monthly rolling.` : 'Monthly rolling. Cancel anytime.'
+
+  return {
+    prepaid,
+    headline: prepaid
+      ? { amount: formatPounds(plan.termPrice), unit: `for ${plan.termMonths} months` }
+      : { amount: formatPounds(founder ?? plan.monthlyPrice), unit: '/mo' },
+    was: founder != null ? formatPounds(plan.monthlyPrice) : '',
+    subline: prepaid ? `${formatPounds(plan.monthlyPrice)} a month, paid upfront` : '',
+    credit,
+    discount,
+    perks: plan.included.filter(line => !/credit/i.test(line)),
+    saving,
+    terms,
+    termMonths: prepaid ? plan.termMonths : Math.max(1, plan.commitmentMonths),
+  }
 }

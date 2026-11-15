@@ -7,8 +7,8 @@
 import type { CSSProperties, MouseEvent } from 'react'
 import { useInView } from '../hooks/useInView'
 import {
-  formatPounds, foundingSummary, planDisplayName, planSlug, termLabel,
-  type MembershipPlan,
+  CUE_MEMBERSHIP_URL, formatPounds, foundingSummary, planDisplayName, planSlug, termLabel,
+  type DjCardModel, type MembershipPlan,
 } from '../lib/membershipPlans.js'
 import './PlanCards.css'
 
@@ -16,8 +16,9 @@ export type PlanValue = { perHour: number | null; saving: number | null; credit:
 
 export function PlanCard({ plan, price, value, creditLine, hero, heroLabel, joinHref, joinLabel, compare }: {
   plan: MembershipPlan
-  /** The price shown: the founding price while it is on offer, else the standard one. */
-  price: number
+  /** The price shown: the founding price while it is on offer, else the standard one.
+   *  Null when Cue could not be reached: the card links to Cue's live prices instead. */
+  price: number | null
   value: PlanValue
   /** The DJ card's line under the price, "£25 credit back every month, ...". */
   creditLine?: string
@@ -30,7 +31,7 @@ export function PlanCard({ plan, price, value, creditLine, hero, heroLabel, join
 }) {
   const title = planDisplayName(plan)
   const term = termLabel(plan.commitmentMonths)
-  const discounted = price < plan.monthlyPrice
+  const discounted = price != null && price < plan.monthlyPrice
   const titleId = `${planSlug(plan)}-title`
   return (
     <article id={planSlug(plan)} className={`pc-card${hero ? ' pc-hero' : ''}`} aria-labelledby={titleId}>
@@ -40,11 +41,13 @@ export function PlanCard({ plan, price, value, creditLine, hero, heroLabel, join
         {term && <span className="pc-term">{term}</span>}
       </div>
 
-      <p className="pc-price">
-        <span className="pc-amount">{formatPounds(price)}</span>
-        <span className="pc-per">/mo</span>
-        {discounted && <span className="pc-was"><span className="pc-sr">Standard price </span>{formatPounds(plan.monthlyPrice)}</span>}
-      </p>
+      {price == null ? <PricesLink /> : (
+        <p className="pc-price">
+          <span className="pc-amount">{formatPounds(price)}</span>
+          <span className="pc-per">/mo</span>
+          {discounted && <span className="pc-was"><span className="pc-sr">Standard price </span>{formatPounds(plan.monthlyPrice)}</span>}
+        </p>
+      )}
       {(value.perHour != null || value.saving != null || creditLine) && (
         <p className="pc-value">
           {value.perHour != null && <span className="pc-rate">{formatPounds(value.perHour)}/hr <span>effective</span></span>}
@@ -73,6 +76,89 @@ export function PlanCard({ plan, price, value, creditLine, hero, heroLabel, join
         {compare && <a href={compare.href} className="pc-compare" onClick={compare.onClick}>{compare.label}</a>}
       </div>
     </article>
+  )
+}
+
+/** In place of a price when Cue's live prices could not be loaded. */
+function PricesLink() {
+  return (
+    <p className="pc-price pc-price-off">
+      <a href={CUE_MEMBERSHIP_URL} className="pc-prices-link">See current prices</a>
+    </p>
+  )
+}
+
+/**
+ * A DJ plan card, one of a set: rolling monthly or prepaid for a term. Every
+ * line comes from djCardModel (lib/membershipPlans.js), so nothing here knows
+ * a plan's name or price. `price` false (Cue unreachable) swaps the price
+ * block for the "See current prices" link. The meter along the top shows the
+ * months the plan covers out of the longest term on offer.
+ */
+export function DjPlanCard({ plan, model, showPrice, meterMonths, hero, heroLabel, joinHref, joinLabel }: {
+  plan: MembershipPlan
+  model: DjCardModel
+  showPrice: boolean
+  meterMonths: number
+  hero: boolean
+  heroLabel: string
+  joinHref: string
+  joinLabel: string
+}) {
+  const titleId = `${planSlug(plan)}-title`
+  const covered = Math.min(model.termMonths, meterMonths)
+  const termText = model.prepaid ? `${model.termMonths} months, paid once` : 'Month to month'
+  return (
+    <article id={planSlug(plan)} className={`pc-card pc-dj${hero ? ' pc-hero' : ''}`} aria-labelledby={titleId}>
+      <div className="pc-dj-top">
+        <div className="pc-meter" aria-hidden="true" style={{ '--n': meterMonths } as CSSProperties}>
+          {Array.from({ length: meterMonths }, (_, i) => (
+            <span key={i} className={i < covered ? 'pc-on' : model.prepaid ? undefined : 'pc-repeat'} style={{ '--i': i } as CSSProperties} />
+          ))}
+        </div>
+        {hero && heroLabel && <span className="pc-best pc-best-inline">{heroLabel}</span>}
+      </div>
+      <p className="pc-dj-term">{termText}</p>
+      <h3 id={titleId} className="pc-title">{plan.name}</h3>
+
+      {showPrice ? (
+        <div className="pc-dj-price">
+          <p className="pc-price">
+            <span className="pc-amount">{model.headline.amount}</span>
+            <span className="pc-per">{model.headline.unit}</span>
+            {model.was && <span className="pc-was"><span className="pc-sr">Standard price </span>{model.was}</span>}
+          </p>
+          {model.subline && <p className="pc-dj-sub">{model.subline}</p>}
+        </div>
+      ) : <PricesLink />}
+
+      <ul className="pc-perks pc-dj-perks">
+        {model.credit && (
+          <li className="pc-dj-credit">
+            <Check />
+            <span><strong>{model.credit.amount}</strong><span className="pc-sr">. </span><span className="pc-dj-note">{model.credit.note}</span></span>
+          </li>
+        )}
+        {model.discount && <li className="pc-dj-credit"><Check /><span><strong>{model.discount}</strong></span></li>}
+        {model.perks.map(item => <li key={item}><Check />{item}</li>)}
+      </ul>
+
+      <div className="pc-actions">
+        {showPrice && model.saving && <p className="pc-dj-saving">{model.saving}</p>}
+        {model.terms && <p className="pc-dj-terms">{model.terms}</p>}
+        <a href={joinHref} className="pc-join">
+          {joinLabel}<span className="pc-sr">: {plan.name}</span>
+        </a>
+      </div>
+    </article>
+  )
+}
+
+function Check() {
+  return (
+    <span className="pc-check" aria-hidden="true">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.2 5 8.6l4.5-5" /></svg>
+    </span>
   )
 }
 

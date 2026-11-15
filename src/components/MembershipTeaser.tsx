@@ -7,11 +7,11 @@
 import type { MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Headline from './Headline'
-import { FoundingLine, PlanCard, PlanFootnote } from './PlanCards'
+import { DjPlanCard, FoundingLine, PlanCard, PlanFootnote } from './PlanCards'
 import { useFoundingStatus } from '../hooks/useFoundingStatus'
 import { useMembershipData } from '../hooks/useMembershipData'
 import { teaserModel } from '../lib/membershipTeaser.js'
-import { creditBackLine, fillTerms, foundingPriceFor, planValue, producerRoom, type Track } from '../lib/membershipPlans.js'
+import { creditBackLine, djCardModel, fillTerms, foundingPriceFor, isPrepaid, planValue, producerRoom, type Track } from '../lib/membershipPlans.js'
 import { BG, BORDER, F_BODY, MUTED, MUTED_LT, TEXT, btnSecondary, sectionLabel } from '../styles'
 
 export default function MembershipTeaser({ track }: { track: Track }) {
@@ -22,13 +22,14 @@ export default function MembershipTeaser({ track }: { track: Track }) {
   // Holds its space while the copy loads so the page does not jump.
   if (!content) return <section className="section" style={{ background: BG, borderBottom: `1px solid ${BORDER}`, minHeight: '480px' }} aria-busy="true" />
 
-  const m = teaserModel({ track, content, plans: plans?.plans, founding, minBookingHours: plans?.minBookingHours })
+  const m = teaserModel({ track, content, plans: plans?.plans, founding, minBookingHours: plans?.minBookingHours, source: plans?.source })
   const plan = plans?.plans.find(p => p.key === m.heroKey)
   // The same room rate as /membership's "What members save", so the numbers match.
   const rate = plans?.source === 'cue' ? producerRoom(plans.plans, plans.rooms)?.rate ?? null : null
   const value = plan ? planValue(plan, rate) : null
-  const foundingPrice = plan ? foundingPriceFor(plan, founding) : null
-  const isFounding = m.track === 'dj' ? foundingPrice != null : m.founding.remaining !== 0
+  const live = m.livePrices
+  const foundingPrice = plan && live ? foundingPriceFor(plan, founding) : null
+  const isFounding = m.isFounding
   const compareHref = `${m.seeHref}#savings`
   const goCompare = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -79,18 +80,32 @@ export default function MembershipTeaser({ track }: { track: Track }) {
 
         <div className="mt-plan">
           {m.founding.show && <FoundingLine note={m.founding.note} remaining={m.founding.remaining} cap={m.founding.cap} />}
-          {plan && value ? (
+          {plan && value && m.track === 'dj' ? (
             <div className="pc-fade">
-              <PlanCard
+              <DjPlanCard
                 plan={plan}
-                price={foundingPrice ?? plan.monthlyPrice}
-                value={value}
-                creditLine={creditBackLine(m.creditBackLine, value.credit)}
+                model={djCardModel(plan, { plans: plans?.plans, rooms: plans?.rooms, founding: live ? founding : null })!}
+                showPrice={live}
+                meterMonths={Math.max(1, ...(plans?.plans ?? []).filter(p => p.track === 'dj').map(p => (isPrepaid(p) ? p.termMonths ?? 1 : Math.max(1, p.commitmentMonths))))}
                 hero
                 heroLabel={m.bestValueLabel}
                 joinHref={m.joinHref}
                 joinLabel={m.planJoinLabel}
-                compare={value.saving != null ? { href: compareHref, label: m.compareLabel, onClick: goCompare } : null}
+              />
+              <PlanFootnote lines={[isFounding ? m.foundingTerms : '', m.creditLine]} />
+            </div>
+          ) : plan && value ? (
+            <div className="pc-fade">
+              <PlanCard
+                plan={plan}
+                price={live ? foundingPrice ?? plan.monthlyPrice : null}
+                value={live ? value : { perHour: null, saving: null, credit: null }}
+                creditLine={live ? creditBackLine(m.creditBackLine, value.credit) : ''}
+                hero
+                heroLabel={m.bestValueLabel}
+                joinHref={m.joinHref}
+                joinLabel={m.planJoinLabel}
+                compare={live && value.saving != null ? { href: compareHref, label: m.compareLabel, onClick: goCompare } : null}
               />
               <PlanFootnote lines={[fillTerms(isFounding ? m.foundingTerms : m.terms, plan), m.creditLine]} />
             </div>

@@ -303,3 +303,83 @@
 }
 
 .pc-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ── DJ plans: a set of up to three, rolling first, then terms by length ──
+ *
+ * Each card opens with a term meter: one segment per month of the longest
+ * term on offer, filled for the months the plan covers. The rolling plan
+ * fills one and leaves the rest dashed (it repeats, month by month); a
+ * prepaid plan fills its term. So the set reads left to right as 1, 3, 6
+ * months, and the lead (the lowest per-month cost, "Best value") carries the
+ * coral panel and sits raised. Coral stays on prices, Join and the pill. */
+
+.pc-set { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
+.pc-set > * { display: flex; flex-direction: column; }
+
+.pc-dj-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 26px; margin: 0 0 14px; }
+.pc-meter { display: grid; grid-template-columns: repeat(var(--n, 6), 1fr); gap: 4px; flex: 1; max-width: 168px; }
+.pc-meter > span { height: 6px; border-radius: 999px; background: rgba(240, 237, 232, 0.1); }
+.pc-meter > .pc-on { background: var(--pc-cream); transform-origin: left center; }
+.pc-hero .pc-meter > .pc-on { background: var(--pc-coral); }
+.pc-meter > .pc-repeat { background: none; border: 1px dashed rgba(240, 237, 232, 0.22); height: 6px; box-sizing: border-box; }
+.rv-in .pc-meter > .pc-on { animation: pc-meter-fill 520ms var(--pc-ease) both; animation-delay: calc(var(--i, 0) * 60ms + 200ms); }
+@keyframes pc-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.pc-best-inline { position: static; flex-shrink: 0; }
+.pc-hero .pc-dj-top + .pc-dj-term + .pc-title { padding-right: 0; }
+.pc-dj-term { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--pc-muted); }
+.pc-dj .pc-title { margin: 0 0 16px; font-size: 20px; }
+
+.pc-dj-price { min-height: 0; }
+.pc-dj .pc-amount { font-size: 48px; }
+.pc-dj.pc-hero .pc-amount { font-size: 56px; color: var(--pc-coral-text); }
+.pc-dj .pc-per { font-family: var(--pc-serif); font-style: italic; font-size: 20px; color: rgba(240, 237, 232, 0.8); }
+.pc-dj-sub { margin: 8px 0 0; font-size: 14px; color: var(--pc-muted); }
+
+.pc-dj-perks { margin: 22px 0 22px; }
+.pc-dj-credit strong { display: block; font-weight: 700; color: var(--pc-cream); }
+.pc-dj-note { display: block; margin-top: 2px; font-size: 14px; color: var(--pc-muted); }
+
+.pc-dj .pc-actions { gap: 0; }
+.pc-dj-saving {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(240, 237, 232, 0.16);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--pc-cream);
+}
+.pc-dj-terms { margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: var(--pc-muted); }
+
+.pc-price-off { margin: 4px 0 0; }
+.pc-prices-link {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pc-cream);
+  text-decoration: underline;
+  text-decoration-color: rgba(240, 237, 232, 0.35);
+  text-underline-offset: 5px;
+}
+
+@media (min-width: 640px) {
+  .pc-set[data-count='2'], .pc-set[data-count='4'] { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .pc-set .pc-hero { transform: translateY(-8px); }
+}
+@media (min-width: 900px) {
+  .pc-set[data-count='3'], .pc-set[data-count='5'], .pc-set[data-count='6'] { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .pc-set .pc-dj { padding: 30px 24px 24px; }
+  /* Room for the "paid upfront" line on every card, so the perk rows line up across the set. */
+  .pc-set[data-count='3'] .pc-dj-price { min-height: 86px; }
+}
+@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+  .pc-set .pc-hero:hover { transform: translateY(-12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv-in .pc-meter > .pc-on { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) and (min-width: 640px) {
+  .pc-set .pc-hero, .pc-set .pc-hero:hover { transform: translateY(-8px); }
+}
+.pc-dj .pc-check { background: rgba(240, 237, 232, 0.06); border-color: rgba(240, 237, 232, 0.2); color: var(--pc-cream); }
